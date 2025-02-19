@@ -1,41 +1,56 @@
-# **************************************************************************** #
-#                                                                              #
-#                                                         :::      ::::::::    #
-#    Makefile                                           :+:      :+:    :+:    #
-#                                                     +:+ +:+         +:+      #
-#    By: cblonde <cblonde@student.42.fr>            +#+  +:+       +#+         #
-#                                                 +#+#+#+#+#+   +#+            #
-#    Created: 2025/02/19 06:52:36 by cblonde           #+#    #+#              #
-#    Updated: 2025/02/19 07:02:48 by cblonde          ###   ########.fr        #
-#                                                                              #
-# **************************************************************************** #
-
-CC = c++
-
-CFLAGS = -Werror -Wextra -Wall -std=c++98
-
 NAME = webserv
 
-INCLUDES = -I./includes
+SRC_DIR = srcs/
+OBJ_DIR = obj/
+HDR_DIR = includes/
 
-SRCS = srcs/main.cpp
+COMP = c++
+CPPFLAGS = -Wall -Wextra -Werror -std=c++98
 
-OBJS = $(SRCS:.cpp=.o)
+SRC = main.cpp
 
-%.o : %.cpp
-	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
+OBJ = $(SRC:%.cpp=$(OBJ_DIR)/%.o)
+
+DEP = $(OBJ:%.o=%.d)
+
+DEL = @echo -n "\033[2K\r";
+GREEN = \033[0;32m
+RED = \033[0;31m
+BLUE = \033[0;34m
+YELLOW = \033[0;33m
+NOCOL = \033[m
+BOLD = $(shell tput bold)
+NOBOLD = $(shell tput sgr0)
+
+MSG_CLEANING = "$(RED)$(BOLD)cleaning $(NAME)...$(NOBOLD)$(NOCOL)";
+MSG_CLEANED = "$(RED)$(BOLD)cleaning done$(NOBOLD)$(NO_COLOR)";
+MSG_COMPILING = "$(YELLOW)$(BOLD)compiling:$(NOBOLD)$(NOCOLOR) $(^)...";
+MSG_READY = "$(BLUE)$(BOLD)$(NAME) ready$(NOBOLD)$(NOCOLOR)";
+
 
 all : $(NAME)
 
-$(NAME) : $(OBJS)
-	$(CC) $(CFLAGS) $(INCLUDES) $(OBJS) -o $(NAME)
+$(NAME) : $(OBJ)
+	@$(COMP) $(CPPFLAGS) $(OBJ) -I $(HDR_DIR) -o $(NAME)
+	$(DEL)
+	@echo $(MSG_READY)
+
+-include $(DEP)
+
+$(OBJ_DIR)%.o : $(SRC_DIR)%.cpp
+	@ mkdir -p $(OBJ_DIR)
+	$(DEL)
+	@echo -n $(MSG_COMPILING)
+	@ $(COMP) $(CPPFLAGS) -MMD -c $< -o $@ -I $(HDR_DIR)
 
 clean :
-	rm -rf $(OBJS)
+	@echo $(MSG_CLEANING)
+	@rm -rf $(OBJ_DIR)
+	@echo $(MSG_CLEANED)
 
 fclean : clean
-	rm -rf $(NAME)
+	@rm -f $(NAME)
 
-re : fclean $(NAME)
+re : fclean all
 
-.PHONY : all clean fclean re
+.PHONY: all fclean clean re 
