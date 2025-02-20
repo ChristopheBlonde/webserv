@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/20 11:59:15 by cblonde           #+#    #+#             */
-/*   Updated: 2025/02/20 14:52:17 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/02/20 17:20:59 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,7 +49,7 @@ long int	Server::init(void)
 {
 	sockaddr_in	sin;
 
-	if ((_socket = socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 1))
+	if ((_socket = socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0))
 			== INVALID_SOCKET)
 		throw (Server::ServerException(
 					std::string("Error: socket: ") + strerror(errno)));
@@ -67,25 +67,33 @@ long int	Server::init(void)
 	return (_socket);
 }
 
-void	Server::run(void)
+void	Server::get_client_maybe()
 {
-	long int	client = -1;
 	sockaddr_in	sin;
 	socklen_t	size_sin = sizeof(sin);
+	long int	client = -1;
 	pollfd		fd;
-	int			check;
-	char		request[1024];
-	int			read;
 
 	std::memset(reinterpret_cast<char *>(&sin), 0, sizeof(sin));
 	client = accept(_socket, reinterpret_cast<sockaddr *>(&sin),
 			&size_sin);
 	if (client == -1)
 		return ;
+	std::cout << "wow, client " << client << "\n";
 	fd.fd = client;
 	fd.events = POLL_IN;
 	_fds.push_back(fd);
-	check = poll(_fds.data(), _fds.size(), -1);
+}
+
+void	Server::run(void)
+{
+	int			check = -1;
+	char		request[1024];
+	int			read;
+	
+	get_client_maybe();
+	if (_fds.size())
+		check = poll(_fds.data(), _fds.size(), -1);
 	if (check < 0)
 		return ;
 	for (size_t i = 0; i < _fds.size(); i++)

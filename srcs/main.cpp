@@ -6,7 +6,7 @@
 /*   By: cblonde <cblonde@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/19 07:00:26 by cblonde           #+#    #+#             */
-/*   Updated: 2025/02/20 14:47:37 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/02/20 17:21:03 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,7 @@ int main(void)
 	signal(SIGINT, ft_exit);
 	Server test(8080);
 
+	test.init();
 	while (!sig)
 	{
 		test.run();

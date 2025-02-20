@@ -6,7 +6,7 @@
 /*   By: cblonde <cblonde@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/19 07:03:14 by cblonde           #+#    #+#             */
-/*   Updated: 2025/02/20 10:28:15 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/02/20 17:02:03 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 # define WEBSERV_HPP
 
 # include <iostream>
+# include <algorithm>
 # include <cstring>
 # include <cerrno>
 # include <csignal>
