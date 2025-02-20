@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/20 11:59:15 by cblonde           #+#    #+#             */
-/*   Updated: 2025/02/20 17:20:59 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/02/20 17:38:27 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,6 +57,12 @@ long int	Server::init(void)
 	sin.sin_addr.s_addr = htonl(INADDR_ANY);
 	sin.sin_family = AF_INET;
 	sin.sin_port = htons(this->_port);
+	int opt = 1;//without this, error when netcat is not closed properly
+	if (setsockopt(_socket, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0)
+	{
+		throw (Server::ServerException(
+					std::string("Error: setsockopt: ") + strerror(errno)));
+	}
 	if (bind(_socket, reinterpret_cast<sockaddr *>(&sin),
 				sizeof(sin)) == SOCKET_ERROR)
 		throw (Server::ServerException(
@@ -93,7 +99,8 @@ void	Server::run(void)
 	
 	get_client_maybe();
 	if (_fds.size())
-		check = poll(_fds.data(), _fds.size(), -1);
+		check = poll(_fds.data(), _fds.size(), 5000);
+	//std::cout << "poll done\n";
 	if (check < 0)
 		return ;
 	for (size_t i = 0; i < _fds.size(); i++)
@@ -106,8 +113,14 @@ void	Server::run(void)
 		if (_fds[i].revents & (POLL_IN))
 		{
 			read = recv(_fds[i].fd, request, 1023, 0);
+			if (read == 0)
+			{
+				std::cout << "client " << _fds[i].fd << " disconnected\n";
+				_fds.erase(_fds.begin() + i--);
+				break;
+			}
 			request[read] = '\0';
-			std::cout << CYAN << request << RESET << std::endl;
+			std::cout << "client " << _fds[i].fd << " " << CYAN << request << RESET << std::endl;
 		}
 	}
 	return ;
