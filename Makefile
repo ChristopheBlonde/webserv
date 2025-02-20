@@ -3,13 +3,14 @@ NAME = webserv
 SRC_DIR = srcs/
 OBJ_DIR = obj/
 HDR_DIR = includes/
+SERV_DIR = $(SRC_DIR)server/
 
 COMP = c++
 CPPFLAGS = -Wall -Wextra -Werror -std=c++98
 
-SRC = main.cpp
+SRC = main.cpp $(SERV_DIR)Server.cpp
 
-OBJ = $(SRC:%.cpp=$(OBJ_DIR)/%.o)
+OBJ = $(addprefix $(OBJ_DIR), $(SRC:%.cpp=%.o))
 
 DEP = $(OBJ:%.o=%.d)
 
@@ -37,8 +38,8 @@ $(NAME) : $(OBJ)
 
 -include $(DEP)
 
-$(OBJ_DIR)%.o : $(SRC_DIR)%.cpp
-	@ mkdir -p $(OBJ_DIR)
+$(OBJ_DIR)%.o : %.cpp
+	@ mkdir -p $(@D)
 	$(DEL)
 	@echo -n $(MSG_COMPILING)
 	@ $(COMP) $(CPPFLAGS) -MMD -c $< -o $@ -I $(HDR_DIR)
