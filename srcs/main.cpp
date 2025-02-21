@@ -6,7 +6,7 @@
 /*   By: cblonde <cblonde@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/19 07:00:26 by cblonde           #+#    #+#             */
-/*   Updated: 2025/02/20 17:21:03 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/02/21 09:14:27 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,13 +24,20 @@ void ft_exit(int signal)
 int main(void)
 {
 	signal(SIGINT, ft_exit);
-	Server test(8080);
-
-	test.init();
-	while (!sig)
+	try
 	{
-		test.run();
-		usleep(200);
+		Server test(8080);
+
+		test.init();
+		while (!sig)
+		{
+			test.run();
+			usleep(200);
+		}
+	}
+	catch (std::exception &e)
+	{
+		std::cerr << e.what() << std::endl;
 	}
 	return (0);
 }

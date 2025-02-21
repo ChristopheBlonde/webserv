@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/20 11:59:15 by cblonde           #+#    #+#             */
-/*   Updated: 2025/02/20 17:38:27 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/02/21 09:16:27 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,11 +19,24 @@ Server::Server(void)
 
 Server::Server(short int port) : _port(port)
 {
+	this->_socket = -1;
+	this->_address = -1;
 	return ;
 }
 
 Server::~Server(void)
 {
+	if (this->_socket != -1)
+		if (close(this->_socket) == SOCKET_ERROR)
+			throw (Server::ServerException(
+						std::string("Error: close: ") + strerror(errno)));
+	for (std::vector<pollfd>::iterator it = _fds.begin(); it != _fds.end(); it++)
+	{
+		if (it->fd != -1)
+			if (close(it->fd) == SOCKET_ERROR)
+				throw (Server::ServerException(
+							std::string("Error: close: ") + strerror(errno)));
+	}
 	return ;
 }
 
@@ -73,7 +86,7 @@ long int	Server::init(void)
 	return (_socket);
 }
 
-void	Server::get_client_maybe()
+void	Server::get_client_maybe(void)
 {
 	sockaddr_in	sin;
 	socklen_t	size_sin = sizeof(sin);
@@ -85,7 +98,6 @@ void	Server::get_client_maybe()
 			&size_sin);
 	if (client == -1)
 		return ;
-	std::cout << "wow, client " << client << "\n";
 	fd.fd = client;
 	fd.events = POLL_IN;
 	_fds.push_back(fd);
@@ -100,7 +112,6 @@ void	Server::run(void)
 	get_client_maybe();
 	if (_fds.size())
 		check = poll(_fds.data(), _fds.size(), 5000);
-	//std::cout << "poll done\n";
 	if (check < 0)
 		return ;
 	for (size_t i = 0; i < _fds.size(); i++)

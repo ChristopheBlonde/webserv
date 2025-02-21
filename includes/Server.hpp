@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/20 11:46:41 by cblonde           #+#    #+#             */
-/*   Updated: 2025/02/20 17:14:33 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/02/21 08:41:14 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ class Server {
 		Server &operator=(Server const &rhs);
 		long int	init(void);
 		void		run(void);
-		void		get_client_maybe();
+		void		get_client_maybe(void);
 		class ServerException : public std::exception
 		{
 			private:
