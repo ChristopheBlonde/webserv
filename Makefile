@@ -4,11 +4,12 @@ SRC_DIR = srcs/
 OBJ_DIR = obj/
 HDR_DIR = includes/
 SERV_DIR = server/
+REQ_DIR = requests/
 
 COMP = c++
 CPPFLAGS = -Wall -Wextra -Werror -std=c++98
 
-SRC = main.cpp $(SERV_DIR)Server.cpp
+SRC = main.cpp $(SERV_DIR)Server.cpp $(REQ_DIR)Requests.cpp
 
 OBJ = $(SRC:%.cpp=$(OBJ_DIR)%.o)
 

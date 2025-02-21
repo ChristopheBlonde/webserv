@@ -6,11 +6,12 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/20 11:59:15 by cblonde           #+#    #+#             */
-/*   Updated: 2025/02/21 09:16:27 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/02/21 11:48:11 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <Server.hpp>
+#include <Requests.hpp>
 
 Server::Server(void)
 {
@@ -131,7 +132,7 @@ void	Server::run(void)
 				break;
 			}
 			request[read] = '\0';
-			std::cout << "client " << _fds[i].fd << " " << CYAN << request << RESET << std::endl;
+			Requests	test1((std::string(request)));
 		}
 	}
 	return ;
