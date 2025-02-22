@@ -6,14 +6,14 @@
 /*   By: cblonde <cblonde@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/19 07:00:26 by cblonde           #+#    #+#             */
-/*   Updated: 2025/02/21 09:14:27 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/02/21 18:47:15 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <webserv.hpp>
 #include <Server.hpp>
 
-int sig = 0;
+volatile sig_atomic_t sig = 0;
 
 void ft_exit(int signal)
 {

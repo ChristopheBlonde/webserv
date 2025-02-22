@@ -6,7 +6,7 @@ HDR_DIR = includes/
 SERV_DIR = server/
 
 COMP = c++
-CPPFLAGS = -Wall -Wextra -Werror -std=c++98
+CPPFLAGS = -Wall -Wextra -Werror -std=c++98 -g
 
 SRC = main.cpp $(SERV_DIR)Server.cpp
 

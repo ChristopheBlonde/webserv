@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/20 11:59:15 by cblonde           #+#    #+#             */
-/*   Updated: 2025/02/21 09:16:27 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/02/22 20:19:50 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -109,7 +109,7 @@ void	Server::run(void)
 	char		request[1024];
 	int			read;
 	
-	get_client_maybe();
+	get_client_maybe();//FIXME this needs to be polled
 	if (_fds.size())
 		check = poll(_fds.data(), _fds.size(), 5000);
 	if (check < 0)
