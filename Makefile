@@ -6,9 +6,13 @@ HDR_DIR = includes/
 SERV_DIR = server/
 
 COMP = c++
-CPPFLAGS = -Wall -Wextra -Werror -std=c++98 -g
+CPPFLAGS = -Wall -Wextra -std=c++98 -g
 
-SRC = main.cpp $(SERV_DIR)Server.cpp
+SRC = main.cpp \
+	$(SERV_DIR)Cluster.cpp \
+	$(SERV_DIR)Server.cpp \
+	$(SERV_DIR)Route.cpp \
+	$(SERV_DIR)Conf.cpp
 
 OBJ = $(SRC:%.cpp=$(OBJ_DIR)%.o)
 

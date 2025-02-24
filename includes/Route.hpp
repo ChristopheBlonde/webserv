@@ -6,12 +6,16 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/02/22 20:54:49 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/02/24 21:50:43 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef ROUTE_HPP
 # define ROUTE_HPP
+
+#include <map>
+#include <vector>
+#include "ExceptionTemplate.hpp"
 
 class Route
 {
@@ -25,7 +29,7 @@ class Route
 	std::string				redirection;
 	
 	//locations in locations
-	Route					routes;
+	std::vector<Route>			routes;
 
 	public:
 	Route();
