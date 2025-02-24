@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/02/24 22:56:42 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/02/24 23:11:15 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,8 +36,6 @@ Conf::Conf(const std::string &filename)
 void	Conf::parseConfigFile(std::ifstream &file)
 {
 	std::string	s;
-	size_t		level = 0;
-	bool		acceptOpen = false;
 
 	std::getline(file, s);
 	while (file.good())
@@ -46,6 +44,7 @@ void	Conf::parseConfigFile(std::ifstream &file)
 
 		while (s[i])
 		{
+			//si pas {} append au word ?
 			while (Conf::spaces.find(s[i], 0) != std::string::npos)//?
 				++i;
 			if (s[i] == Conf::closeBlock && level-- == 0)
