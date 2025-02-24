@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 10:46:49 by cblonde           #+#    #+#             */
-/*   Updated: 2025/02/23 10:04:56 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/02/24 13:36:24 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -135,7 +135,7 @@ void	Requests::parse(std::string str)
 	getMethod(word, _type);
 	getQuery(_path, _query);
 
-	/* Print querys*/
+	/* Print querys */
 	std::vector<std::pair<std::string,std::string> >::iterator it;
 	for (it = _query.begin(); it != _query.end(); it++)
 	{
@@ -143,7 +143,12 @@ void	Requests::parse(std::string str)
 			<< it->second << std::endl << RESET;
 	}
 	while (getline(ss, line))
+	{
+		trim(line);
+		if (line.empty())
+			break ;
 		getHeaders(line, _headers);
+	}
 
 	/* Print headers*/
 	std::map<std::string,std::string>::iterator ite;
@@ -155,5 +160,10 @@ void	Requests::parse(std::string str)
 	std::string test("   tu le trim ou pas      ");
 	trim(test);
 	std::cout << GREEN << test  << RESET << std::endl;
+
+	/* print body */
+	while (getline(ss, line))
+		std::cout << CYAN << "Body: " << line << std::endl;
+
 	return ;
 }
