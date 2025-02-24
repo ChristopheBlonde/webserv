@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 10:24:52 by cblonde           #+#    #+#             */
-/*   Updated: 2025/02/21 14:51:25 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/02/21 20:12:53 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,7 @@ class Requests
 		std::map<std::string,std::string>					_headers;
 		std::string											_host;
 		std::string											_path;
+		std::string											_protocol;
 		t_rqType											_type;
 		std::vector<std::pair<std::string,std::string> >	_query;
 		void	parse(std::string str);

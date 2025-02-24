@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/20 11:59:15 by cblonde           #+#    #+#             */
-/*   Updated: 2025/02/21 11:48:11 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/02/21 19:36:54 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,10 +63,11 @@ long int	Server::init(void)
 {
 	sockaddr_in	sin;
 
-	if ((_socket = socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0))
+	if ((_socket = socket(AF_INET, SOCK_STREAM /*| SOCK_NONBLOCK*/, 0))
 			== INVALID_SOCKET)
 		throw (Server::ServerException(
 					std::string("Error: socket: ") + strerror(errno)));
+	fcntl(_socket, F_SETFL, O_NONBLOCK);
 	std::memset(reinterpret_cast<char *>(&sin), 0, sizeof(sin));
 	sin.sin_addr.s_addr = htonl(INADDR_ANY);
 	sin.sin_family = AF_INET;

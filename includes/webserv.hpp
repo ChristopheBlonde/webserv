@@ -6,7 +6,7 @@
 /*   By: cblonde <cblonde@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/19 07:03:14 by cblonde           #+#    #+#             */
-/*   Updated: 2025/02/21 12:04:34 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/02/21 19:36:18 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,7 @@
 # include <netinet/in.h>
 # include <arpa/inet.h>
 # include <unistd.h>
+#include <sys/fcntl.h>
 
 # define RED "\e[0;31m"
 # define GREEN "\e[0;32m"
