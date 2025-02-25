@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/02/24 21:50:43 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/02/25 19:09:32 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 
 #include <map>
 #include <vector>
+#include <string>
 #include "ExceptionTemplate.hpp"
 
 class Route
@@ -23,7 +24,7 @@ class Route
 	std::vector<std::string>		acceptedMethods;
 	std::string				root;
 	std::vector<std::string>		indexFiles;
-	bool					autoindex;
+	bool					autoindex, autoindexAssigned;
 	std::map<std::string, std::string>	cgi;
 	std::string				uploads;
 	std::string				redirection;

@@ -12,7 +12,8 @@ SRC = main.cpp \
 	$(SERV_DIR)Cluster.cpp \
 	$(SERV_DIR)Server.cpp \
 	$(SERV_DIR)Route.cpp \
-	$(SERV_DIR)Conf.cpp
+	$(SERV_DIR)Conf.cpp \
+	$(SERV_DIR)ConfParser.cpp
 
 OBJ = $(SRC:%.cpp=$(OBJ_DIR)%.o)
 

@@ -6,19 +6,18 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/02/24 21:40:17 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/02/25 18:43:15 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <iostream>
 #include "Cluster.hpp"
 
-Cluster::Cluster()
+Cluster::Cluster(const std::string &filename)
 {
-	std::cout << "hello\n";
+	ConfParser(*this, filename);
+	//init
 }
 
 Cluster::~Cluster()
 {
-	std::cout << "bye bye\n";
 }
