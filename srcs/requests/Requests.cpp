@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 10:46:49 by cblonde           #+#    #+#             */
-/*   Updated: 2025/02/25 15:31:41 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/02/26 11:02:48 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -118,6 +118,7 @@ static void	getHeaders(std::string str,
 			pair.second = line.substr(index + 1);
 		}
 		trim(pair.first);
+		toUpper(pair.first);
 		trim(pair.second);
 		if (!pair.first.empty())
 			headers.insert(pair);
@@ -165,12 +166,15 @@ void	Requests::parse(std::string str)
 			break ;
 		getHeaders(line, _headers);
 	}
+	_host = _headers["HOST"];
 
 	/* Print headers*/
 	std::map<std::string,std::string>::iterator ite;
 	std::cout << GREEN << "headers contains:" << std::endl;
 	for (ite=_headers.begin(); ite!=_headers.end(); ++ite)
 		std::cout << GREEN << ite->first << " => " << ite->second << RESET << std::endl;
+
+	std::cout << RED << "Try get host: " << _host << RESET << std::endl;
 
 	/* test trim function */
 	std::string test("   tu le trim ou pas      ");

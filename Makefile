@@ -10,7 +10,7 @@ UTILS_DIR = utils/
 COMP = c++
 CPPFLAGS = -Wall -Wextra -Werror -std=c++98
 
-SRC = main.cpp $(SERV_DIR)Server.cpp $(REQ_DIR)Requests.cpp $(UTILS_DIR)trim.cpp
+SRC = main.cpp $(SERV_DIR)Server.cpp $(REQ_DIR)Requests.cpp $(UTILS_DIR)string.cpp
 
 OBJ = $(SRC:%.cpp=$(OBJ_DIR)%.o)
 

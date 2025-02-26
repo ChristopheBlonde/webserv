@@ -6,7 +6,7 @@
 /*   By: cblonde <cblonde@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/19 07:03:14 by cblonde           #+#    #+#             */
-/*   Updated: 2025/02/21 19:36:18 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/02/26 10:03:10 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@
 # include <vector>
 # include <map>
 # include <sstream>
+# include <cctype>
 # include <sys/types.h>
 # include <sys/socket.h>
 # include <poll.h>
