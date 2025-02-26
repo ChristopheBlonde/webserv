@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 10:46:49 by cblonde           #+#    #+#             */
-/*   Updated: 2025/02/24 13:36:24 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/02/25 15:31:41 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@ Requests::Requests(void)
 
 Requests::Requests(std::string str)
 {
+	this->_type = UNKNOW;
 	this->parse(str);
 	return ;
 }
@@ -132,9 +133,24 @@ void	Requests::parse(std::string str)
 	getline(ss, line);
 	std::stringstream ssLine(line);
 	ssLine >> word >> _path >> _protocol;
+	if (_protocol.compare("HTTP/1.0") && _protocol.compare("HTTP/1.1"))
+	{
+		std::cout << RED << "Error: Protocol: unknow" << RESET << std::endl;
+		return ;
+	}
 	getMethod(word, _type);
+	if (_type == UNKNOW)
+	{
+		std::cout << RED << "Unknow method or not implement yet."
+			<< RESET << std::endl;
+		return ;
+	}
 	getQuery(_path, _query);
-
+	
+	/* Print variables*/
+	std::cout << CYAN << "Method: " << (_type == 0 ? "GET" : _type == 1
+			? "POST" : _type == 2 ? "DELETE" : "UNKNOW") << " Path: "
+		<< _path<< " Protocol: " << _protocol << RESET << std::endl;
 	/* Print querys */
 	std::vector<std::pair<std::string,std::string> >::iterator it;
 	for (it = _query.begin(); it != _query.end(); it++)
@@ -163,7 +179,8 @@ void	Requests::parse(std::string str)
 
 	/* print body */
 	while (getline(ss, line))
-		std::cout << CYAN << "Body: " << line << std::endl;
+		_body += "\n" + line;
+	std::cout << CYAN << "Body: " << _body << RESET << std::endl;
 
 	return ;
 }

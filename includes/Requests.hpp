@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 10:24:52 by cblonde           #+#    #+#             */
-/*   Updated: 2025/02/24 10:30:19 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/02/25 15:20:34 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,8 @@ typedef enum	e_request_type
 {
 	GET,
 	POST,
-	DELETE
+	DELETE,
+	UNKNOW
 } t_rqType;
 
 class Requests
@@ -32,6 +33,7 @@ class Requests
 		std::string											_path;
 		std::string											_protocol;
 		t_rqType											_type;
+		std::string											_body;
 		std::vector<std::pair<std::string,std::string> >	_query;
 		void	parse(std::string str);
 	public:
