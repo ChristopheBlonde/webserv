@@ -6,12 +6,14 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/20 11:59:15 by cblonde           #+#    #+#             */
-/*   Updated: 2025/02/21 19:36:54 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/02/26 12:41:56 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <Server.hpp>
 #include <Requests.hpp>
+#include <Response.hpp>
+#include <utils.hpp>
 
 Server::Server(void)
 {
@@ -101,7 +103,7 @@ void	Server::get_client_maybe(void)
 	if (client == -1)
 		return ;
 	fd.fd = client;
-	fd.events = POLL_IN;
+	fd.events = POLL_IN | POLL_OUT;
 	_fds.push_back(fd);
 }
 
@@ -134,6 +136,12 @@ void	Server::run(void)
 			}
 			request[read] = '\0';
 			Requests	test1((std::string(request)));
+			Response	test2(test1);
+			std::pair<int,std::string> fileTest
+				= getFile(std::string("./srcs/default_pages/default_404.html"));
+			std::cout << CYAN << "content len: " << std::endl
+				<< fileTest.first << " content: "
+				<< fileTest.second << RESET << std::endl;
 		}
 	}
 	return ;
