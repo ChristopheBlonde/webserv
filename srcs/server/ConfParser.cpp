@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/02/25 19:40:21 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/02/26 23:10:52 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,8 @@ EXC_FUNC(ConfParser, NoFileException, "can't open config file");
 EXC_FUNC(ConfParser, UnexpectedCloseException, "unexpected closing character");
 EXC_FUNC(ConfParser, UnexpectedOpenException, "unexpected opening character");
 EXC_FUNC(ConfParser, MissingCloseException, "missing closing character");
+EXC_FUNC(ConfParser, TooManyArgumentsException, "too many arguments provided");
+EXC_FUNC(ConfParser, UnrecognizedKeywordException, "unrecognized keyword");
 
 //static variables
 const std::string		ConfParser::spaces = " \t\n";
@@ -28,52 +30,136 @@ const char			ConfParser::openBlock = '{';
 const char			ConfParser::closeBlock = '}';
 const char			ConfParser::comment = '#';
 
-ConfParser::ConfParser(Cluster &cluster, const std::string &filename) : cluster(cluster)
+ConfParser::ConfParser(Cluster &cluster, const std::string &filename) : 
+	file(filename.c_str()), 
+	cluster(cluster), 
+	server(NULL),
+	routes(),
+	currFunc(NULL),
+	currWord(""),
+	argc(0),
+	line(0),
+	i(0)
 {
-	std::ifstream	file(filename.c_str());
-	
 	if (!file)
 		throw NoFileException();
-	parseConfigFile(file);
+	wordFunc[""] = &ConfParser::parseWordEmpty;
+	wordFunc["server"] = &ConfParser::parseWordServer;
 }
 
-void	ConfParser::parseWordServer()
-{
-	
-}
-
-ConfParser::~ConfParser()
-{
-}
-	//instancier confighelp ?
-void	ConfParser::parseConfigFile(std::ifstream &file)
+void	ConfParser::parseConf()
 {
 	std::string	s;
 
 	std::getline(file, s);
 	while (file.good())
 	{
-		size_t	i = 0;
+		if (s[0] == ConfParser::comment)
+		{
+			std::getline(file, s);
+			++line;
+			continue;
+		}
 
+		i = 0;
 		while (s[i])
 		{
-			//si pas {} append au word ?
-			while (spaces.find(s[i], 0) != std::string::npos)//?
-				++i;
-			if (s[i] == closeBlock && level-- == 0)
-				throw UnexpectedCloseException();
-			if (s[i] == openBlock)
+			if (s[i] == ConfParser::openBlock)
 			{
-				if (!acceptOpen)
-					throw UnexpectedOpenException();
-				++level;
-				acceptOpen = false;
+				(this->*currFunc)(currWord);
+				parseOpenBlock();
 			}
+			else if (s[i] == ConfParser::closeBlock)
+			{
+				(this->*currFunc)(currWord);
+				parseCloseBlock();
+			}
+			else if (ConfParser::spaces.find(s[i]) != std::string::npos)
+				(this->*currFunc)(currWord);
 			else
-				parseWord();//remplit le mot et les whitespaces valident ?
+				currWord += s[i];
+			++i;
 		}
 		std::getline(file, s);
+		++line;
 	}
-	if (level)
+	if (server != NULL || !routes.empty())
 		throw MissingCloseException();
+}
+
+void	ConfParser::updateFunc(const std::string &s)
+{
+	try
+	{
+		currFunc = wordFunc[currWord];
+	}
+	catch (std::exception &e)
+	{
+		throw UnrecognizedKeywordException();
+	}
+}
+
+void	ConfParser::parseOpenBlock()
+{
+	if (currFunc == &ConfParser::parseWordServer)
+	{
+		if (server)
+			//probleme server dans server
+		server = cluster.addServer();
+		currFunc = parseWordEmpty;
+		currWord = "";
+	}
+	else if (currFunc == &ConfParser::parseWordLocation)
+	{
+		//push back dans les route de la route si y a
+		//sinon route = route
+	}
+	else
+		throw UnrecognizedKeywordException();
+}
+
+void	ConfParser::parseCloseBlock()
+{
+	if (currFunc != &ConfParser::parseWordEmpty)
+		throw UnrecognizedKeywordException();
+	if (!routes.empty())
+		routes.pop();
+	else if (server)
+		server = NULL;
+	else
+		throw UnexpectedCloseException();
+}
+
+void	ConfParser::parseWordEmpty(std::string)
+{
+	updateFunc(currWord);
+	currWord = "";
+	argc = 0;
+}
+
+void	ConfParser::parseWordServer(std::string s)
+{
+	if (s[0])
+		throw TooManyArgumentsException();
+}
+
+//openblock check que la fonction soit la bonne
+//location si argc > 1 error c'est openblock qui doit l'enlever
+
+void	ConfParser::fillMissingParams()
+{
+}
+
+size_t	ConfParser::getLine()
+{
+	return line;
+}
+
+size_t	ConfParser::getI()
+{
+	return i;
+}
+
+ConfParser::~ConfParser()
+{
 }

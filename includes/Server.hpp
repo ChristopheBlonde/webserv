@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/20 11:46:41 by cblonde           #+#    #+#             */
-/*   Updated: 2025/02/25 17:26:04 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/02/26 21:53:05 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@ class Server {
 	Conf	conf;
 
 	public:
-	Server();
+	Server(size_t index);
 	~Server();
 };
 

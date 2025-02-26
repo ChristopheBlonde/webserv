@@ -6,13 +6,15 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/20 11:59:15 by cblonde           #+#    #+#             */
-/*   Updated: 2025/02/25 17:28:52 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/02/26 21:54:52 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <Server.hpp>
 
-Server::Server()
+Server::Server(size_t index) :
+	index(index),
+	conf(Conf())
 {
 }
 

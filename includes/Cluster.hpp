@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/02/25 19:05:33 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/02/26 21:48:43 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,11 +23,12 @@ class Cluster
 {
 	std::vector<Server>	servers;
 	
-	//liste des fds de merde
+	//liste des fds de merde, server listen, clients, fichiers gros, cgi
 
 	public:
 	Cluster(const std::string &filename);
 	~Cluster();
+	Server			*addServer();
 
 	//fill blanks
 	//init servers
