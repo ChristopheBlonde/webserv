@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 10:46:49 by cblonde           #+#    #+#             */
-/*   Updated: 2025/02/26 11:02:48 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/02/27 13:07:13 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,7 +49,7 @@ Requests	&Requests::operator=(Requests const &rhs)
 	return (*this);
 }
 
-static void getMethod(std::string str, t_rqType &type)
+static void initMethod(std::string str, t_rqType &type)
 {
 	std::string key[3] = {"GET","POST","DELETE"};
 	t_rqType	types[3] = {GET, POST, DELETE};
@@ -61,7 +61,7 @@ static void getMethod(std::string str, t_rqType &type)
 	return ;
 }
 
-static void getQuery(std::string &str,
+static void initQuery(std::string &str,
 		std::vector<std::pair<std::string,std::string> > &query)
 {
 	size_t		index;
@@ -96,7 +96,7 @@ static void getQuery(std::string &str,
 	return ;
 }
 
-static void	getHeaders(std::string str,
+static void	initHeaders(std::string str,
 		std::map<std::string,std::string> &headers)
 {
 	std::string	key;
@@ -139,14 +139,14 @@ void	Requests::parse(std::string str)
 		std::cout << RED << "Error: Protocol: unknow" << RESET << std::endl;
 		return ;
 	}
-	getMethod(word, _type);
+	initMethod(word, _type);
 	if (_type == UNKNOW)
 	{
 		std::cout << RED << "Unknow method or not implement yet."
 			<< RESET << std::endl;
 		return ;
 	}
-	getQuery(_path, _query);
+	initQuery(_path, _query);
 	
 	/* Print variables*/
 	std::cout << CYAN << "Method: " << (_type == 0 ? "GET" : _type == 1
@@ -164,7 +164,7 @@ void	Requests::parse(std::string str)
 		trim(line);
 		if (line.empty())
 			break ;
-		getHeaders(line, _headers);
+		initHeaders(line, _headers);
 	}
 	_host = _headers["HOST"];
 
@@ -187,4 +187,39 @@ void	Requests::parse(std::string str)
 	std::cout << CYAN << "Body: " << _body << RESET << std::endl;
 
 	return ;
+}
+
+std::string	Requests::getProtocol(void) const
+{
+	return (_protocol);
+}
+
+std::string	Requests::getPath(void) const
+{
+	return (_path);
+}
+
+std::map<std::string,std::string>	Requests::getHeaders(void) const
+{
+	return (_headers);
+}
+
+std::string	Requests::getHost(void) const
+{
+	return (_host);
+}
+
+t_rqType	Requests::getType(void) const
+{
+	return (_type);
+}
+
+std::string	Requests::getBody(void) const
+{
+	return (_body);
+}
+
+std::vector<std::pair<std::string,std::string> >	Requests::getQuery(void) const
+{
+	return (_query);
 }

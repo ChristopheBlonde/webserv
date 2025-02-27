@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/20 11:59:15 by cblonde           #+#    #+#             */
-/*   Updated: 2025/02/26 12:41:56 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/02/27 14:20:08 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -137,11 +137,9 @@ void	Server::run(void)
 			request[read] = '\0';
 			Requests	test1((std::string(request)));
 			Response	test2(test1);
-			std::pair<int,std::string> fileTest
-				= getFile(std::string("./srcs/default_pages/default_404.html"));
-			std::cout << CYAN << "content len: " << std::endl
-				<< fileTest.first << " content: "
-				<< fileTest.second << RESET << std::endl;
+			test2.createResponse();
+
+			send(_fds[i].fd, test2.getResponse().c_str(), test2.getResSize(), 0);
 		}
 	}
 	return ;
