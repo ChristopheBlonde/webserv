@@ -6,7 +6,7 @@
 /*   By: glaguyon <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/22 18:42:46 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/02/25 17:33:04 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/02/27 18:21:24 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,15 @@
 #include <iostream>
 #include <fstream>
 #include <stdint.h>
+#include <arpa/inet.h>
 #include "Route.hpp"
+
+#define DEF_ERROR_PAGE(page)	"<html>\r\n" \
+				"<head><title>" page "</title></head>\r\n" \
+				"<body>\r\n" \
+				"<center><h1>" page "</h1></center>\r\n" \
+				"<center>toile serviteur</center>\r\n" \
+				"</body></html>\r\n"
 
 class Conf
 {
@@ -39,8 +47,7 @@ class Conf
 	public:
 	Conf();
 	~Conf();
-	//getroute ?
-	//runcgi, dossier correct
+	Route	*addRoute(const std::string &name);
 };
 
 #endif // CONF_HPP

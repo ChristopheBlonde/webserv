@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/20 11:46:41 by cblonde           #+#    #+#             */
-/*   Updated: 2025/02/26 21:53:05 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/02/27 18:19:22 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,7 @@ class Server {
 	public:
 	Server(size_t index);
 	~Server();
+	Route	*addRoute(const std::string &name);
 };
 
 #endif

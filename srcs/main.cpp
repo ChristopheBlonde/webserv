@@ -6,7 +6,7 @@
 /*   By: cblonde <cblonde@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/19 07:00:26 by cblonde           #+#    #+#             */
-/*   Updated: 2025/02/25 17:56:21 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/02/27 18:13:24 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,7 @@ int main(int argc, char **argv)
 	{
 		Cluster	test((argc == 2) ? argv[1] : DEFAULT_CONF);
 	}
-	catch (std::exception &e)//XXX check if conf test route etc ?
+	catch (std::exception &e)//XXX check if conf test route etc ? (origine de l'exception)
 	{
 		std::cerr << e.what() << std::endl;
 		return 1;

@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/02/25 19:09:32 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/02/27 18:23:44 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,8 +33,9 @@ class Route
 	std::vector<Route>			routes;
 
 	public:
-	Route();
+	Route(const std::string &name);
 	~Route();
+	Route	*addRoute(const std::string &name);
 };
 
 #endif // ROUTE_HPP
