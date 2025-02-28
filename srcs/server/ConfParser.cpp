@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/02/27 18:55:08 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/02/28 17:36:42 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -117,7 +117,6 @@ void	ConfParser::parseEndLine()
 void	ConfParser::parseOpenBlock()
 {
 	(this->*currFunc)(currWord);
-	std::cout << "OPEN: " << currWord << "\n";
 	if (currFunc == &ConfParser::parseWordServer)
 	{
 		if (server)
@@ -158,26 +157,18 @@ void	ConfParser::updateFunc(const std::string s)
 {
 	resetState();
 	good = false;
-	try
-	{
-		std::cout << "switching to " << s << "\n";
-		currFunc = wordFunc[s];
-	}
-	catch (std::exception &e)
-	{
+	currFunc = wordFunc[s];
+	if (currFunc == NULL)
 		throw UnrecognizedKeywordException();
-	}
 }
 
 void	ConfParser::parseWordEmpty(const std::string &s)
 {
-	std::cout << "empty\n";
 	updateFunc(s);
 }
 
 void	ConfParser::parseWordServer(const std::string &s)
 {
-	std::cout << "hmm yes server\n";
 	if (!s[0])
 		return;
 	throw TooManyArgumentsException();
@@ -185,14 +176,10 @@ void	ConfParser::parseWordServer(const std::string &s)
 
 void	ConfParser::parseWordLocation(const std::string &s)
 {
-	std::cout << "oui d'accord sale pute " << s << "\n";
 	if (!s[0])
 		return;
 	if (argc > 0)
-	{
-		std::cout << "ta grosse mere" << argc << "\n";
 		throw TooManyArgumentsException();
-	}
 	//verifier location correct
 	++argc;
 	argv.push_back(s);
