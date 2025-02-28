@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:15:20 by cblonde           #+#    #+#             */
-/*   Updated: 2025/02/27 16:09:14 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/02/28 14:47:46 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,11 +17,29 @@ Response::Response(void)
 	return ;
 }
 
-Response::Response(Requests const &req)
+Response::Response(Requests const &req) : _path(req.getPath())
 {
 	this->_protocol = req.getProtocol();
-	this->_path = req.getPath();
 	initMimeTypes(_mimeTypes);
+	initResponseHeaders(_headers);
+	
+	/* check headers request */
+	std::map<std::string,std::string> header(req.getHeaders());
+	if (!header["Referer"].empty())
+	{
+		size_t		index;
+		std::string	path;
+
+		path = header["Referer"];
+		index = path.find(header["Host"]);
+		path = path.substr(index + header["Host"].size());
+		index = _path.find(path);
+		std::cout << CYAN << "path: " << path
+			<< " index: " << index << std::endl << RESET;
+		if (index == std::string::npos || index != 0)
+			_path = path + _path;
+	}
+	std::cout << RED << "\tPATH: " << _path << std::endl << RESET;
 	return ;
 }
 
@@ -102,10 +120,25 @@ void	Response::createResponse(void)
 	/* get content */
 	/* build header */
 	/* build result */
-	std::cout << "path: " << _path << std::endl;
+	std::stringstream ss;
 	std::pair<int,std::string> content;
+	std::map<std::string,std::string>::iterator it;
 	content = openDir(_path);
-	std::cout << GREEN << content.second << std::endl << RESET;
+//	std::cout << GREEN << content.second << std::endl << RESET;
+	if (!content.first)
+		createError(404);
+	/* Create first line */
+	_response += _protocol + " 200 OK\n";
+	/* Create headers */
+	ss << content.first;
+	_headers["Content-Length"] += ss.str();
+	_headers["Content-Type"] += _mimeTypes[getFileType(_path)];
+	/* join all */
+	for (it = _headers.begin(); it != _headers.end(); it++)
+		_response += (it->second + "\n");
+	_response += "\r\n";
+	_response += content.second;
+	_resSize = _response.size();
 	return ;
 }
 

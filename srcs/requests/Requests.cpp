@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 10:46:49 by cblonde           #+#    #+#             */
-/*   Updated: 2025/02/27 13:07:13 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/02/28 13:22:55 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -115,10 +115,10 @@ static void	initHeaders(std::string str,
 		else
 		{
 			pair.first = line.substr(0, index);
-			pair.second = line.substr(index + 1);
+			pair.second = line.substr(index + 1, line.size() - index - 2);
 		}
 		trim(pair.first);
-		toUpper(pair.first);
+		//toUpper(pair.first); TODO
 		trim(pair.second);
 		if (!pair.first.empty())
 			headers.insert(pair);

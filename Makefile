@@ -9,7 +9,7 @@ RES_DIR = response/
 UTILS_DIR = utils/
 
 COMP = c++
-CPPFLAGS = -Wall -Wextra -Werror -std=c++98
+CPPFLAGS = -Wall -Wextra -Werror -std=c++98 -g
 
 SRC = main.cpp $(SERV_DIR)Server.cpp $(REQ_DIR)Requests.cpp \
 	  $(UTILS_DIR)string.cpp $(RES_DIR)Response.cpp $(UTILS_DIR)file.cpp

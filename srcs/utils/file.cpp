@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:47:28 by cblonde           #+#    #+#             */
-/*   Updated: 2025/02/27 16:19:23 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/02/28 10:11:48 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,7 +85,7 @@ std::pair<int, std::string>	openDir(std::string path)
 		else if (!isDirectory
 					&& !std::string(dirp->d_name).compare(file))
 		{
-			result = getFile(path + file);
+			result = getFile(path + "/" + file);
 			closedir(dir);
 			return (result);
 		}
@@ -98,7 +98,22 @@ std::pair<int, std::string>	openDir(std::string path)
 	return (result);
 }
 
-void	initMimeTypes(std::map<std::string, std::string> mime_types)
+std::string	getFileType(std::string path)
+{
+	std::string	file;
+	size_t		index;
+
+	file = getFileName(path);
+	/* conf index */
+	if (!file.compare(path))
+		return ("html");
+	index = file.find_last_of(".");
+	if (index == std::string::npos)
+		return ("error");
+	return (file.substr(index + 1));
+}
+
+void	initMimeTypes(std::map<std::string, std::string> &mime_types)
 {
     mime_types["html"] = "text/html";
     mime_types["htm"] = "text/html";
@@ -118,4 +133,11 @@ void	initMimeTypes(std::map<std::string, std::string> mime_types)
     mime_types["gz"] = "application/gzip";
     mime_types["tar"] = "application/x-tar";
     mime_types["bz2"] = "application/x-bzip2";
+}
+
+void initResponseHeaders(std::map<std::string, std::string> &headers)
+{
+	headers["Content-Type"] = "Content-Type: ";
+	headers["Content-Length"] = "Content-Length: ";
+	headers["Set-Cookies"] = "Set-Cookies: ";
 }
