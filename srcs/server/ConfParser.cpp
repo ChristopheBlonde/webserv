@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/02/28 17:36:42 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/04 18:29:02 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -160,30 +160,6 @@ void	ConfParser::updateFunc(const std::string s)
 	currFunc = wordFunc[s];
 	if (currFunc == NULL)
 		throw UnrecognizedKeywordException();
-}
-
-void	ConfParser::parseWordEmpty(const std::string &s)
-{
-	updateFunc(s);
-}
-
-void	ConfParser::parseWordServer(const std::string &s)
-{
-	if (!s[0])
-		return;
-	throw TooManyArgumentsException();
-}
-
-void	ConfParser::parseWordLocation(const std::string &s)
-{
-	if (!s[0])
-		return;
-	if (argc > 0)
-		throw TooManyArgumentsException();
-	//verifier location correct
-	++argc;
-	argv.push_back(s);
-	good = true;
 }
 
 void	ConfParser::fillMissingParams()

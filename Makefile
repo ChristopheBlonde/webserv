@@ -13,13 +13,14 @@ SRC = main.cpp \
 	$(SERV_DIR)Server.cpp \
 	$(SERV_DIR)Route.cpp \
 	$(SERV_DIR)Conf.cpp \
-	$(SERV_DIR)ConfParser.cpp
+	$(SERV_DIR)ConfParser.cpp \
+	$(SERV_DIR)ConfParserWords.cpp
 
 OBJ = $(SRC:%.cpp=$(OBJ_DIR)%.o)
 
 DEP = $(OBJ:%.o=%.d)
 
-DEL = @echo -n "\033[2K\r";
+DEL = $(shell printf "\r\033[K")
 GREEN = \033[0;32m
 RED = \033[0;31m
 BLUE = \033[0;34m
@@ -30,7 +31,7 @@ NOBOLD = $(shell tput sgr0)
 
 MSG_CLEANING = "$(RED)$(BOLD)cleaning $(NAME)...$(NOBOLD)$(NOCOL)";
 MSG_CLEANED = "$(RED)$(BOLD)cleaning done$(NOBOLD)$(NO_COLOR)";
-MSG_COMPILING = "$(YELLOW)$(BOLD)compiling:$(NOBOLD)$(NOCOLOR) $(^)...";
+MSG_COMPILING = "$(YELLOW)$(BOLD)compiling:$(NOBOLD)$(NOCOLOR) $(<)...";
 MSG_READY = "$(BLUE)$(BOLD)$(NAME) ready$(NOBOLD)$(NOCOLOR)";
 
 
@@ -38,14 +39,14 @@ all : $(NAME)
 
 $(NAME) : $(OBJ)
 	@$(COMP) $(CPPFLAGS) $(OBJ) -I $(HDR_DIR) -o $(NAME)
-	$(DEL)
+	@echo -n $(DEL)
 	@echo $(MSG_READY)
 
 -include $(DEP)
 
 $(OBJ_DIR)%.o : $(SRC_DIR)%.cpp
 	@ mkdir -p $(@D)
-	$(DEL)
+	@echo -n $(DEL)
 	@echo -n $(MSG_COMPILING)
 	@ $(COMP) $(CPPFLAGS) -MMD -c $< -o $@ -I $(HDR_DIR)
 
