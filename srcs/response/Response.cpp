@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:15:20 by cblonde           #+#    #+#             */
-/*   Updated: 2025/02/28 14:47:46 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/04 09:37:31 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,6 +62,7 @@ Response	&Response::operator=(Response const &rhs)
 		this->_body = rhs._body;
 		this->_path = rhs._path;
 		this->_host = rhs._host;
+		this->_port = rhs._port;
 		this->_headers = rhs._headers;
 		this->_contentLen = rhs._contentLen;
 		this->_status = rhs._status;
@@ -93,19 +94,36 @@ void	Response::createError(int stat)
 	std::string 				status;
 	std::string 				path;
 	std::string 				result;
+	std::string					autoIndex;
 
 	ss << stat;
 	ss >> status;
-	result = _protocol + " " + status + " "; 
-	path = "./srcs/default_pages/default_" + status + ".html";
-	content = getFile(path);
-	status = getNameError(content);
-	result += status + "\n";
+	result = _protocol + " " + status + " ";
+	if (_autoIndex)
+	{
+		std::cout << GREEN << "Error pages pass" << RESET << std::endl;
+		path = "./srcs/default_pages/default_" + status + ".html";
+		content = getFile(path);
+		_contentLen = content.first;
+		status = getNameError(content);
+		result += status + "\n";
+	}
+	else
+	{
+		std::cout << GREEN << "Error INDEX pass" << RESET << std::endl;
+		result += "auto index\n";
+		autoIndex = AutoIndex::generate("./", "localhost", 8080);
+		_contentLen = autoIndex.size();
+	}
 	ss.str(std::string());
 	ss.clear();
-	ss << content.first;
+	ss << _contentLen;
 	result += "Content-Type: text/html; charset=UTF-8\nContent-Length: "
-		+ ss.str() + "\n\r\n" + content.second;
+		+ ss.str() + "\n\r\n";
+	if (_autoIndex)
+		result += content.second;
+	else
+		result += autoIndex;
 	_resSize = result.size();
 	_response = result;
 	return ;
@@ -126,7 +144,10 @@ void	Response::createResponse(void)
 	content = openDir(_path);
 //	std::cout << GREEN << content.second << std::endl << RESET;
 	if (!content.first)
+	{
 		createError(404);
+		return ;
+	}
 	/* Create first line */
 	_response += _protocol + " 200 OK\n";
 	/* Create headers */

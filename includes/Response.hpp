@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:16:02 by cblonde           #+#    #+#             */
-/*   Updated: 2025/02/28 09:29:16 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/04 09:02:23 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 # define RESPONSE_HPP
 
 # include <Requests.hpp>
+# include <AutoIndex.hpp>
 
 class Response
 {
@@ -22,6 +23,7 @@ class Response
 		std::string							_body;
 		std::string							_path;
 		std::string							_host;
+		int									_port;
 		std::map<std::string,std::string>	_headers;
 		int									_contentLen;
 		int									_status;
