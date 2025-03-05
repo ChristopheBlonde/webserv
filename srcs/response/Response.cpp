@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:15:20 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/05 09:48:55 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/05 10:30:07 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,7 +77,8 @@ Response	&Response::operator=(Response const &rhs)
 static std::string	getNameError(int stat)
 {
 	std::map<int,std::string> names;
-	
+
+	names[200] = "OK";
 	names[400] = "Bad Request";
 	names[403] = "Forbidden";
 	names[404] = "Not Found";
@@ -100,21 +101,18 @@ void	Response::createError(int stat)
 	ss >> status;
 	result = _protocol + " " + status + " ";
 	if (!_autoIndex)
-	{
 		content = ERROR_PAGE(getNameError(stat), status);
-		result += getNameError(stat) + "\n";
-	}
 	else
-	{
-		result += "Auto Index\n";
 		content = AutoIndex::generate("./", "localhost", 8080);
-	}
+	result += getNameError(stat) + "\n";
 	_contentLen = content.size();
 	ss.str(std::string());
 	ss.clear();
 	ss << _contentLen;
 	result += "Content-Type: text/html; charset=UTF-8\nContent-Length: "
-		+ ss.str() + "\n\r\n";
+		+ ss.str() + "\n" + (_autoIndex ? "Connection: close\n" : "")
+		+ "Server: webserv 1.0\n"
+		+"\r\n";
 	result += content;
 	_resSize = result.size();
 	_response = result;
@@ -137,7 +135,7 @@ void	Response::createResponse(void)
 //	std::cout << GREEN << content.second << std::endl << RESET;
 	if (!content.first)
 	{
-		createError(404);
+		createError(200);
 		return ;
 	}
 	/* Create first line */
