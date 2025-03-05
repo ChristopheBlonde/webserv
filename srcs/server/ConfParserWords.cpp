@@ -6,7 +6,7 @@
 /*   By: glaguyon <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/04 18:27:52 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/04 19:06:09 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/05 20:34:07 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,9 +34,9 @@ void	ConfParser::parseWordLocation(const std::string &s)
 		return;
 	if (argc > 0)
 		throw TooManyArgumentsException();
-	if (!routes.empty() && routes.top()->name != s.substr(0, routes.top()->name.size()))
-		throw IncorrectArgumentException("msg");
+	if (!routes.empty()
+		&& routes.top()->getName() != s.substr(0, routes.top()->getName().size()))
+		throw IncorrectArgException("location is outside of base location");
 	++argc;
 	argv.push_back(s);
-	good = true;
 }

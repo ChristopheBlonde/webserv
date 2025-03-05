@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/02/27 18:23:44 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/05 19:55:03 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,6 +36,7 @@ class Route
 	Route(const std::string &name);
 	~Route();
 	Route	*addRoute(const std::string &name);
+	std::string	getName();
 };
 
 #endif // ROUTE_HPP

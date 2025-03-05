@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/02/28 17:36:09 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/05 19:46:25 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,6 +43,7 @@ class ConfParser
 	EXC_CLASS(ServerInServerException);
 	EXC_CLASS(MissingServerException);
 	EXC_CLASS(MissingArgsException);
+	EXC_CLASS(IncorrectArgException);
 
 	//static variables
 	static const std::string						spaces;

@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/04 18:29:02 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/05 19:45:56 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,7 @@ EXC_FUNC(ConfParser, UnrecognizedKeywordException, "unrecognized keyword");
 EXC_FUNC(ConfParser, ServerInServerException, "can't have a server in a server");
 EXC_FUNC(ConfParser, MissingServerException, "missing server block");
 EXC_FUNC(ConfParser, MissingArgsException, "missing arguments");
+EXC_FUNC(ConfParser, IncorrectArgException, "missing arguments");
 
 //static variables
 const std::string		ConfParser::spaces = " \t\n";
