@@ -6,11 +6,12 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:15:20 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/04 09:37:31 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/05 09:48:55 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <Response.hpp>
+#include <ErrorPages.hpp>
 
 Response::Response(void)
 {
@@ -73,57 +74,48 @@ Response	&Response::operator=(Response const &rhs)
 	return (*this);
 }
 
-static std::string	getNameError(std::pair<int, std::string> content)
+static std::string	getNameError(int stat)
 {
-	std::string 			str;
-	std::string				result;
-	size_t					start;
-	size_t					end;
+	std::map<int,std::string> names;
+	
+	names[400] = "Bad Request";
+	names[403] = "Forbidden";
+	names[404] = "Not Found";
+	names[405] = "Method Not Allowed";
+	names[410] = "Gone";
+	names[413] = "Content Too Large";
+	names[500] = "Internal Server Error";
 
-	str = content.second;
-	start = str.find("<title>") + 7;
-	end = str.find("</title>");
-	result = str.substr(start, end - start);
-	return (result);
+	return (names[stat]);
 }
 
 void	Response::createError(int stat)
 {
-	std::stringstream			ss;
-	std::pair<int, std::string>	content;
-	std::string 				status;
-	std::string 				path;
-	std::string 				result;
-	std::string					autoIndex;
+	std::stringstream	ss;
+	std::string			content;
+	std::string 		status;
+	std::string 		result;
 
 	ss << stat;
 	ss >> status;
 	result = _protocol + " " + status + " ";
-	if (_autoIndex)
+	if (!_autoIndex)
 	{
-		std::cout << GREEN << "Error pages pass" << RESET << std::endl;
-		path = "./srcs/default_pages/default_" + status + ".html";
-		content = getFile(path);
-		_contentLen = content.first;
-		status = getNameError(content);
-		result += status + "\n";
+		content = ERROR_PAGE(getNameError(stat), status);
+		result += getNameError(stat) + "\n";
 	}
 	else
 	{
-		std::cout << GREEN << "Error INDEX pass" << RESET << std::endl;
-		result += "auto index\n";
-		autoIndex = AutoIndex::generate("./", "localhost", 8080);
-		_contentLen = autoIndex.size();
+		result += "Auto Index\n";
+		content = AutoIndex::generate("./", "localhost", 8080);
 	}
+	_contentLen = content.size();
 	ss.str(std::string());
 	ss.clear();
 	ss << _contentLen;
 	result += "Content-Type: text/html; charset=UTF-8\nContent-Length: "
 		+ ss.str() + "\n\r\n";
-	if (_autoIndex)
-		result += content.second;
-	else
-		result += autoIndex;
+	result += content;
 	_resSize = result.size();
 	_response = result;
 	return ;
