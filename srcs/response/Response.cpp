@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:15:20 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/05 10:30:07 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/09 13:16:49 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,27 +90,39 @@ static std::string	getNameError(int stat)
 	return (names[stat]);
 }
 
+static std::string	getContentError(int stat)
+{
+	std::map<int,std::string> content;
+
+	content[200] = "OK";
+	content[400] = "the server would not process the request due to something \
+the server considered to be a client error";
+	content[403] = "Insufficient permissions to a resource or action";
+	content[404] = "Page not found";
+	content[405] = "Target resource doesn't support this method";
+	content[410] = "Target resource is no longer available";
+	content[413] = "Request entity was larger than limits defined by server";
+	content[500] = "Server encountered an unexpected condition that prevented \
+it from fulfilling the request";
+
+	return (content[stat]);
+}
+
 void	Response::createError(int stat)
 {
-	std::stringstream	ss;
 	std::string			content;
-	std::string 		status;
 	std::string 		result;
 
-	ss << stat;
-	ss >> status;
-	result = _protocol + " " + status + " ";
+	result = _protocol + " " + to_string(stat) + " ";
 	if (!_autoIndex)
-		content = ERROR_PAGE(getNameError(stat), status);
+		content = ERROR_PAGE(getNameError(stat), getContentError(stat),
+				to_string(stat));
 	else
 		content = AutoIndex::generate("./", "localhost", 8080);
 	result += getNameError(stat) + "\n";
 	_contentLen = content.size();
-	ss.str(std::string());
-	ss.clear();
-	ss << _contentLen;
 	result += "Content-Type: text/html; charset=UTF-8\nContent-Length: "
-		+ ss.str() + "\n" + (_autoIndex ? "Connection: close\n" : "")
+		+ to_string(_contentLen) + "\n" + (_autoIndex ? "Connection: close\n" : "")
 		+ "Server: webserv 1.0\n"
 		+"\r\n";
 	result += content;
@@ -128,21 +140,18 @@ void	Response::createResponse(void)
 	/* get content */
 	/* build header */
 	/* build result */
-	std::stringstream ss;
 	std::pair<int,std::string> content;
 	std::map<std::string,std::string>::iterator it;
 	content = openDir(_path);
-//	std::cout << GREEN << content.second << std::endl << RESET;
 	if (!content.first)
 	{
-		createError(200);
+		createError(404);
 		return ;
 	}
 	/* Create first line */
 	_response += _protocol + " 200 OK\n";
 	/* Create headers */
-	ss << content.first;
-	_headers["Content-Length"] += ss.str();
+	_headers["Content-Length"] += to_string(content.first);
 	_headers["Content-Type"] += _mimeTypes[getFileType(_path)];
 	/* join all */
 	for (it = _headers.begin(); it != _headers.end(); it++)

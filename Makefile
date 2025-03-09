@@ -8,13 +8,14 @@ REQ_DIR = requests/
 RES_DIR = response/
 UTILS_DIR = utils/
 AUTO_DIR = autoindex/
+CGI_DIR = cgi/
 
 COMP = c++
 CPPFLAGS = -Wall -Wextra -Werror -std=c++98 -g
 
 SRC = main.cpp $(SERV_DIR)Server.cpp $(REQ_DIR)Requests.cpp \
 	  $(UTILS_DIR)string.cpp $(RES_DIR)Response.cpp $(UTILS_DIR)file.cpp \
-	  $(AUTO_DIR)AutoIndex.cpp
+	  $(AUTO_DIR)AutoIndex.cpp $(CGI_DIR)Cgi.cpp
 
 OBJ = $(SRC:%.cpp=$(OBJ_DIR)%.o)
 

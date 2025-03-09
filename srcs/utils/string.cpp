@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 09:55:53 by cblonde           #+#    #+#             */
-/*   Updated: 2025/02/26 10:42:15 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/09 12:46:00 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,4 +44,12 @@ std::vector<std::string>	split(std::string str, char sep)
 	while (std::getline(ss, line, sep))
 		elements.push_back(line);
 	return (elements);
+}
+
+std::string	to_string(long int num)
+{
+	std::stringstream	tmp;
+
+	tmp << num;
+	return (tmp.str());
 }

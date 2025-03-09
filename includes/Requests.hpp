@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 10:24:52 by cblonde           #+#    #+#             */
-/*   Updated: 2025/02/28 12:06:07 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/09 09:19:25 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,7 +46,7 @@ class Requests
 		std::string							getPath(void) const;
 		std::map<std::string,std::string>	getHeaders(void) const;
 		std::string							getHost(void) const;
-		t_rqType							getType(void) const;
+		std::string							getType(void) const;
 		std::string							getBody(void) const;
 		std::vector<std::pair<std::string,std::string> >	getQuery(void) const;
 };

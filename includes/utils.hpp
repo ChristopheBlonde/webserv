@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/24 10:26:29 by cblonde           #+#    #+#             */
-/*   Updated: 2025/02/28 10:05:25 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/09 12:46:53 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,5 +24,6 @@ void initMimeTypes(std::map<std::string, std::string> &mime_Types);
 std::pair<int,std::string> openDir(std::string path);
 void initResponseHeaders(std::map<std::string, std::string> &headers);
 std::string	getFileType(std::string path);
+std::string	to_string(long int num);
 
 #endif

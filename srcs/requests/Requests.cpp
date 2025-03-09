@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 10:46:49 by cblonde           #+#    #+#             */
-/*   Updated: 2025/02/28 13:22:55 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/09 09:18:52 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -209,9 +209,16 @@ std::string	Requests::getHost(void) const
 	return (_host);
 }
 
-t_rqType	Requests::getType(void) const
+std::string	Requests::getType(void) const
 {
-	return (_type);
+	std::string key[3] = {"GET","POST","DELETE"};
+	t_rqType	types[3] = {GET, POST, DELETE};
+	for (size_t i = 0; i < 3; i++)
+	{
+		if (_type == types[i])
+			return (key[i]);
+	}
+	return ("");
 }
 
 std::string	Requests::getBody(void) const
