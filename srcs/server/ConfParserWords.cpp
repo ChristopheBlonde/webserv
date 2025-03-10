@@ -6,7 +6,7 @@
 /*   By: glaguyon <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/04 18:27:52 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/10 23:05:04 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/10 23:48:35 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -201,14 +201,16 @@ void	ConfParser::parseWordRoot(const std::string &s)
 {
 	if (routes.empty() && !server)
 		throw KeywordWrongLevelException();
-	if (wordCountServer["root"] > 1 || wordCountLocation["root"] > 1)
+	if (wordCountServer["root"] > 1 || getWordCountLocation("root") > 1)
 		throw DuplicateKeywordException("duplicate root found");
 	if (!s[0])
 		return;
 	if (argc > 0)
 		throw TooManyArgumentsException();
-	//if (!routes.empty())
-	//	routes.top()->set
+	if (!routes.empty())
+		routes.top()->setRoot(s);
+	else
+		server->setRoot(s);
 	++argc;
 	argv.push_back(s);
 	good = true;

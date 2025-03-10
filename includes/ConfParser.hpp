@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/10 22:55:56 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/10 23:48:17 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,7 +61,7 @@ class ConfParser
 	std::stack<Route *>							routes;
 	std::map<std::string, void (ConfParser::*)(const std::string &)>	wordFunc;
 	std::map<std::string, size_t>						wordCountServer;
-	std::map<std::string, size_t>						wordCountLocation;
+	std::stack<std::map<std::string, size_t> >				wordCountLocation;
 	void	(ConfParser::*currFunc)(const std::string &);
 	std::string								currWord;
 	std::vector<std::string>						argv;
@@ -76,6 +76,7 @@ class ConfParser
 	void	parseOpenBlock();
 	void	parseCloseBlock();
 	void	updateFunc(const std::string s);
+	size_t	getWordCountLocation(const std::string &s);
 	void	parseWordEmpty(const std::string &s);
 	void	parseWordServer(const std::string &s);
 	void	parseWordLocation(const std::string &s);

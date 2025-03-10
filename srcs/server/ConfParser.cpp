@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/10 23:23:42 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/10 23:47:57 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -146,6 +146,7 @@ void	ConfParser::parseOpenBlock()
 			routes.push(routes.top()->addRoute(argv[0]));
 		else
 			routes.push(server->addRoute(argv[0]));
+		wordCountLocation.push(std::map<std::string, size_t>());
 		resetState();
 	}
 	else
@@ -158,9 +159,15 @@ void	ConfParser::parseCloseBlock()
 	if (currFunc != &ConfParser::parseWordEmpty)
 		throw UnexpectedCloseException();
 	if (!routes.empty())
+	{
 		routes.pop();
+		wordCountLocation.pop();
+	}
 	else if (server)
+	{
 		server = NULL;
+		wordCountServer.clear();
+	}
 	else
 		throw UnexpectedCloseException();
 }
@@ -172,16 +179,17 @@ void	ConfParser::updateFunc(const std::string s)
 	currFunc = wordFunc[s];
 	if (currFunc == NULL)
 		throw UnrecognizedKeywordException();
-	else if (currFunc == &ConfParser::parseWordServer)
-		wordCountServer.clear();
-	else if (currFunc == &ConfParser::parseWordLocation)
-		wordCountLocation.clear();
-	wordCountServer[s] += 1;
-	wordCountLocation[s] += 1;
+	if (!routes.empty())
+		wordCountLocation.top()[s] += 1;
+	else
+		wordCountServer[s] += 1;
 }
 
-void	ConfParser::fillMissingParams()
+size_t	ConfParser::getWordCountLocation(const std::string &s)
 {
+	if (wordCountLocation.empty())
+		return 0;
+	return wordCountLocation.top()[s];
 }
 
 size_t	ConfParser::getLine()
@@ -192,6 +200,10 @@ size_t	ConfParser::getLine()
 size_t	ConfParser::getI()
 {
 	return i;
+}
+
+void	ConfParser::fillMissingParams()
+{
 }
 
 ConfParser::~ConfParser()

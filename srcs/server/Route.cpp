@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/10 23:25:01 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/10 23:27:21 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,4 +37,9 @@ Route	*Route::addRoute(const std::string &name)
 std::string	Route::getName()
 {
 	return name;
+}
+
+void	Route::setRoot(const std::string &s)
+{
+	root = s;
 }
