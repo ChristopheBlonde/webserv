@@ -6,7 +6,7 @@
 /*   By: glaguyon <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/22 18:42:46 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/10 23:14:23 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/10 23:24:01 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,26 +25,18 @@
 #include <arpa/inet.h>
 #include "Route.hpp"
 
-class Conf
+class Conf : public Route
 {
 	protected:
-	//for the server
 	uint32_t				ip;
 	uint16_t				port;
 	std::vector<std::string>		names;
 	size_t					maxBodySize;
 	std::map<unsigned, std::string>		errorPages;
 
-	//default in server block
-	Route					defRoute;
-
-	//routes ie locations
-	std::vector<Route>			routes;
-
 	public:
 	Conf();
 	~Conf();
-	Route	*addRoute(const std::string &name);
 	void	setIp(uint32_t ip);
 	void	setPort(uint16_t port);
 	void	addName(const std::string &s);

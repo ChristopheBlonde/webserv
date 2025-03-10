@@ -6,31 +6,24 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/10 22:37:18 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/10 23:23:57 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Conf.hpp"
 
 Conf::Conf() :
+	Route("you shouldn't be seeing this :("),
 	ip(0),
 	port(htons(8080)),
 	names(),
 	maxBodySize(1e6),
-	errorPages(),
-	defRoute("you shouldn't be seeing this :("),
-	routes()
+	errorPages()
 {
 }
 
 Conf::~Conf()
 {
-}
-
-Route	*Conf::addRoute(const std::string &name)
-{
-	routes.push_back(Route(name));
-	return &routes.back();
 }
 
 void	Conf::setIp(uint32_t n)

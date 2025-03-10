@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/10 23:11:06 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/10 23:20:40 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,10 +17,12 @@
 #include <vector>
 #include <string>
 #include <stdexcept>
+#include <iostream>
 #include "ExceptionTemplate.hpp"
 
 class Route
 {
+	protected:
 	std::string				name;
 	std::vector<std::string>		acceptedMethods;
 	std::string				root;
