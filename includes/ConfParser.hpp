@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/10 19:10:49 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/10 22:13:02 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,6 +66,7 @@ class ConfParser
 	std::vector<std::string>						argv;
 	size_t									argc;
 	bool									good;
+	bool									end;
 	size_t									line;
 	size_t									i;
 
@@ -79,6 +80,8 @@ class ConfParser
 	void	parseWordLocation(const std::string &s);
 	void	parseWordListen(const std::string &s);
 	void	parseWordServerName(const std::string &s);
+	void	parseWordErrorPage(const std::string &s);
+	void	parseWordClientMaxBodySize(const std::string &s);
 
 	public:
 	ConfParser(Cluster &cluster, const std::string &filename);

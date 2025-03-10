@@ -6,7 +6,7 @@
 /*   By: glaguyon <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/22 18:42:46 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/10 19:07:37 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/10 22:36:31 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,6 +48,8 @@ class Conf
 	void	setIp(uint32_t ip);
 	void	setPort(uint16_t port);
 	void	addName(const std::string &s);
+	void	setErrorPage(unsigned code, const std::string &page);
+	void	setMaxSize(size_t size);
 };
 
 #endif // CONF_HPP

@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/10 19:10:45 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/10 22:13:36 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,6 +49,7 @@ ConfParser::ConfParser(Cluster &cluster, const std::string &filename) :
 	argv(),
 	argc(0),
 	good(true),
+	end(false),
 	line(0),
 	i(0)
 {
@@ -59,6 +60,8 @@ ConfParser::ConfParser(Cluster &cluster, const std::string &filename) :
 	wordFunc["location"] = &ConfParser::parseWordLocation;
 	wordFunc["listen"] = &ConfParser::parseWordListen;
 	wordFunc["server_name"] = &ConfParser::parseWordServerName;
+	wordFunc["error_page"] = &ConfParser::parseWordErrorPage;
+	wordFunc["client_max_body_size"] = &ConfParser::parseWordClientMaxBodySize;
 }
 
 void	ConfParser::parseConf()
@@ -109,11 +112,13 @@ void	ConfParser::resetState()
 	argc = 0;
 	argv = std::vector<std::string>();
 	good = true;
+	end = false;
 	currFunc = &ConfParser::parseWordEmpty;
 }
 
 void	ConfParser::parseEndLine()
 {
+	end = true;
 	(this->*currFunc)(currWord);
 	if (currFunc != &ConfParser::parseWordEmpty && !good)
 		throw UnexpectedEOLException();
@@ -143,7 +148,7 @@ void	ConfParser::parseOpenBlock()
 		resetState();
 	}
 	else
-		throw UnrecognizedKeywordException();
+		throw UnexpectedOpenException();
 }
 
 void	ConfParser::parseCloseBlock()
