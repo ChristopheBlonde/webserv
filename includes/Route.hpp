@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/11 00:24:27 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/11 00:45:05 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@ class Route
 	std::string				name;
 	std::set<std::string>			acceptedMethods;
 	std::string				root;
-	std::set<std::string>			indexFiles;
+	std::vector<std::string>		indexFiles;
 	bool					autoindex, autoindexAssigned;
 	std::map<std::string, std::string>	cgi;
 	std::string				uploads;
@@ -43,6 +43,8 @@ class Route
 	std::string	getName();
 	void	setRoot(const std::string &s);
 	void	addMethod(const std::string &s);
+	void	addIndex(const std::string &s);
+	void	setAutoindex(bool b);
 };
 
 #endif // ROUTE_HPP

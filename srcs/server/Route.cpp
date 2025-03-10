@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/11 00:24:51 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/11 00:45:33 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,4 +49,15 @@ void	Route::addMethod(const std::string &s)
 	if (acceptedMethods.find(s) != acceptedMethods.end())
 		throw std::runtime_error("duplicate method: " + s);
 	acceptedMethods.insert(s);
+}
+
+void	Route::addIndex(const std::string &s)
+{
+	indexFiles.push_back(s);
+}
+
+void	Route::setAutoindex(bool b)
+{
+	autoindex = b;
+	autoindexAssigned = true;
 }

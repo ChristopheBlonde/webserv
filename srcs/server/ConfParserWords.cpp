@@ -6,7 +6,7 @@
 /*   By: glaguyon <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/04 18:27:52 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/11 00:27:47 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/11 00:44:40 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -236,6 +236,48 @@ void	ConfParser::parseWordMethods(const std::string &s)
 	{
 		throw IncorrectArgException(e.what());
 	}
+	++argc;
+	argv.push_back(s);
+	good = true;
+}
+
+void	ConfParser::parseWordIndex(const std::string &s)
+{
+	if (routes.empty() && !server)
+		throw KeywordWrongLevelException();
+	if (!s[0])
+		return;
+	if (!routes.empty())
+		routes.top()->addIndex(s);
+	else
+		server->addIndex(s);
+	++argc;
+	argv.push_back(s);
+	good = true;
+}
+
+void	ConfParser::parseWordAutoindex(const std::string &s)
+{
+	bool	autoindex;
+
+	if (routes.empty() && !server)
+		throw KeywordWrongLevelException();
+	if (wordCountServer["autoindex"] > 1 || getWordCountLocation("autoindex") > 1)
+		throw DuplicateKeywordException("duplicate autoindex found");
+	if (!s[0])
+		return;
+	if (argc > 0)
+		throw TooManyArgumentsException();
+	if (s == "on")
+		autoindex = true;
+	else if (s == "off")
+		autoindex = false;
+	else
+		throw IncorrectArgException("autoindex is on or off");
+	if (!routes.empty())
+		routes.top()->setAutoindex(autoindex);
+	else
+		server->setAutoindex(autoindex);
 	++argc;
 	argv.push_back(s);
 	good = true;
