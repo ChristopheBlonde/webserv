@@ -6,25 +6,19 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/20 11:59:15 by cblonde           #+#    #+#             */
-/*   Updated: 2025/02/27 18:20:17 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/10 16:22:56 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <Server.hpp>
 
 Server::Server(size_t index) :
-	index(index),
-	conf(Conf())
+	index(index)
 {
 }
 
 Server::~Server()
 {
-}
-
-Route	*Server::addRoute(const std::string &name)
-{
-	return conf.addRoute(name);
 }
 
 //Server::Server(short int port) : _port(port)

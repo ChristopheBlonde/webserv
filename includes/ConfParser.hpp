@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/05 19:46:25 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/10 19:10:49 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,6 +44,8 @@ class ConfParser
 	EXC_CLASS(MissingServerException);
 	EXC_CLASS(MissingArgsException);
 	EXC_CLASS(IncorrectArgException);
+	EXC_CLASS(KeywordWrongLevelException);
+	EXC_CLASS(DuplicateKeywordException);
 
 	//static variables
 	static const std::string						spaces;
@@ -58,6 +60,7 @@ class ConfParser
 	Server									*server;
 	std::stack<Route *>							routes;
 	std::map<std::string, void (ConfParser::*)(const std::string &)>	wordFunc;
+	std::map<std::string, size_t>						wordCount;
 	void	(ConfParser::*currFunc)(const std::string &);
 	std::string								currWord;
 	std::vector<std::string>						argv;
@@ -72,8 +75,10 @@ class ConfParser
 	void	parseCloseBlock();
 	void	updateFunc(const std::string s);
 	void	parseWordEmpty(const std::string &s);
-	void	parseWordServer(const std::string &S);
-	void	parseWordLocation(const std::string &S);
+	void	parseWordServer(const std::string &s);
+	void	parseWordLocation(const std::string &s);
+	void	parseWordListen(const std::string &s);
+	void	parseWordServerName(const std::string &s);
 
 	public:
 	ConfParser(Cluster &cluster, const std::string &filename);

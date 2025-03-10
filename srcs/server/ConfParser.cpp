@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/05 19:45:56 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/10 19:10:45 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,9 @@ EXC_FUNC(ConfParser, UnrecognizedKeywordException, "unrecognized keyword");
 EXC_FUNC(ConfParser, ServerInServerException, "can't have a server in a server");
 EXC_FUNC(ConfParser, MissingServerException, "missing server block");
 EXC_FUNC(ConfParser, MissingArgsException, "missing arguments");
-EXC_FUNC(ConfParser, IncorrectArgException, "missing arguments");
+EXC_FUNC(ConfParser, IncorrectArgException, "incorrect argument");
+EXC_FUNC(ConfParser, KeywordWrongLevelException, "keyword is at wrong level");
+EXC_FUNC(ConfParser, DuplicateKeywordException, "duplicate keyword found");
 
 //static variables
 const std::string		ConfParser::spaces = " \t\n";
@@ -55,6 +57,8 @@ ConfParser::ConfParser(Cluster &cluster, const std::string &filename) :
 	wordFunc[""] = &ConfParser::parseWordEmpty;
 	wordFunc["server"] = &ConfParser::parseWordServer;
 	wordFunc["location"] = &ConfParser::parseWordLocation;
+	wordFunc["listen"] = &ConfParser::parseWordListen;
+	wordFunc["server_name"] = &ConfParser::parseWordServerName;
 }
 
 void	ConfParser::parseConf()
@@ -64,6 +68,7 @@ void	ConfParser::parseConf()
 	std::getline(file, s);
 	while (file.good())
 	{
+		s += '\n';
 		if (s[0] == ConfParser::comment)
 		{
 			std::getline(file, s);
@@ -161,6 +166,10 @@ void	ConfParser::updateFunc(const std::string s)
 	currFunc = wordFunc[s];
 	if (currFunc == NULL)
 		throw UnrecognizedKeywordException();
+	if (currFunc == &ConfParser::parseWordLocation
+		|| currFunc == &ConfParser::parseWordServer)
+		wordCount.clear();
+	wordCount[s] += 1;
 }
 
 void	ConfParser::fillMissingParams()
