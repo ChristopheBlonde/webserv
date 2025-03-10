@@ -6,7 +6,7 @@
 /*   By: cblonde <cblonde@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/19 07:03:14 by cblonde           #+#    #+#             */
-/*   Updated: 2025/02/27 14:38:10 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/10 12:01:14 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,7 @@
 # include <sstream>
 # include <cctype>
 # include <sys/types.h>
+# include <sys/wait.h>
 # include <sys/socket.h>
 # include <poll.h>
 # include <netinet/in.h>

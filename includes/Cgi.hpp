@@ -6,7 +6,7 @@
 /*   By: cblonde <cblonde@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/06 07:05:16 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/09 09:33:46 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/10 14:54:22 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,14 +22,13 @@ class Cgi
 		char								**_env;
 		std::map<std::string,std::string>	_envMap;
 		pid_t								_pid;
-		int									_pipe[2];
 		std::string							_content;
 		int									_contentSize;
 		std::string							_fileType;
 		int									_status;
 		std::string							_body;
+		std::string							_scriptPass;
 		Cgi(void);
-		void	execScript(void);
 		char	**createEnvArr(void);
 		void	initCgi(Requests const &req);
 	public:
@@ -37,6 +36,7 @@ class Cgi
 		Cgi(Cgi const &src);
 		~Cgi(void);
 		Cgi	&operator=(Cgi const &rhs);
+		std::string	execScript(void);
 };
 
 #endif

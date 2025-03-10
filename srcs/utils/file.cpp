@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:47:28 by cblonde           #+#    #+#             */
-/*   Updated: 2025/02/28 10:11:48 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/10 15:13:03 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -139,5 +139,5 @@ void initResponseHeaders(std::map<std::string, std::string> &headers)
 {
 	headers["Content-Type"] = "Content-Type: ";
 	headers["Content-Length"] = "Content-Length: ";
-	headers["Set-Cookies"] = "Set-Cookies: ";
+	headers["Set-Cookie"] = "Set-Cookie: ";
 }

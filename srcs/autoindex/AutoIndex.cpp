@@ -6,7 +6,7 @@
 /*   By: cblonde <cblonde@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/03 07:54:18 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/04 10:02:10 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/10 17:24:48 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,9 +85,11 @@ initial-scale=1.0\"/>\n\t\t\t\
 std::string	AutoIndex::getLink(std::string path, std::string d_name)
 {
 	std::stringstream	str;
-	
+	std::cout << GREEN << "Link: path:" << path << " d_name:" << d_name << RESET
+		<< std::endl;
+
 	str << "<a href='" << "http://" << _host + ":" << _port
-		<< std::string(_dirPath) << path << "/" << d_name << "'>" << d_name
-		<< "</a><br/>\t\t\t";
+		<< path << (path.find_last_of("/") != path.size() - 1 ? "/" : "" )
+		<< d_name << "'>" << d_name << "</a><br/>\t\t\t";
 	return (str.str());
 }

@@ -6,7 +6,7 @@
 /*   By: cblonde <cblonde@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/06 07:14:01 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/09 11:04:02 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/10 14:57:24 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,10 +38,12 @@ Cgi::~Cgi(void)
 	{
 		while (_env[i])
 		{
-			delete _env[i];
+			delete [] _env[i];
+			_env[i] = NULL;
 			i++;
 		}
 		delete [] _env;
+		_env = NULL;
 	}
 	return ;
 }
@@ -76,48 +78,97 @@ void	Cgi::initCgi(Requests const &req)
 	_envMap["SERVER_PORT"] = "";
 	_envMap["SERVER_NAME"] = "";
 	_pid = -1;
-	_pipe[0] = -1;
-	_pipe[1] = -1;
 	_contentSize = 0;
+	_content = "";
 	_status = -1;
+	_body = req.getBody();
+	_scriptPass = req.getPath();
+	_env = NULL;
 }
 
 char	**Cgi::createEnvArr(void)
 {
 	size_t		i;
 	std::string	tmp;
-	char **env = new char *[_envMap.size() + 1];
+	_env = new char *[(_envMap.size() + 1 ) * sizeof(char *)];
 	std::map<std::string, std::string>::iterator it;
 
 	i = 0;
-	memset(static_cast<void *>(env), 0, _envMap.size() + 1);
+	memset(static_cast<void *>(_env), 0, (_envMap.size() + 1) * sizeof(char *));
 	for (it = _envMap.begin(); it != _envMap.end(); it++)
 	{
 		tmp = it->first + "=" + it->second;
-		env[i] = new char[tmp.size() + 1];
-		strcpy(env[i], static_cast<const char *>(tmp.data()));
+		_env[i] = new char[tmp.size() + 1];
+		strcpy(_env[i], static_cast<const char *>(tmp.data()));
 		i++;
 	}	
-	return (env);
+	return (_env);
 }
 
-void	Cgi::execScript(void)
+std::string	Cgi::execScript(void)
 {
 	try
 	{
 		_env = createEnvArr();
-		size_t i = 0;
-		while (_env[i])
-		{
-			std::cout << GREEN << "_envArr: [" << i << "] :" << _env[i]
-				<< std::endl << RESET;
-			i++;
-		}
+	//	size_t i = 0;
+	//	while (_env[i])
+	//	{
+	//		std::cout << GREEN << "_envArr: [" << i << "] :" << _env[i]
+	//			<< std::endl << RESET;
+	//		i++;
+	//	}
 	}
 	catch (std::bad_alloc &e)
 	{
 		std::cerr << RED << "Error: CGI: " << e.what() << std::endl << RESET;
-		return ;
+		return (_content);
 	}
-	return ;
+	FILE	*inFile = tmpfile();
+	FILE	*outFile = tmpfile();
+	int		fdIn = fileno(inFile);
+	int		fdOut = fileno(outFile);
+	char	buffer[1000];
+	int		res = 1;
+
+	write(fdIn, _body.data(), _body.size());
+	fseek(inFile, 0, SEEK_SET);
+	_pid = fork();
+	if (_pid == -1)
+	{
+		_content = "Error: 500";
+		return (_content);
+	}
+	else if (!_pid)
+	{
+		char	*argv[2];
+
+		argv[0] = NULL;
+		dup2(fdIn, 0);
+		dup2(fdOut, 1);
+		_scriptPass = "."+ _scriptPass;
+		execve(_scriptPass.data(), argv, _env);
+		std::cout << RED << "FAIL EXECVE: path: " << _scriptPass
+			<< RESET << std::endl;
+	}
+	else
+	{
+		waitpid(-1, &_status, 0);
+		fseek(outFile, 0, SEEK_SET);
+		while (res != 0)
+		{
+			memset(buffer, 0, 1000);
+			res = read(fdOut, buffer, 999);
+			_content += buffer;
+		}
+	}
+	//dup2(0, 0);
+	//dup2(1, 1);
+	fclose(inFile);
+	fclose(outFile);
+	close(fdIn);
+	close(fdOut);
+	if (!_pid)
+		exit(0);
+	std::cout << RED << "RESULT CGI :" << _content << RESET << std::endl;
+	return _content;
 }

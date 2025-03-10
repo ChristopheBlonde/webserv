@@ -6,12 +6,13 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:15:20 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/09 13:16:49 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/10 17:40:46 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <Response.hpp>
 #include <ErrorPages.hpp>
+#include <Cgi.hpp>
 
 Response::Response(void)
 {
@@ -21,6 +22,7 @@ Response::Response(void)
 Response::Response(Requests const &req) : _path(req.getPath())
 {
 	this->_protocol = req.getProtocol();
+	this->_cgi = false;
 	initMimeTypes(_mimeTypes);
 	initResponseHeaders(_headers);
 	
@@ -41,6 +43,14 @@ Response::Response(Requests const &req) : _path(req.getPath())
 			_path = path + _path;
 	}
 	std::cout << RED << "\tPATH: " << _path << std::endl << RESET;
+	if (_path.find_last_of(".") != std::string::npos
+			&& (std::string(_path.substr(_path.size() - 3))) == ".js")
+	{
+		std::cout << CYAN << "CGI test file: " << _path << RESET << std::endl;
+		_cgi = true;
+		Cgi	test(req);
+		_response = test.execScript();
+	}
 	return ;
 }
 
@@ -118,7 +128,7 @@ void	Response::createError(int stat)
 		content = ERROR_PAGE(getNameError(stat), getContentError(stat),
 				to_string(stat));
 	else
-		content = AutoIndex::generate("./", "localhost", 8080);
+		content = AutoIndex::generate(_path.data(), "localhost", 8080);
 	result += getNameError(stat) + "\n";
 	_contentLen = content.size();
 	result += "Content-Type: text/html; charset=UTF-8\nContent-Length: "
@@ -142,17 +152,25 @@ void	Response::createResponse(void)
 	/* build result */
 	std::pair<int,std::string> content;
 	std::map<std::string,std::string>::iterator it;
-	content = openDir(_path);
+	if (!_cgi)
+		content = openDir(_path);
+	else
+	{
+		content.second = _response;
+		content.first = _response.size();
+	}
 	if (!content.first)
 	{
 		createError(404);
 		return ;
 	}
 	/* Create first line */
-	_response += _protocol + " 200 OK\n";
+	_response = _protocol + " 200 OK\n";
 	/* Create headers */
 	_headers["Content-Length"] += to_string(content.first);
-	_headers["Content-Type"] += _mimeTypes[getFileType(_path)];
+	_headers["Content-Type"] += !_cgi ? _mimeTypes[getFileType(_path)]
+		: "text/html; charset=UFT-8";
+	_headers["Set-Cookie"] += "name=Chris; Domain=localhost:8080";
 	/* join all */
 	for (it = _headers.begin(); it != _headers.end(); it++)
 		_response += (it->second + "\n");
