@@ -6,7 +6,7 @@
 /*   By: glaguyon <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/04 18:27:52 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/10 22:40:11 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/10 23:05:04 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,7 @@ void	ConfParser::parseWordListen(const std::string &s)
 {
 	if (!routes.empty() || !server)
 		throw KeywordWrongLevelException();
-	if (wordCount["listen"] > 1)
+	if (wordCountServer["listen"] > 1)
 		throw DuplicateKeywordException("duplicate listen found");
 	if (!s[0])
 		return;
@@ -160,6 +160,8 @@ void	ConfParser::parseWordClientMaxBodySize(const std::string &s)
 {
 	if (!routes.empty() || !server)
 		throw KeywordWrongLevelException();
+	if (wordCountServer["client_max_body_size"] > 1)
+		throw DuplicateKeywordException("duplicate client body size found");
 	if (!s[0])
 		return;
 	if (argc > 0)
@@ -190,6 +192,23 @@ void	ConfParser::parseWordClientMaxBodySize(const std::string &s)
 	if (errno == ERANGE || std::numeric_limits<long>::max() / mul < num)
 		throw IncorrectArgException("client body size too large");
 	server->setMaxSize(static_cast<size_t>(num * mul));
+	++argc;
+	argv.push_back(s);
+	good = true;
+}
+
+void	ConfParser::parseWordRoot(const std::string &s)
+{
+	if (routes.empty() && !server)
+		throw KeywordWrongLevelException();
+	if (wordCountServer["root"] > 1 || wordCountLocation["root"] > 1)
+		throw DuplicateKeywordException("duplicate root found");
+	if (!s[0])
+		return;
+	if (argc > 0)
+		throw TooManyArgumentsException();
+	//if (!routes.empty())
+	//	routes.top()->set
 	++argc;
 	argv.push_back(s);
 	good = true;

@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/02/26 21:48:43 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/10 22:58:37 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,7 @@ class Cluster
 	~Cluster();
 	Server			*addServer();
 
+	//check location en double XXX
 	//fill blanks
 	//init servers
 	//try add clients

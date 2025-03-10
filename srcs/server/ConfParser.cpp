@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/10 22:13:36 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/10 22:59:46 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,6 +62,7 @@ ConfParser::ConfParser(Cluster &cluster, const std::string &filename) :
 	wordFunc["server_name"] = &ConfParser::parseWordServerName;
 	wordFunc["error_page"] = &ConfParser::parseWordErrorPage;
 	wordFunc["client_max_body_size"] = &ConfParser::parseWordClientMaxBodySize;
+	wordFunc["root"] = &ConfParser::parseWordRoot;
 }
 
 void	ConfParser::parseConf()
@@ -171,10 +172,12 @@ void	ConfParser::updateFunc(const std::string s)
 	currFunc = wordFunc[s];
 	if (currFunc == NULL)
 		throw UnrecognizedKeywordException();
-	if (currFunc == &ConfParser::parseWordLocation
-		|| currFunc == &ConfParser::parseWordServer)
-		wordCount.clear();
-	wordCount[s] += 1;
+	else if (currFunc == &ConfParser::parseWordServer)
+		wordCountServer.clear();
+	else if (currFunc == &ConfParser::parseWordLocation)
+		wordCountLocation.clear();
+	wordCountServer[s] += 1;
+	wordCountLocation[s] += 1;
 }
 
 void	ConfParser::fillMissingParams()
