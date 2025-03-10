@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/10 23:47:57 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/11 00:15:35 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,7 @@ EXC_FUNC(ConfParser, MissingArgsException, "missing arguments");
 EXC_FUNC(ConfParser, IncorrectArgException, "incorrect argument");
 EXC_FUNC(ConfParser, KeywordWrongLevelException, "keyword is at wrong level");
 EXC_FUNC(ConfParser, DuplicateKeywordException, "duplicate keyword found");
+EXC_FUNC(ConfParser, DuplicateLocationException, "duplicate location found");
 
 //static variables
 const std::string		ConfParser::spaces = " \t\n";
@@ -38,6 +39,9 @@ const char			ConfParser::openBlock = '{';
 const char			ConfParser::closeBlock = '}';
 const char			ConfParser::comment = '#';
 const char			ConfParser::endLine = ';';
+const std::string 		ConfParser::allowedMethods[3] = {"GET", "POST", "DELETE"};
+const size_t			ConfParser::allowedMethodsSize =
+		sizeof(ConfParser::allowedMethods) / sizeof(ConfParser::allowedMethods[0]);
 
 ConfParser::ConfParser(Cluster &cluster, const std::string &filename) : 
 	file(filename.c_str()), 
@@ -63,6 +67,7 @@ ConfParser::ConfParser(Cluster &cluster, const std::string &filename) :
 	wordFunc["error_page"] = &ConfParser::parseWordErrorPage;
 	wordFunc["client_max_body_size"] = &ConfParser::parseWordClientMaxBodySize;
 	wordFunc["root"] = &ConfParser::parseWordRoot;
+	wordFunc["methods"] = &ConfParser::parseWordMethods;
 }
 
 void	ConfParser::parseConf()
@@ -142,10 +147,17 @@ void	ConfParser::parseOpenBlock()
 			throw MissingArgsException();
 		if (!server)
 			throw MissingServerException();
-		if (!routes.empty())
-			routes.push(routes.top()->addRoute(argv[0]));
-		else
-			routes.push(server->addRoute(argv[0]));
+		try
+		{
+			if (!routes.empty())
+				routes.push(routes.top()->addRoute(argv[0]));
+			else
+				routes.push(server->addRoute(argv[0]));
+		}
+		catch (std::exception &e)
+		{
+			throw DuplicateLocationException(e.what());
+		}
 		wordCountLocation.push(std::map<std::string, size_t>());
 		resetState();
 	}

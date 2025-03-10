@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/10 23:23:57 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/11 00:26:13 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,9 +38,9 @@ void	Conf::setPort(uint16_t n)
 
 void	Conf::addName(const std::string &s)
 {
-	if (std::find(names.begin(), names.end(), s) != names.end())
+	if (names.find(s) != names.end())
 		throw std::runtime_error(s);
-	names.push_back(s);
+	names.insert(s);
 }
 
 void	Conf::setErrorPage(unsigned code, const std::string &page)

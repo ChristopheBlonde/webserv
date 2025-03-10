@@ -6,7 +6,7 @@
 /*   By: glaguyon <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/04 18:27:52 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/10 23:48:35 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/11 00:27:47 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -211,6 +211,31 @@ void	ConfParser::parseWordRoot(const std::string &s)
 		routes.top()->setRoot(s);
 	else
 		server->setRoot(s);
+	++argc;
+	argv.push_back(s);
+	good = true;
+}
+
+void	ConfParser::parseWordMethods(const std::string &s)
+{
+	if (routes.empty() && !server)
+		throw KeywordWrongLevelException();
+	if (!s[0])
+		return;
+	if (std::find(allowedMethods, allowedMethods + allowedMethodsSize, s)
+		== allowedMethods + allowedMethodsSize)
+		throw IncorrectArgException("unknown method");
+	try
+	{
+		if (!routes.empty())
+			routes.top()->addMethod(s);
+		else
+			server->addMethod(s);
+	}
+	catch (std::exception &e)
+	{
+		throw IncorrectArgException(e.what());
+	}
 	++argc;
 	argv.push_back(s);
 	good = true;

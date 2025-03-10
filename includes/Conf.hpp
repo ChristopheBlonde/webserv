@@ -6,7 +6,7 @@
 /*   By: glaguyon <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/22 18:42:46 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/10 23:24:01 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/11 00:26:30 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 # define CONF_HPP
 
 #include <map>
-#include <vector>
+#include <set>
 #include <string>
 #include <iostream>
 #include <fstream>
@@ -30,7 +30,7 @@ class Conf : public Route
 	protected:
 	uint32_t				ip;
 	uint16_t				port;
-	std::vector<std::string>		names;
+	std::set<std::string>			names;
 	size_t					maxBodySize;
 	std::map<unsigned, std::string>		errorPages;
 

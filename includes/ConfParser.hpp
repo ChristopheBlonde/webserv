@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/10 23:48:17 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/11 00:14:16 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,6 +46,7 @@ class ConfParser
 	EXC_CLASS(IncorrectArgException);
 	EXC_CLASS(KeywordWrongLevelException);
 	EXC_CLASS(DuplicateKeywordException);
+	EXC_CLASS(DuplicateLocationException);
 
 	//static variables
 	static const std::string						spaces;
@@ -53,6 +54,8 @@ class ConfParser
 	static const char							closeBlock;
 	static const char							comment;
 	static const char							endLine;
+	static const std::string						allowedMethods[];
+	static const size_t							allowedMethodsSize;
 
 	//stuff
 	std::ifstream								file;
@@ -85,6 +88,7 @@ class ConfParser
 	void	parseWordErrorPage(const std::string &s);
 	void	parseWordClientMaxBodySize(const std::string &s);
 	void	parseWordRoot(const std::string &s);
+	void	parseWordMethods(const std::string &s);
 
 	public:
 	ConfParser(Cluster &cluster, const std::string &filename);

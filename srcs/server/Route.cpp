@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/10 23:27:21 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/11 00:24:51 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,4 +42,11 @@ std::string	Route::getName()
 void	Route::setRoot(const std::string &s)
 {
 	root = s;
+}
+
+void	Route::addMethod(const std::string &s)
+{
+	if (acceptedMethods.find(s) != acceptedMethods.end())
+		throw std::runtime_error("duplicate method: " + s);
+	acceptedMethods.insert(s);
 }
