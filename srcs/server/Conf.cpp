@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/11 00:26:13 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/11 23:26:17 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,10 +36,13 @@ void	Conf::setPort(uint16_t n)
 	port = n;
 }
 
+std::set<std::string>	&Conf::getNames()
+{
+	return names;
+}
+
 void	Conf::addName(const std::string &s)
 {
-	if (names.find(s) != names.end())
-		throw std::runtime_error(s);
 	names.insert(s);
 }
 

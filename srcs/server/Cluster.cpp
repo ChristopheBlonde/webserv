@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/11 22:34:09 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/11 23:00:26 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,8 +33,6 @@ Cluster::Cluster(const std::string &filename)
 		throw;
 	}
 	parser.fillBlanks();
-	//TODO utiliser les getters plutot que de faire des exceptions sus
-	//XXX faire un test pour verifier que ca herite bien
 	//init poll, fds etc
 }
 

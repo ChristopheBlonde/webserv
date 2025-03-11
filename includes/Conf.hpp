@@ -6,7 +6,7 @@
 /*   By: glaguyon <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/22 18:42:46 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/11 00:26:30 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/11 23:25:57 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,11 +37,12 @@ class Conf : public Route
 	public:
 	Conf();
 	~Conf();
-	void	setIp(uint32_t ip);
-	void	setPort(uint16_t port);
-	void	addName(const std::string &s);
-	void	setErrorPage(unsigned code, const std::string &page);
-	void	setMaxSize(size_t size);
+	void			setIp(uint32_t ip);
+	void			setPort(uint16_t port);
+	std::set<std::string>	&getNames();
+	void			addName(const std::string &s);
+	void			setErrorPage(unsigned code, const std::string &page);
+	void			setMaxSize(size_t size);
 };
 
 #endif // CONF_HPP

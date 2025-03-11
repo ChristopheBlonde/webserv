@@ -6,7 +6,7 @@
 /*   By: glaguyon <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/04 18:27:52 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/11 21:28:23 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/11 23:30:01 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -100,14 +100,9 @@ void	ConfParser::parseWordServerName(const std::string &s)
 		throw KeywordWrongLevelException();
 	if (!s[0])
 		return;
-	try
-	{
-		server->addName(s);
-	}
-	catch (std::exception &e)
-	{
-		throw IncorrectArgException(std::string("dupliate server name: ") + e.what());
-	}
+	if (server->getNames().find(s) != server->getNames().end())
+		throw IncorrectArgException("duplicate server name: " + s);
+	server->addName(s);
 	++argc;
 	argv.push_back(s);
 	good = true;
@@ -226,16 +221,19 @@ void	ConfParser::parseWordMethods(const std::string &s)
 			Cluster::allowedMethods + Cluster::allowedMethodsSize, s)
 		== Cluster::allowedMethods + Cluster::allowedMethodsSize)
 		throw IncorrectArgException("unknown method");
-	try
+	if (!routes.empty())
 	{
-		if (!routes.empty())
-			routes.top()->addMethod(s);
-		else
-			server->addMethod(s);
+		if (routes.top()->getAcceptedMethods().find(s)
+			!= routes.top()->getAcceptedMethods().end())
+			throw IncorrectArgException("duplicate method: " + s);
+		routes.top()->addMethod(s);
 	}
-	catch (std::exception &e)
+	else
 	{
-		throw IncorrectArgException(e.what());
+		if (server->getAcceptedMethods().find(s)
+			!= server->getAcceptedMethods().end())
+			throw IncorrectArgException("duplicate method: " + s);
+		server->addMethod(s);
 	}
 	++argc;
 	argv.push_back(s);
@@ -297,20 +295,13 @@ void	ConfParser::parseWordCgi(const std::string &s)
 	if (argc < 2)
 		return;
 	good = true;
-	try
-	{
-		routes.top()->addCgi(argv[0], argv[1]);
-	}
-	catch (std::exception &e)
-	{
-		throw IncorrectArgException(e.what());
-	}
+	if (routes.top()->getCgi()[argv[0]][0])
+		throw IncorrectArgException("duplicate cgi extension found");
+	routes.top()->addCgi(argv[0], argv[1]);
 }
 
 void	ConfParser::parseWordReturn(const std::string &s)
 {
-	bool	autoindex;
-
 	if (routes.empty() && !server)
 		throw KeywordWrongLevelException();
 	if (wordCountServer["return"] > 1 || getWordCountLocation("return") > 1)

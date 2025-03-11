@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/11 21:44:49 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/11 23:22:37 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -148,17 +148,20 @@ void	ConfParser::parseOpenBlock()
 			throw MissingArgsException();
 		if (!server)
 			throw MissingServerException();
-		try
+
+		std::vector<Route>	&clusterRoutes =
+			((!routes.empty()) ? routes.top()->getRoutes() : server->getRoutes());
+		
+		for (std::vector<Route>::iterator it = clusterRoutes.begin();
+			it != clusterRoutes.end(); ++it)
 		{
-			if (!routes.empty())
-				routes.push(routes.top()->addRoute(argv[0]));
-			else
-				routes.push(server->addRoute(argv[0]));
+			if (it->getName() == argv[0])
+				throw DuplicateLocationException("duplicate route " + argv[0]);
 		}
-		catch (std::exception &e)
-		{
-			throw DuplicateLocationException(e.what());
-		}
+		if (!routes.empty())
+			routes.push(routes.top()->addRoute(argv[0]));
+		else
+			routes.push(server->addRoute(argv[0]));
 		wordCountLocation.push(std::map<std::string, size_t>());
 		resetState();
 	}

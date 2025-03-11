@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/11 22:50:17 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/11 23:19:29 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,11 +25,6 @@ Route::~Route()
 
 Route	*Route::addRoute(const std::string &name)
 {
-	for (std::vector<Route>::iterator it = routes.begin(); it != routes.end(); ++it)
-	{
-		if (it->name == name)
-			throw std::runtime_error("duplicate route " + name);
-	}
 	routes.push_back(Route(name));
 	return &routes.back();
 }
@@ -56,8 +51,6 @@ std::set<std::string>	&Route::getAcceptedMethods()
 
 void	Route::addMethod(const std::string &s)
 {
-	if (acceptedMethods.find(s) != acceptedMethods.end())
-		throw std::runtime_error("duplicate method: " + s);
 	acceptedMethods.insert(s);
 }
 
@@ -94,10 +87,9 @@ std::map<std::string, std::string>	&Route::getCgi()
 
 void	Route::addCgi(const std::string &ext, const std::string &exec)
 {
-	if (cgi[ext][0])
-		throw std::runtime_error("duplicate cgi extension found");
 	cgi[ext] = exec;
 }
+
 std::string	Route::getRedirection()
 {
 	return redirection;
