@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/11 01:23:29 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/11 18:06:25 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ class Route
 	std::string				root;
 	std::vector<std::string>		indexFiles;
 	bool					autoindex, autoindexAssigned;
-	std::string				cgi;
+	std::map<std::string, std::string>	cgi;
 	std::string				redirection;
 	
 	//locations in locations
@@ -44,7 +44,7 @@ class Route
 	void	addMethod(const std::string &s);
 	void	addIndex(const std::string &s);
 	void	setAutoindex(bool b);
-	void	setCgi(const std::string &s);
+	void	addCgi(const std::string &ext, const std::string &exec);
 	void	setRedirection(const std::string &s);
 };
 

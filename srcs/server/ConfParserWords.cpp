@@ -6,7 +6,7 @@
 /*   By: glaguyon <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/04 18:27:52 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/11 01:14:37 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/11 18:15:10 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -283,20 +283,27 @@ void	ConfParser::parseWordAutoindex(const std::string &s)
 	good = true;
 }
 
-void	ConfParser::parseWordCgiPass(const std::string &s)
+void	ConfParser::parseWordCgi(const std::string &s)
 {
 	if (routes.empty())
 		throw KeywordWrongLevelException();
-	if (wordCountServer["cgi_pass"] > 1 || getWordCountLocation("cgi_pass") > 1)
-		throw DuplicateKeywordException("duplicate cgi found");
 	if (!s[0])
 		return;
-	if (argc > 0)
+	if (argc > 1)
 		throw TooManyArgumentsException();
-	routes.top()->setCgi(s);
 	++argc;
 	argv.push_back(s);
+	if (argc < 2)
+		return;
 	good = true;
+	try
+	{
+		routes.top()->addCgi(argv[0], argv[1]);
+	}
+	catch (std::exception &e)
+	{
+		throw IncorrectArgException(e.what());
+	}
 }
 
 void	ConfParser::parseWordReturn(const std::string &s)

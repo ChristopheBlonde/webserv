@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/11 01:13:22 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/11 18:16:36 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,8 +15,7 @@
 Route::Route(const std::string &name) :
 	name(name),
 	autoindex(true),
-	autoindexAssigned(false),
-	cgi("")
+	autoindexAssigned(false)
 {
 }
 
@@ -63,9 +62,11 @@ void	Route::setAutoindex(bool b)
 	autoindexAssigned = true;
 }
 
-void	Route::setCgi(const std::string &s)
+void	Route::addCgi(const std::string &ext, const std::string &exec)
 {
-	cgi = s;
+	if (cgi[ext][0])
+		throw std::runtime_error("duplicate cgi extension found");
+	cgi[ext] = exec;
 }
 
 void	Route::setRedirection(const std::string &s)
