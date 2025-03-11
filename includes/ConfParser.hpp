@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/11 18:12:16 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/11 21:44:29 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,10 +54,8 @@ class ConfParser
 	static const char							closeBlock;
 	static const char							comment;
 	static const char							endLine;
-	static const std::string						allowedMethods[];
-	static const size_t							allowedMethodsSize;
 
-	//stuff
+	//parsing
 	std::ifstream								file;
 	Cluster									&cluster;
 	Server									*server;
@@ -94,13 +92,16 @@ class ConfParser
 	void	parseWordCgi(const std::string &s);
 	void	parseWordReturn(const std::string &s);
 
+	//filling
+	void	fillBlanksLevel(Route &prev, std::vector<Route> &routes);
+
 	public:
 	ConfParser(Cluster &cluster, const std::string &filename);
 	~ConfParser();
 	void	parseConf();
-	void	fillMissingParams();
 	size_t	getLine();
 	size_t	getI();
+	void	fillBlanks();
 };
 
 #endif // CONFPARSER_HPP

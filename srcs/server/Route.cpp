@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/11 18:16:36 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/11 22:50:17 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,6 +44,16 @@ void	Route::setRoot(const std::string &s)
 	root = s;
 }
 
+std::string	Route::getRoot()
+{
+	return root;
+}
+
+std::set<std::string>	&Route::getAcceptedMethods()
+{
+	return acceptedMethods;
+}
+
 void	Route::addMethod(const std::string &s)
 {
 	if (acceptedMethods.find(s) != acceptedMethods.end())
@@ -51,9 +61,24 @@ void	Route::addMethod(const std::string &s)
 	acceptedMethods.insert(s);
 }
 
+std::vector<std::string>	&Route::getIndex()
+{
+	return indexFiles;
+}
+
 void	Route::addIndex(const std::string &s)
 {
 	indexFiles.push_back(s);
+}
+
+bool	Route::getAutoindex()
+{
+	return autoindex;
+}
+
+bool	Route::isAutoindexAssigned()
+{
+	return autoindexAssigned;
 }
 
 void	Route::setAutoindex(bool b)
@@ -62,14 +87,28 @@ void	Route::setAutoindex(bool b)
 	autoindexAssigned = true;
 }
 
+std::map<std::string, std::string>	&Route::getCgi()
+{
+	return cgi;
+}
+
 void	Route::addCgi(const std::string &ext, const std::string &exec)
 {
 	if (cgi[ext][0])
 		throw std::runtime_error("duplicate cgi extension found");
 	cgi[ext] = exec;
 }
+std::string	Route::getRedirection()
+{
+	return redirection;
+}
 
 void	Route::setRedirection(const std::string &s)
 {
 	redirection = s;
+}
+
+std::vector<Route>	&Route::getRoutes()
+{
+	return routes;
 }

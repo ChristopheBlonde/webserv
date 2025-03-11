@@ -6,11 +6,16 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/02/27 17:01:33 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/11 22:34:09 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Cluster.hpp"
+
+const std::string		Cluster::defaultRoot = "/html/";
+const std::string 		Cluster::allowedMethods[3] = {"GET", "POST", "DELETE"};
+const size_t			Cluster::allowedMethodsSize =
+		sizeof(Cluster::allowedMethods) / sizeof(Cluster::allowedMethods[0]);
 
 Cluster::Cluster(const std::string &filename)
 {
@@ -27,7 +32,9 @@ Cluster::Cluster(const std::string &filename)
 			<< parser.getLine() + 1 << ":" << parser.getI() + 1 << ": ";
 		throw;
 	}
-	parser.fillMissingParams();
+	parser.fillBlanks();
+	//TODO utiliser les getters plutot que de faire des exceptions sus
+	//XXX faire un test pour verifier que ca herite bien
 	//init poll, fds etc
 }
 
@@ -39,4 +46,9 @@ Server			*Cluster::addServer()
 {
 	servers.push_back(Server(servers.size()));
 	return &servers.back();
+}
+
+std::vector<Server>	&Cluster::getServers()
+{
+	return servers;
 }

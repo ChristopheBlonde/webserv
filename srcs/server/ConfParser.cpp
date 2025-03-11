@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/11 18:22:22 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/11 21:44:49 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,9 +39,6 @@ const char			ConfParser::openBlock = '{';
 const char			ConfParser::closeBlock = '}';
 const char			ConfParser::comment = '#';
 const char			ConfParser::endLine = ';';
-const std::string 		ConfParser::allowedMethods[3] = {"GET", "POST", "DELETE"};
-const size_t			ConfParser::allowedMethodsSize =
-		sizeof(ConfParser::allowedMethods) / sizeof(ConfParser::allowedMethods[0]);
 
 ConfParser::ConfParser(Cluster &cluster, const std::string &filename) : 
 	file(filename.c_str()), 
@@ -216,10 +213,6 @@ size_t	ConfParser::getLine()
 size_t	ConfParser::getI()
 {
 	return i;
-}
-
-void	ConfParser::fillMissingParams()
-{
 }
 
 ConfParser::~ConfParser()

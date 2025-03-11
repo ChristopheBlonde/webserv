@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/11 18:06:25 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/11 22:49:32 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,14 +38,23 @@ class Route
 	public:
 	Route(const std::string &name);
 	~Route();
-	Route	*addRoute(const std::string &name);
-	std::string	getName();
-	void	setRoot(const std::string &s);
-	void	addMethod(const std::string &s);
-	void	addIndex(const std::string &s);
-	void	setAutoindex(bool b);
-	void	addCgi(const std::string &ext, const std::string &exec);
-	void	setRedirection(const std::string &s);
+	Route					*addRoute(const std::string &name);
+	std::string				getName();
+	std::string				getRoot();
+	void					setRoot(const std::string &s);
+	std::set<std::string>			&getAcceptedMethods();
+	void					addMethod(const std::string &s);
+	std::vector<std::string>		&getIndex();
+	void					addIndex(const std::string &s);
+	bool					isAutoindexAssigned();
+	bool					getAutoindex();
+	void					setAutoindex(bool b);
+	std::map<std::string, std::string>	&getCgi();
+	void					addCgi(const std::string &ext,
+							const std::string &exec);
+	std::string				getRedirection();
+	void					setRedirection(const std::string &s);
+	std::vector<Route>			&getRoutes();
 };
 
 #endif // ROUTE_HPP

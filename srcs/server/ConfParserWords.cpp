@@ -6,7 +6,7 @@
 /*   By: glaguyon <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/04 18:27:52 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/11 18:15:10 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/11 21:28:23 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -222,8 +222,9 @@ void	ConfParser::parseWordMethods(const std::string &s)
 		throw KeywordWrongLevelException();
 	if (!s[0])
 		return;
-	if (std::find(allowedMethods, allowedMethods + allowedMethodsSize, s)
-		== allowedMethods + allowedMethodsSize)
+	if (std::find(Cluster::allowedMethods,
+			Cluster::allowedMethods + Cluster::allowedMethodsSize, s)
+		== Cluster::allowedMethods + Cluster::allowedMethodsSize)
 		throw IncorrectArgException("unknown method");
 	try
 	{

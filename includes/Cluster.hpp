@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/10 23:21:08 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/11 21:48:15 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,9 +26,14 @@ class Cluster
 	//liste des fds de merde, server listen, clients, fichiers gros, cgi
 
 	public:
+	static const std::string	defaultRoot;
+	static const std::string	allowedMethods[];
+	static const size_t		allowedMethodsSize;
+	
 	Cluster(const std::string &filename);
 	~Cluster();
 	Server			*addServer();
+	std::vector<Server>	&getServers();
 
 	//fill blanks
 	//init servers
