@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/11 00:45:33 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/11 01:13:22 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,8 @@
 Route::Route(const std::string &name) :
 	name(name),
 	autoindex(true),
-	autoindexAssigned(false)
+	autoindexAssigned(false),
+	cgi("")
 {
 }
 
@@ -60,4 +61,14 @@ void	Route::setAutoindex(bool b)
 {
 	autoindex = b;
 	autoindexAssigned = true;
+}
+
+void	Route::setCgi(const std::string &s)
+{
+	cgi = s;
+}
+
+void	Route::setRedirection(const std::string &s)
+{
+	redirection = s;
 }

@@ -6,7 +6,7 @@
 /*   By: glaguyon <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/04 18:27:52 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/11 00:44:40 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/11 01:14:37 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -278,6 +278,45 @@ void	ConfParser::parseWordAutoindex(const std::string &s)
 		routes.top()->setAutoindex(autoindex);
 	else
 		server->setAutoindex(autoindex);
+	++argc;
+	argv.push_back(s);
+	good = true;
+}
+
+void	ConfParser::parseWordCgiPass(const std::string &s)
+{
+	if (routes.empty())
+		throw KeywordWrongLevelException();
+	if (wordCountServer["cgi_pass"] > 1 || getWordCountLocation("cgi_pass") > 1)
+		throw DuplicateKeywordException("duplicate cgi found");
+	if (!s[0])
+		return;
+	if (argc > 0)
+		throw TooManyArgumentsException();
+	routes.top()->setCgi(s);
+	++argc;
+	argv.push_back(s);
+	good = true;
+}
+
+void	ConfParser::parseWordReturn(const std::string &s)
+{
+	bool	autoindex;
+
+	if (routes.empty() && !server)
+		throw KeywordWrongLevelException();
+	if (wordCountServer["return"] > 1 || getWordCountLocation("return") > 1)
+		throw DuplicateKeywordException("duplicate return found");
+	if (!s[0])
+		return;
+	if (argc > 0)
+		throw TooManyArgumentsException();
+	if ((s.substr(0, 7) != "http://" && s.substr(0, 8) != "https://"))
+		throw IncorrectArgException("return url must start with http:// or https://");
+	if (!routes.empty())
+		routes.top()->setRedirection(s);
+	else
+		server->setRedirection(s);
 	++argc;
 	argv.push_back(s);
 	good = true;

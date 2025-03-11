@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/11 00:39:46 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/11 01:04:40 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,6 +70,8 @@ ConfParser::ConfParser(Cluster &cluster, const std::string &filename) :
 	wordFunc["methods"] = &ConfParser::parseWordMethods;
 	wordFunc["index"] = &ConfParser::parseWordIndex;
 	wordFunc["autoindex"] = &ConfParser::parseWordAutoindex;
+	wordFunc["cgi_pass"] = &ConfParser::parseWordCgiPass;
+	wordFunc["return"] = &ConfParser::parseWordReturn;
 }
 
 void	ConfParser::parseConf()
