@@ -6,7 +6,7 @@
 /*   By: glaguyon <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/11 18:47:40 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/12 15:32:28 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/12 15:37:05 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,8 @@ void	ConfParser::fillBlanksLevel(Route &prev, std::vector<Route> &routes)
 			it->getCgi() = prev.getCgi();
 		if (it->getRedirection() == "")
 			it->setRedirection(prev.getRedirection());
+		if (it->getUploadDir() == "")
+			it->setUploadDir(prev.getUploadDir());
 	}
 	for (std::vector<Route>::iterator it = routes.begin(); it < routes.end(); ++it)
 		fillBlanksLevel(*it, it->getRoutes());

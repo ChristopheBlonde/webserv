@@ -6,7 +6,7 @@
 /*   By: glaguyon <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/04 18:27:52 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/11 23:30:01 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/12 15:39:58 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -316,6 +316,25 @@ void	ConfParser::parseWordReturn(const std::string &s)
 		routes.top()->setRedirection(s);
 	else
 		server->setRedirection(s);
+	++argc;
+	argv.push_back(s);
+	good = true;
+}
+
+void	ConfParser::parseWordUpload(const std::string &s)
+{
+	if (routes.empty() && !server)
+		throw KeywordWrongLevelException();
+	if (wordCountServer["upload"] > 1 || getWordCountLocation("upload") > 1)
+		throw DuplicateKeywordException("duplicate upload directory found");
+	if (!s[0])
+		return;
+	if (argc > 0)
+		throw TooManyArgumentsException();
+	if (!routes.empty())
+		routes.top()->setUploadDir(s);
+	else
+		server->setUploadDir(s);
 	++argc;
 	argv.push_back(s);
 	good = true;

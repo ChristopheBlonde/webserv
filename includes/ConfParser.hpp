@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/11 21:44:29 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/12 15:37:40 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,6 +91,7 @@ class ConfParser
 	void	parseWordAutoindex(const std::string &s);
 	void	parseWordCgi(const std::string &s);
 	void	parseWordReturn(const std::string &s);
+	void	parseWordUpload(const std::string &s);
 
 	//filling
 	void	fillBlanksLevel(Route &prev, std::vector<Route> &routes);

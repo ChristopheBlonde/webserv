@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/11 23:19:29 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/12 15:36:06 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -98,6 +98,15 @@ std::string	Route::getRedirection()
 void	Route::setRedirection(const std::string &s)
 {
 	redirection = s;
+}
+std::string	Route::getUploadDir()
+{
+	return uploadDir;
+}
+
+void	Route::setUploadDir(const std::string &s)
+{
+	uploadDir = s;
 }
 
 std::vector<Route>	&Route::getRoutes()
