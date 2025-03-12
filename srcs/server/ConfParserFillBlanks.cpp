@@ -6,7 +6,7 @@
 /*   By: glaguyon <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/11 18:47:40 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/11 22:51:23 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/12 15:32:28 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,10 +50,7 @@ void	ConfParser::fillBlanks()
 		if (it->isAutoindexAssigned() == false)
 			it->setAutoindex(true);
 		if (it->getAcceptedMethods().size() == 0)
-		{
-			for (size_t i = 0; i < Cluster::allowedMethodsSize; ++i)
-				it->getAcceptedMethods().insert(Cluster::allowedMethods[i]);
-		}
+			it->addMethod("GET");
 		fillBlanksLevel(*it, routes);
 	}
 }
