@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 10:24:52 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/09 09:19:25 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/12 13:03:09 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,14 +28,19 @@ class Requests
 {
 	private:
 		Requests(void);
-		std::map<std::string,std::string>					_headers;
-		std::string											_host;
-		std::string											_path;
-		std::string											_protocol;
-		t_rqType											_type;
-		std::string											_body;
-		std::vector<std::pair<std::string,std::string> >	_query;
+		std::map<std::string,std::string>	_headers;
+		std::string							_host;
+		std::string							_path;
+		std::string							_protocol;
+		t_rqType							_type;
+		std::string							_body;
+		std::map<std::string,std::string>	_mimeTypes;
+		std::string							_query;
+		std::string							_fileName;
+		int									_port;
 		void	parse(std::string str);
+		void	handlePath(void);
+		void	handleHost(void);
 	public:
 		Requests(std::string str);
 		Requests(Requests const &src);
@@ -48,7 +53,9 @@ class Requests
 		std::string							getHost(void) const;
 		std::string							getType(void) const;
 		std::string							getBody(void) const;
-		std::vector<std::pair<std::string,std::string> >	getQuery(void) const;
+		std::string							getQuery(void) const;
+		std::string							getFileName(void) const;
+		int									getPort(void) const;
 };
 
 #endif

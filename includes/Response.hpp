@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:16:02 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/10 14:41:27 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/12 14:03:55 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,7 @@ class Response
 		std::string							_path;
 		std::string							_host;
 		int									_port;
+		std::string							_fileName;
 		std::map<std::string,std::string>	_headers;
 		int									_contentLen;
 		int									_status;

@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 10:46:49 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/09 09:18:52 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/12 13:07:54 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ Requests::Requests(void)
 
 Requests::Requests(std::string str)
 {
-	this->_type = UNKNOW;
+	initMimeTypes(_mimeTypes);
 	this->parse(str);
 	return ;
 }
@@ -45,6 +45,10 @@ Requests	&Requests::operator=(Requests const &rhs)
 		this->_type = rhs._type;
 		this->_protocol = rhs._protocol;
 		this->_query = rhs._query;
+		this->_body	= rhs._body;
+		this->_mimeTypes = rhs._mimeTypes;
+		this->_fileName = rhs._fileName;
+		this->_port = rhs._port;
 	}
 	return (*this);
 }
@@ -53,6 +57,8 @@ static void initMethod(std::string str, t_rqType &type)
 {
 	std::string key[3] = {"GET","POST","DELETE"};
 	t_rqType	types[3] = {GET, POST, DELETE};
+
+	type = UNKNOW;
 	for (size_t i = 0; i < 3; i++)
 	{
 		if (str == key[i])
@@ -61,39 +67,48 @@ static void initMethod(std::string str, t_rqType &type)
 	return ;
 }
 
-static void initQuery(std::string &str,
-		std::vector<std::pair<std::string,std::string> > &query)
+void	Requests::handlePath(void)
 {
 	size_t		index;
-	std::string	qstr;
 	std::string	tmp;
 
-	index = str.find("?");
-	if (index == std::string::npos)
-		return ;
-	if (str[index + 1] == '\0')
-		return ;
-	qstr = str.substr(index + 1);
-	str = str.substr(0, index);
-	std::stringstream query_str(qstr);
-	while (getline(query_str, tmp, '&'))
+	index = _path.find("?");
+	if (index != std::string::npos)
 	{
-		std::pair<std::string, std::string> pair;
-		index = tmp.find("=");
-		if (index == std::string::npos)
-		{
-			pair.first = tmp;
-			pair.second = "";
-		}
-		else
-		{
-			pair.first = tmp.substr(0, index);
-			pair.second = tmp.substr(index + 1);
-		}
-		if (!pair.first.empty())
-			query.push_back(pair);
+		_query = _path.substr(index + 1);
+		_path = _path.substr(0, index);
 	}
-	return ;
+	else
+		_query = "";
+	index = _path.find_last_of("/\\");
+	if (index != std::string::npos)
+	{
+			_fileName = _path.substr(index + 1);
+			index = _fileName.find_last_of(".");
+			if (index != std::string::npos)
+				tmp = _mimeTypes[std::string(_fileName.substr(index + 1))];
+			if (tmp != "")
+				_path = _path.substr(0, _path.find_last_of("/\\"));
+			else
+				_fileName = "";
+	}
+}
+
+void	Requests::handleHost(void)
+{
+	size_t		index;
+	char const	*tmp;
+	char		*end;
+
+	_host = _headers["Host"];
+	index = _host.find(":");
+	if (index != std::string::npos)
+	{
+		tmp = _host.substr(index + 1).data();
+		_port = static_cast<int>(strtol(tmp, &end, 10));
+	}
+	else
+		_port = 8080;
 }
 
 static void	initHeaders(std::string str,
@@ -118,7 +133,6 @@ static void	initHeaders(std::string str,
 			pair.second = line.substr(index + 1, line.size() - index - 2);
 		}
 		trim(pair.first);
-		//toUpper(pair.first); TODO
 		trim(pair.second);
 		if (!pair.first.empty())
 			headers.insert(pair);
@@ -146,19 +160,7 @@ void	Requests::parse(std::string str)
 			<< RESET << std::endl;
 		return ;
 	}
-	initQuery(_path, _query);
-	
-	/* Print variables*/
-	std::cout << CYAN << "Method: " << (_type == 0 ? "GET" : _type == 1
-			? "POST" : _type == 2 ? "DELETE" : "UNKNOW") << " Path: "
-		<< _path<< " Protocol: " << _protocol << RESET << std::endl;
-	/* Print querys */
-	std::vector<std::pair<std::string,std::string> >::iterator it;
-	for (it = _query.begin(); it != _query.end(); it++)
-	{
-		std::cout << RED << "key: " << it->first << CYAN << " value: "
-			<< it->second << std::endl << RESET;
-	}
+	handlePath();
 	while (getline(ss, line))
 	{
 		trim(line);
@@ -166,26 +168,8 @@ void	Requests::parse(std::string str)
 			break ;
 		initHeaders(line, _headers);
 	}
-	_host = _headers["HOST"];
-
-	/* Print headers*/
-	std::map<std::string,std::string>::iterator ite;
-	std::cout << GREEN << "headers contains:" << std::endl;
-	for (ite=_headers.begin(); ite!=_headers.end(); ++ite)
-		std::cout << GREEN << ite->first << " => " << ite->second << RESET << std::endl;
-
-	std::cout << RED << "Try get host: " << _host << RESET << std::endl;
-
-	/* test trim function */
-	std::string test("   tu le trim ou pas      ");
-	trim(test);
-	std::cout << GREEN << test  << RESET << std::endl;
-
-	/* print body */
-	while (getline(ss, line))
-		_body += "\n" + line;
-	std::cout << CYAN << "Body: " << _body << RESET << std::endl;
-
+	handleHost();
+	
 	return ;
 }
 
@@ -226,7 +210,17 @@ std::string	Requests::getBody(void) const
 	return (_body);
 }
 
-std::vector<std::pair<std::string,std::string> >	Requests::getQuery(void) const
+std::string	Requests::getQuery(void) const
 {
 	return (_query);
+}
+
+std::string Requests::getFileName(void) const
+{
+	return (_fileName);
+}
+
+int			Requests::getPort(void) const
+{
+	return (_port);
 }

@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:15:20 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/10 17:40:46 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/12 14:03:37 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,9 @@ Response::Response(void)
 Response::Response(Requests const &req) : _path(req.getPath())
 {
 	this->_protocol = req.getProtocol();
+	this->_path = req.getPath();
+	this->_port = req.getPort();
+	this->_fileName = req.getFileName();
 	this->_cgi = false;
 	initMimeTypes(_mimeTypes);
 	initResponseHeaders(_headers);
@@ -170,7 +173,7 @@ void	Response::createResponse(void)
 	_headers["Content-Length"] += to_string(content.first);
 	_headers["Content-Type"] += !_cgi ? _mimeTypes[getFileType(_path)]
 		: "text/html; charset=UFT-8";
-	_headers["Set-Cookie"] += "name=Chris; Domain=localhost:8080";
+	_headers["Set-Cookie"] += "name=Chris";
 	/* join all */
 	for (it = _headers.begin(); it != _headers.end(); it++)
 		_response += (it->second + "\n");
