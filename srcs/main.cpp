@@ -6,7 +6,7 @@
 /*   By: cblonde <cblonde@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/19 07:00:26 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/11 22:59:00 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/12 16:18:51 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,9 @@ int main(int argc, char **argv)
 
 	try
 	{
-		Cluster	test((argc == 2) ? argv[1] : DEFAULT_CONF);
+		Cluster	cluster((argc == 2) ? argv[1] : DEFAULT_CONF);
+
+		cluster.startServers();
 	}
 	catch (std::exception &e)//XXX check if conf test route etc ? (origine de l'exception)
 	{

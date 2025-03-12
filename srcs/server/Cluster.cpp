@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/11 23:00:26 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/12 20:33:33 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,6 @@ Cluster::Cluster(const std::string &filename)
 {
 	ConfParser	parser(*this, filename);
 
-	//check si un server a ete ajoute, sinon erreur ? ou en ajouter 1 par defaut
 	try
 	{
 		parser.parseConf();
@@ -32,8 +31,9 @@ Cluster::Cluster(const std::string &filename)
 			<< parser.getLine() + 1 << ":" << parser.getI() + 1 << ": ";
 		throw;
 	}
+	if (servers.size() == 0)
+		addServer();
 	parser.fillBlanks();
-	//init poll, fds etc
 }
 
 Cluster::~Cluster()
@@ -49,4 +49,16 @@ Server			*Cluster::addServer()
 std::vector<Server>	&Cluster::getServers()
 {
 	return servers;
+}
+
+void	Cluster::startServers()
+{
+	pollfd	fd;
+
+	for (std::vector<Server>::iterator it = servers.begin(); it < servers.end(); ++it)
+	{
+		fd.fd = it->start();
+		fd.events = POLLIN; //?pollout ?
+		fds.push_back(fd);
+	}
 }

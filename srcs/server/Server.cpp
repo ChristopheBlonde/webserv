@@ -6,11 +6,13 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/20 11:59:15 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/10 16:22:56 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/12 20:48:34 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <Server.hpp>
+
+EXC_FUNC(Server, ServerStartException, "server start failed");
 
 Server::Server(size_t index) :
 	index(index)
@@ -21,13 +23,41 @@ Server::~Server()
 {
 }
 
-//Server::Server(short int port) : _port(port)
-//{
-//	this->_socket = -1;
-//	this->_address = -1;
-//	return ;
-//}
-//
+#include <string.h>
+
+int	Server::start()
+{
+	int		opt = 1;
+	sockaddr_in	sin;
+
+	socketFd = socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0);
+	if (socketFd == -1)
+		throw (ServerStartException("cannot create socket"));
+	//memset(reinterpret_cast<char *>(&sin), 0, sizeof(sin));
+	sin.sin_addr.s_addr = ip;
+	sin.sin_family = AF_INET;
+	sin.sin_port = port;
+	//
+	std::cout << sin.sin_port << "\n";
+	sin.sin_addr.s_addr = htonl(INADDR_ANY);
+	sin.sin_family = AF_INET;
+	//sin.sin_port = htons(8080);
+	std::cout << sin.sin_port << "\n";
+
+	if (setsockopt(socketFd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) == -1
+		|| setsockopt(socketFd, SOL_SOCKET, SO_REUSEPORT, &opt, sizeof(opt)) == -1)
+		throw(ServerStartException("cannot set socket options"));
+	if (bind(socketFd, reinterpret_cast<sockaddr *>(&sin),
+				sizeof(sin)) == -1)
+		throw (ServerStartException("cannot bind:" + std::string(strerror(errno))));
+//	if (listen(_socket, 100) == SOCKET_ERROR)
+//		throw (Server::ServerException(
+//					std::string("Error: listen: ") + strerror(errno)));
+	std::cout << "done\n";
+	return (socketFd);
+}
+
+//////reuse port, address
 //Server::~Server(void)
 //{
 //	if (this->_socket != -1)

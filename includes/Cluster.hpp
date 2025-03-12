@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/11 21:48:15 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/12 17:33:32 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,14 +16,17 @@
 #include <vector>
 #include <string>
 #include <iostream>
+#include <poll.h>
 #include "Server.hpp"
 #include "ConfParser.hpp"
 
 class Cluster
 {
 	std::vector<Server>	servers;
-	
-	//liste des fds de merde, server listen, clients, fichiers gros, cgi
+	std::vector<pollfd>	fds;
+	//std::map<fd, ??>	fdMap;
+	//serveurs, clients, fichiers, cgi, envoi reponses, envoi cgi
+	//liste de clients
 
 	public:
 	static const std::string	defaultRoot;
@@ -34,6 +37,7 @@ class Cluster
 	~Cluster();
 	Server			*addServer();
 	std::vector<Server>	&getServers();
+	void			startServers();
 
 	//fill blanks
 	//init servers
