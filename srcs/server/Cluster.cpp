@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/12 20:33:33 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/13 18:58:28 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,6 +58,8 @@ void	Cluster::startServers()
 	for (std::vector<Server>::iterator it = servers.begin(); it < servers.end(); ++it)
 	{
 		fd.fd = it->start();
+		if (fd.fd == -1)
+			continue;
 		fd.events = POLLIN; //?pollout ?
 		fds.push_back(fd);
 	}

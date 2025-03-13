@@ -6,13 +6,15 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/20 11:59:15 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/13 17:57:26 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/13 19:24:23 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <Server.hpp>
 
 EXC_FUNC(Server, ServerStartException, "server start failed");
+
+std::map<uint64_t, int>	Server::socketIdMap;
 
 Server::Server(size_t index) :
 	index(index)
@@ -23,14 +25,19 @@ Server::~Server()
 {
 }
 
-#include <string.h>
-
-int	Server::start()//what if 2 servers same address same port ? need to add socket list
+int	Server::start()
 {
 	int		opt = 1;
 	sockaddr_in	sin;
 
+	socketId = (static_cast<uint64_t>(ip) << 32) | static_cast<uint64_t>(port);
+	if (Server::socketIdMap.find(socketId) != Server::socketIdMap.end())
+	{
+		socketFd = Server::socketIdMap[socketId];
+		return -1;
+	}
 	socketFd = socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0);
+	socketIdMap[socketId] = socketFd;
 	if (socketFd == -1)
 		throw (ServerStartException("cannot create socket"));
 	sin.sin_addr.s_addr = ip;
