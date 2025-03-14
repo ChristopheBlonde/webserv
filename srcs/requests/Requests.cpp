@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 10:46:49 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/12 13:07:54 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/13 16:52:41 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -105,6 +105,7 @@ void	Requests::handleHost(void)
 	if (index != std::string::npos)
 	{
 		tmp = _host.substr(index + 1).data();
+		_host = _host.substr(0, index);
 		_port = static_cast<int>(strtol(tmp, &end, 10));
 	}
 	else
@@ -168,8 +169,7 @@ void	Requests::parse(std::string str)
 			break ;
 		initHeaders(line, _headers);
 	}
-	handleHost();
-	
+	handleHost();	
 	return ;
 }
 

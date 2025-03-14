@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:16:02 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/12 14:03:55 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/13 17:03:10 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,8 @@ class Response
 		std::string							_host;
 		int									_port;
 		std::string							_fileName;
+		std::string							_fileContent;
+		int									_fileStatus;
 		std::map<std::string,std::string>	_headers;
 		int									_contentLen;
 		int									_status;
@@ -34,6 +36,7 @@ class Response
 		size_t								_resSize;
 		std::map<std::string, std::string> _mimeTypes;
 		Response(void);
+		void	isReferer(Requests const &req);
 	public:
 		Response(Requests const &req);
 		Response(Response const &src);
@@ -42,6 +45,7 @@ class Response
 
 		std::string	getResponse(void);
 		size_t		getResSize(void);
+		void	handleFile(void);
 		void	createError(int stat);
 		void	createResponse(void);
 };

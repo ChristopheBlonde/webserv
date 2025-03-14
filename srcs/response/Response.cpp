@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:15:20 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/12 14:03:37 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/13 17:05:43 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,7 @@ Response::Response(void)
 Response::Response(Requests const &req) : _path(req.getPath())
 {
 	this->_protocol = req.getProtocol();
+	this->_host = req.getHost();
 	this->_path = req.getPath();
 	this->_port = req.getPort();
 	this->_fileName = req.getFileName();
@@ -30,30 +31,18 @@ Response::Response(Requests const &req) : _path(req.getPath())
 	initResponseHeaders(_headers);
 	
 	/* check headers request */
-	std::map<std::string,std::string> header(req.getHeaders());
-	if (!header["Referer"].empty())
-	{
-		size_t		index;
-		std::string	path;
 
-		path = header["Referer"];
-		index = path.find(header["Host"]);
-		path = path.substr(index + header["Host"].size());
-		index = _path.find(path);
-		std::cout << CYAN << "path: " << path
-			<< " index: " << index << std::endl << RESET;
-		if (index == std::string::npos || index != 0)
-			_path = path + _path;
-	}
-	std::cout << RED << "\tPATH: " << _path << std::endl << RESET;
-	if (_path.find_last_of(".") != std::string::npos
-			&& (std::string(_path.substr(_path.size() - 3))) == ".js")
-	{
-		std::cout << CYAN << "CGI test file: " << _path << RESET << std::endl;
-		_cgi = true;
-		Cgi	test(req);
-		_response = test.execScript();
-	}
+	isReferer(req);
+	handleFile();
+
+//if (_path.find_last_of(".") != std::string::npos
+//		&& (std::string(_path.substr(_path.size() - 3))) == ".js")
+//{
+//	std::cout << CYAN << "CGI test file: " << _path << RESET << std::endl;
+//	_cgi = true;
+//	Cgi	test(req);
+//	_response = test.execScript();
+//}
 	return ;
 }
 
@@ -85,6 +74,35 @@ Response	&Response::operator=(Response const &rhs)
 		this->_resSize = rhs._resSize;
 	}
 	return (*this);
+}
+
+void	Response::isReferer(Requests const &req)
+{
+	std::map<std::string,std::string>	header(req.getHeaders());
+	size_t								index;
+	std::string							path;
+
+	if (!header["Referer"].empty())
+	{
+		path = header["Referer"];
+		index = path.find(header["Host"]);
+		path = path.substr(index + header["Host"].size());
+		index = _path.find(path);
+		if (index == std::string::npos || index != 0)
+			_path = path + _path;
+	}
+}
+
+void	Response::handleFile(void)
+{
+	int	fd;
+	/* check cgi */
+
+	/* no cgi */
+	fd = openDir(_path, _fileName);
+	/* add fd to poll*/
+	_fileStatus = 0;
+	std::cout << RED << "FD OPEN BY OPEN DIR: " << fd << RESET << std::endl;
 }
 
 static std::string	getNameError(int stat)
@@ -153,33 +171,33 @@ void	Response::createResponse(void)
 	/* get content */
 	/* build header */
 	/* build result */
-	std::pair<int,std::string> content;
-	std::map<std::string,std::string>::iterator it;
-	if (!_cgi)
-		content = openDir(_path);
-	else
-	{
-		content.second = _response;
-		content.first = _response.size();
-	}
-	if (!content.first)
-	{
-		createError(404);
-		return ;
-	}
-	/* Create first line */
-	_response = _protocol + " 200 OK\n";
-	/* Create headers */
-	_headers["Content-Length"] += to_string(content.first);
-	_headers["Content-Type"] += !_cgi ? _mimeTypes[getFileType(_path)]
-		: "text/html; charset=UFT-8";
-	_headers["Set-Cookie"] += "name=Chris";
-	/* join all */
-	for (it = _headers.begin(); it != _headers.end(); it++)
-		_response += (it->second + "\n");
-	_response += "\r\n";
-	_response += content.second;
-	_resSize = _response.size();
+//std::pair<int,std::string> content;
+//std::map<std::string,std::string>::iterator it;
+//if (!_cgi)
+//	content = openDir(_path);
+//else
+//{
+//	content.second = _response;
+//	content.first = _response.size();
+//}
+//if (!content.first)
+//{
+//	createError(404);
+//	return ;
+//}
+///* Create first line */
+//_response = _protocol + " 200 OK\n";
+///* Create headers */
+//_headers["Content-Length"] += to_string(content.first);
+//_headers["Content-Type"] += !_cgi ? _mimeTypes[getFileType(_path)]
+//	: "text/html; charset=UFT-8";
+//_headers["Set-Cookie"] += "name=Chris";
+///* join all */
+//for (it = _headers.begin(); it != _headers.end(); it++)
+//	_response += (it->second + "\n");
+//_response += "\r\n";
+//_response += content.second;
+//_resSize = _response.size();
 	return ;
 }
 

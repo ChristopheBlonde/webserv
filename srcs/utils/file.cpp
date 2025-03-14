@@ -6,30 +6,24 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:47:28 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/10 15:13:03 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/13 13:57:49 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <webserv.hpp>
 
-std::pair<int,std::string>	getFile(std::string path)
+int	getFile(std::string path)
 {
-	std::ifstream				file;
-	std::stringstream			line;
-	std::pair<int, std::string> result;
+	int	fd;
 
-	file.open(path.c_str());
-	if (!file.is_open())
+	fd = open(path.c_str(), O_RDONLY);
+	if (fd < 0)
 	{
 		std::cerr << RED << "Error: getFile: " << std::strerror(errno) << RESET
 			<< std::endl;
-		return (result);
+		return (-1);
 	}
-	line << file.rdbuf();
-	result.second = line.str();
-	result.first = result.second.size();
-	file.close();
-	return (result);
+	return (fd);
 }
 
 std::string	getFileName(std::string &path)
@@ -51,51 +45,43 @@ std::string	getFileName(std::string &path)
 	return (name);
 }
 
-std::pair<int, std::string>	openDir(std::string path)
+int	openDir(std::string path, std::string file)
 {
-	DIR							*dir;
-	struct						dirent *dirp;
-	std::string					file;
-	std::pair<int, std::string> result;
-	bool						isDirectory = false;
+	DIR		*dir;
+	struct	dirent *dirp;
+	int		fd = -1;
 
-	file = getFileName(path);
-	if (!file.compare(path))
-		isDirectory = true;
 	path = "." + path;
-	std::cout << RED << "file name: " << file 
-		<< " path: "<< path << RESET << std::endl;
 	dir = opendir(path.c_str());
 	if (!dir)
 	{
 		std::cerr << RED << "opendir: " << path << " " << strerror(errno)
 			<< RESET << std::endl;
-		return (result);
+		return (fd);
 	}
 	while ((dirp = readdir(dir)) != NULL)
 	{
 		/* find conf file.mime */
-		if (isDirectory
+		if (file.empty()
 				&& !std::string(dirp->d_name).compare("index.html"))
 		{
-			result = getFile(path + "/index.html");
+			fd = getFile(path + "/index.html");
 			closedir(dir);
-			return (result);
+			return (fd);
 		}
-		else if (!isDirectory
-					&& !std::string(dirp->d_name).compare(file))
+		else if (!file.empty() && !std::string(dirp->d_name).compare(file))
 		{
-			result = getFile(path + "/" + file);
+			fd = getFile(path + "/" + file);
 			closedir(dir);
-			return (result);
+			return (fd);
 		}
-		std::cout << CYAN << dirp->d_name << ": file: "
-			<< file << " dir: " << path
-			<< (!std::string(dirp->d_name).compare("index.html")
-					? " true" : " false") << RESET << std::endl;
+//	std::cout << CYAN << dirp->d_name << ": file: "
+//		<< file << " dir: " << path
+//		<< (!std::string(dirp->d_name).compare("index.html")
+//				? " true" : " false") << RESET << std::endl;
 	}
 	closedir(dir);
-	return (result);
+	return (fd);
 }
 
 std::string	getFileType(std::string path)

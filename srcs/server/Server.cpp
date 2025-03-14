@@ -6,14 +6,11 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/20 11:59:15 by cblonde           #+#    #+#             */
-/*   Updated: 2025/02/27 14:20:08 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/13 18:32:46 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <Server.hpp>
-#include <Requests.hpp>
-#include <Response.hpp>
-#include <utils.hpp>
 
 Server::Server(void)
 {
@@ -107,10 +104,48 @@ void	Server::get_client_maybe(void)
 	_fds.push_back(fd);
 }
 
+bool	checkEndOfFile(std::string str)
+{
+	size_t		index;
+	std::string	headers;
+	std::string body;
+	size_t		len;
+	size_t		start;
+	size_t		end;
+	size_t		body_start;
+
+	index = str.find("\r\n\r\n");
+	if (index == std::string::npos)
+		return (false);
+	body_start = index + 4;
+	headers = str.substr(0, index + 4);
+	index = headers.find("Content-Length: ");
+	if (index != std::string::npos)
+	{
+		start = index + 16;
+		end	= headers.find("\r\n", start);
+		if (end == std::string::npos)
+			return (false);
+		len = std::atoi(headers.substr(start, end - start).c_str());
+		if (str.size() >= body_start + len)
+			return (true);
+		else
+			return (false);
+	}
+	index = headers.find("Transfer-Encoding: chunked");
+	if (index == std::string::npos)
+		return (true);
+	index = str.find("0\r\n\r\n");
+	if (index == std::string::npos)
+		return (false);
+	else
+		return (true);
+}
+
 void	Server::run(void)
 {
 	int			check = -1;
-	char		request[1024];
+	char		buffer[5];
 	int			read;
 	
 	get_client_maybe();
@@ -127,19 +162,67 @@ void	Server::run(void)
 					std::string("ERROR: poll: ") + strerror(errno));
 		if (_fds[i].revents & (POLL_IN))
 		{
-			read = recv(_fds[i].fd, request, 1023, 0);
+			read = recv(_fds[i].fd, buffer, 4, 0);
+			if (read != 0)
+				buffer[read] = '\0';
+			/* add to request map or file map */
+			
+			/* find if request already exist or is file */
+			if (files.find(_fds[i].fd) != files.end())
+			{
+				/* if file update string */
+					/* if read finish close pollfd and exec response */
+				if (read == 0)
+				{
+					_fds.erase(_fds.begin() + i--);
+					std::cout << GREEN << "FILE: " << files[_fds[i].fd]
+						<< RESET << std::endl;
+					/* if response ready add response to poll*/
+					continue ;
+				}
+					/* if file not finish add string and continue */
+					files[_fds[i].fd] += buffer;
+					continue ;
+			}
+			/* if request */
+			if (requests.find(_fds[i].fd) != requests.end())
+			{
+				/* if read finish create request and delete in map */
+				requests[_fds[i].fd] += buffer;
+				if (checkEndOfFile(requests[_fds[i].fd]))
+				{
+					Requests req(requests[_fds[i].fd]);
+					reqs.insert(std::make_pair(_fds[i].fd, req));
+					Response res(req);
+					requests.erase(_fds[i].fd);	
+				}
+			}
+			else
+			{
+				/* add new request in requests map */
+				requests[_fds[i].fd] = buffer;
+				if (checkEndOfFile(requests[_fds[i].fd]))
+				{
+					Requests req(requests[_fds[i].fd]);
+					Response res(req);
+					ress.insert(std::make_pair(_fds[i].fd, res));
+					requests.erase(_fds[i].fd);	
+				}
+			}		
 			if (read == 0)
 			{
 				std::cout << "client " << _fds[i].fd << " disconnected\n";
 				_fds.erase(_fds.begin() + i--);
 				break;
 			}
-			request[read] = '\0';
-			Requests	test1((std::string(request)));
-			Response	test2(test1);
-			test2.createResponse();
+							
+							
+				
+			//Requests	test1((std::string(request)));
+			//Response	test2(test1);
+			//test2.createResponse();
 
-			send(_fds[i].fd, test2.getResponse().c_str(), test2.getResSize(), 0);
+			//send(_fds[i].fd, test2.getResponse().c_str(), test2.getResSize(), 0);
 		}
 	}
 	return ;
