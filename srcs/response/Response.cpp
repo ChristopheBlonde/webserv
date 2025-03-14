@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:15:20 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/14 15:36:38 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/14 16:12:11 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,8 +27,6 @@ Response::Response(Requests const &req) : _path(req.getPath())
 	this->_port = req.getPort();
 	this->_fileName = req.getFileName();
 	this->_cgi = false;
-						std::cout << RED << "trouve une reponse" << std::endl
-							<< RESET;
 	initMimeTypes(_mimeTypes);
 	initResponseHeaders(_headers);
 	
@@ -211,6 +209,7 @@ void	Response::createResponse(void)
 	_response += "\r\n";
 	_response += _fileContent;
 	_resSize = _response.size();
+	std::cout << CYAN << "Response ready" << RESET << std::endl;
 	//setFileStatus(fd);
 	return ;
 }

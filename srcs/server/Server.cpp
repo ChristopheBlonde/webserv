@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/20 11:59:15 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/14 15:19:05 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/14 16:42:07 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -165,6 +165,14 @@ void	Server::run(void)
 				files[tmp.fd] = "";
 		}
 	}
+
+	for (size_t i = 0; i < _fds.size(); i++)
+{
+	std::cout << GREEN << "fd: " << _fds[i].fd << " " << RESET;
+    if (_fds[i].revents & POLL_OUT)
+        std::cout << "DEBUG: POLL_OUT ready on fd " << _fds[i].fd << std::endl;
+}
+std::cout << std::endl;
 	for (size_t i = 0; i < _fds.size(); i++)
 	{
 		memset(&buffer, 0, 5);
@@ -240,7 +248,7 @@ void	Server::run(void)
 			}
 			if (_fds[i].revents & (POLL_OUT))
 			{
-				std::cout << RED << "pollout:  " << _fds[i].fd << std::endl
+				std::cout << GREEN << "pollout:  " << _fds[i].fd << std::endl
 					<< RESET;
 				for (std::map<int, Response *>::iterator it = ress.begin();
 						it != ress.end(); it++)
@@ -248,23 +256,24 @@ void	Server::run(void)
 					Response *tmp = it->second;
 					if (tmp->getSocket() == _fds[i].fd)
 					{
-						std::cout << RED << "trouve une reponse" << std::endl
-							<< RESET;
 						std::string	file = tmp->getResponse();
+						if (file.empty())
+							continue ;
+						std::cout << RED << "trouve une reponse file:" << file
+							<< std::endl
+							<< RESET;
 						send(_fds[i].fd, file.c_str(), 4, 0);
 						if (file.size() > 4)
 							tmp->setResponse(file.substr(4));
 						else
 						{
+							std::cout << "Sortie" << std::endl;
 							delete (tmp);
 							ress.erase(it);
 						}
 					}
 				}
-			}
-							
-							
-				
+			}	
 			//Requests	test1((std::string(request)));
 			//Response	test2(test1);
 			//test2.createResponse();
