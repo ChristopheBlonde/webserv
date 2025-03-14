@@ -9,6 +9,7 @@ COMP = c++
 CPPFLAGS = -Wall -Wextra -std=c++98 -g
 
 SRC = main.cpp \
+	$(SERV_DIR)PollFd.cpp \
 	$(SERV_DIR)Cluster.cpp \
 	$(SERV_DIR)Server.cpp \
 	$(SERV_DIR)Route.cpp \

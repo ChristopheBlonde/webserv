@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/20 11:59:15 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/13 19:24:23 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/14 18:32:17 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,20 +21,16 @@ Server::Server(size_t index) :
 {
 }
 
-Server::~Server()
-{
-}
-
 int	Server::start()
 {
 	int		opt = 1;
 	sockaddr_in	sin;
 
 	socketId = (static_cast<uint64_t>(ip) << 32) | static_cast<uint64_t>(port);
-	if (Server::socketIdMap.find(socketId) != Server::socketIdMap.end())
+	if (socketIdMap.find(socketId) != socketIdMap.end())
 	{
-		socketFd = Server::socketIdMap[socketId];
-		return -1;
+		socketFd = socketIdMap[socketId];
+		return socketFd;
 	}
 	socketFd = socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0);
 	socketIdMap[socketId] = socketFd;
@@ -52,72 +48,20 @@ int	Server::start()
 		throw (ServerStartException("cannot bind: " + std::string(strerror(errno))));
 	if (listen(socketFd, 100) == -1)
 		throw (ServerStartException("cannot listen: " + std::string(strerror(errno))));
-	return (socketFd);
+	return socketFd;
 }
 
-//////reuse port, address
-//Server::~Server(void)
-//{
-//	if (this->_socket != -1)
-//		if (close(this->_socket) == SOCKET_ERROR)
-//			throw (Server::ServerException(
-//						std::string("Error: close: ") + strerror(errno)));
-//	for (std::vector<pollfd>::iterator it = _fds.begin(); it != _fds.end(); it++)
-//	{
-//		if (it->fd != -1)
-//			if (close(it->fd) == SOCKET_ERROR)
-//				throw (Server::ServerException(
-//							std::string("Error: close: ") + strerror(errno)));
-//	}
-//	return ;
-//}
-//
-//Server::Server(Server const &src)
-//{
-//	*this = src;
-//	return ;
-//}
-//
-//Server &Server::operator=(Server const &rhs)
-//{
-//	if (this != &rhs)
-//	{
-//		this->_fds = rhs._fds;
-//		this->_socket = rhs._socket;
-//		this->_port = rhs._port;
-//		this->_address = rhs._address;
-//	}
-//	return (*this);
-//}
-//
-//long int	Server::init(void)
-//{
-//	sockaddr_in	sin;
-//
-//	if ((_socket = socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0))
-//			== INVALID_SOCKET)
-//		throw (Server::ServerException(
-//					std::string("Error: socket: ") + strerror(errno)));
-//	std::memset(reinterpret_cast<char *>(&sin), 0, sizeof(sin));
-//	sin.sin_addr.s_addr = htonl(INADDR_ANY);
-//	sin.sin_family = AF_INET;
-//	sin.sin_port = htons(this->_port);
-//	int opt = 1;//without this, error when netcat is not closed properly
-//	if (setsockopt(_socket, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0)
-//	{
-//		throw (Server::ServerException(
-//					std::string("Error: setsockopt: ") + strerror(errno)));
-//	}
-//	if (bind(_socket, reinterpret_cast<sockaddr *>(&sin),
-//				sizeof(sin)) == SOCKET_ERROR)
-//		throw (Server::ServerException(
-//					std::string("Error: bind: ") + strerror(errno)));
-//	if (listen(_socket, 100) == SOCKET_ERROR)
-//		throw (Server::ServerException(
-//					std::string("Error: listen: ") + strerror(errno)));
-//	return (_socket);
-//}
-//
+Server::~Server()
+{
+	std::map<uint64_t, int>::iterator	it = socketIdMap.find(socketId);
+
+	if (it != socketIdMap.end())
+	{
+		close(socketIdMap[socketId]);
+		socketIdMap.erase(it);
+	}
+}
+
 //void	Server::get_client_maybe(void)
 //{
 //	sockaddr_in	sin;
@@ -167,22 +111,6 @@ int	Server::start()
 //		}
 //	}
 //	return ;
-//}
-//
-//Server::ServerException::ServerException(std::string str)
-//{
-//	this->_str = std::string(RED) + str + std::string(RESET);
-//	return ;
-//}
-//
-//Server::ServerException::~ServerException(void) throw()
-//{
-//	return ;
-//}
-//
-//const char *Server::ServerException::getStr(void) const
-//{
-//	return (this->_str.c_str());
 //}
 //
 //const char *Server::ServerException::what() const throw()

@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/13 18:58:28 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/14 19:00:30 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,14 +53,23 @@ std::vector<Server>	&Cluster::getServers()
 
 void	Cluster::startServers()
 {
-	pollfd	fd;
+	PollFd	fd;
 
 	for (std::vector<Server>::iterator it = servers.begin(); it < servers.end(); ++it)
 	{
 		fd.fd = it->start();
-		if (fd.fd == -1)
-			continue;
-		fd.events = POLLIN; //?pollout ?
-		fds.push_back(fd);
+		fd.events = POLLIN;
+		if (std::find(fds.begin(), fds.end(), fd) == fds.end())
+			fds.push_back(fd);
+		serverFds[fd.fd].push_back(&*it);
+	}
+	for (std::map<int, std::vector<Server *> >::iterator it = serverFds.begin(); it != serverFds.end(); ++it)
+	{
+		std::cout << it->first << "\n";
+		for (std::vector<Server *>::iterator it2 = it->second.begin(); it2 < it->second.end(); ++it2)
+		{
+			std::cout << *(*it2)->getNames().begin() << "\n";
+		}
+
 	}
 }
