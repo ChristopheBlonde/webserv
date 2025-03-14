@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:15:20 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/13 17:05:43 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/14 15:36:38 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,8 @@ Response::Response(Requests const &req) : _path(req.getPath())
 	this->_port = req.getPort();
 	this->_fileName = req.getFileName();
 	this->_cgi = false;
+						std::cout << RED << "trouve une reponse" << std::endl
+							<< RESET;
 	initMimeTypes(_mimeTypes);
 	initResponseHeaders(_headers);
 	
@@ -95,14 +97,20 @@ void	Response::isReferer(Requests const &req)
 
 void	Response::handleFile(void)
 {
-	int	fd;
+	struct pollfd	fd;
+
+	fd.fd = -1;
 	/* check cgi */
 
 	/* no cgi */
-	fd = openDir(_path, _fileName);
+	fd.fd = openDir(_path, _fileName);
+	fd.events = POLLIN;
+	fd.revents = 0;
 	/* add fd to poll*/
-	_fileStatus = 0;
-	std::cout << RED << "FD OPEN BY OPEN DIR: " << fd << RESET << std::endl;
+	setFileStatus(fd);
+	std::cout << RED << "FD OPEN BY OPEN DIR: " << fd.fd
+		<< " fileStatus: " << _fileStatus.fd
+		<< RESET << std::endl;
 }
 
 static std::string	getNameError(int stat)
@@ -172,7 +180,12 @@ void	Response::createResponse(void)
 	/* build header */
 	/* build result */
 //std::pair<int,std::string> content;
-//std::map<std::string,std::string>::iterator it;
+	std::map<std::string,std::string>::iterator it;
+	//struct pollfd	fd;
+
+	//fd.fd = _socket;
+	//fd.events = POLLOUT;
+	//fd.revents = 0;
 //if (!_cgi)
 //	content = openDir(_path);
 //else
@@ -185,28 +198,59 @@ void	Response::createResponse(void)
 //	createError(404);
 //	return ;
 //}
-///* Create first line */
-//_response = _protocol + " 200 OK\n";
-///* Create headers */
-//_headers["Content-Length"] += to_string(content.first);
-//_headers["Content-Type"] += !_cgi ? _mimeTypes[getFileType(_path)]
-//	: "text/html; charset=UFT-8";
-//_headers["Set-Cookie"] += "name=Chris";
-///* join all */
-//for (it = _headers.begin(); it != _headers.end(); it++)
-//	_response += (it->second + "\n");
-//_response += "\r\n";
-//_response += content.second;
-//_resSize = _response.size();
+	/* Create first line */
+	_response = _protocol + " 200 OK\n";
+	/* Create headers */
+	_headers["Content-Length"] += to_string(_fileContent.size());
+	_headers["Content-Type"] += !_cgi ? _mimeTypes[getFileType(_path)]
+		: "text/html; charset=UFT-8";
+	_headers["Set-Cookie"] += "name=Chris";
+	/* join all */
+	for (it = _headers.begin(); it != _headers.end(); it++)
+		_response += (it->second + "\n");
+	_response += "\r\n";
+	_response += _fileContent;
+	_resSize = _response.size();
+	//setFileStatus(fd);
 	return ;
 }
 
-std::string	Response::getResponse(void)
+std::string	Response::getResponse(void) const
 {
 	return (_response);
 }
 
-size_t	Response::getResSize(void)
+size_t	Response::getResSize(void) const
 {
 	return (_resSize);
+}
+
+struct pollfd	Response::getFileStatus(void) const
+{
+	return (_fileStatus);
+}
+
+int	Response::getSocket(void) const
+{
+	return (_socket);
+}
+
+void	Response::setResponse(std::string str)
+{
+	_response = str;
+}
+
+void	Response::setFileStatus(struct pollfd &src)
+{
+	_fileStatus = src;
+}
+
+void	Response::setFileContent(std::string &str)
+{
+	_fileContent = str;
+}
+
+void	Response::setSocket(int const socket)
+{
+	_socket = socket;
 }

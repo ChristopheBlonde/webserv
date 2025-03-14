@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/20 11:59:15 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/13 18:32:46 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/14 15:19:05 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -146,15 +146,28 @@ void	Server::run(void)
 {
 	int			check = -1;
 	char		buffer[5];
-	int			read;
+	int			readByte;
 	
 	get_client_maybe();
 	if (_fds.size())
 		check = poll(_fds.data(), _fds.size(), 5000);
 	if (check < 0)
 		return ;
+	for (std::map<int, Response *>::iterator it = ress.begin();
+			it !=  ress.end(); it++)
+	{
+		struct pollfd tmp = it->second->getFileStatus();
+		if (files.find(tmp.fd) == files.end() && tmp.fd >= 0)
+		{
+			std::cout << GREEN << "In add file to poll" << std::endl << RESET;
+			_fds.push_back(tmp);
+			if (tmp.events & (POLLIN))
+				files[tmp.fd] = "";
+		}
+	}
 	for (size_t i = 0; i < _fds.size(); i++)
 	{
+		memset(&buffer, 0, 5);
 		if (_fds[i].fd == -1)
 			continue ;
 		if (_fds[i].revents & (POLL_ERR | POLL_HUP))
@@ -162,22 +175,31 @@ void	Server::run(void)
 					std::string("ERROR: poll: ") + strerror(errno));
 		if (_fds[i].revents & (POLL_IN))
 		{
-			read = recv(_fds[i].fd, buffer, 4, 0);
-			if (read != 0)
-				buffer[read] = '\0';
+			readByte = recv(_fds[i].fd, buffer, 4, 0);
+			if (readByte != 0)
+				buffer[readByte] = '\0';
 			/* add to request map or file map */
 			
 			/* find if request already exist or is file */
 			if (files.find(_fds[i].fd) != files.end())
 			{
+				readByte = read(_fds[i].fd, buffer, 4);
+				buffer[readByte] = '\0';
 				/* if file update string */
 					/* if read finish close pollfd and exec response */
-				if (read == 0)
+				if (readByte == 0)
 				{
+					struct pollfd tmp;
+					tmp.fd = -1;
+					tmp.events = 0;
+					tmp.revents = 0;
+					for (std::map<int, Response *>::iterator it = ress.begin();
+							it != ress.end(); it++)
+					ress[_fds[i].fd]->setFileContent(files[_fds[i].fd]);
+					ress[_fds[i].fd]->setFileStatus(tmp);
+					close(_fds[i].fd);
+					ress[_fds[i].fd]->createResponse();
 					_fds.erase(_fds.begin() + i--);
-					std::cout << GREEN << "FILE: " << files[_fds[i].fd]
-						<< RESET << std::endl;
-					/* if response ready add response to poll*/
 					continue ;
 				}
 					/* if file not finish add string and continue */
@@ -192,8 +214,9 @@ void	Server::run(void)
 				if (checkEndOfFile(requests[_fds[i].fd]))
 				{
 					Requests req(requests[_fds[i].fd]);
-					reqs.insert(std::make_pair(_fds[i].fd, req));
-					Response res(req);
+					Response *res = new Response(req);
+					res->setSocket(_fds[i].fd);
+					ress[res->getFileStatus().fd] = res;
 					requests.erase(_fds[i].fd);	
 				}
 			}
@@ -204,16 +227,40 @@ void	Server::run(void)
 				if (checkEndOfFile(requests[_fds[i].fd]))
 				{
 					Requests req(requests[_fds[i].fd]);
-					Response res(req);
-					ress.insert(std::make_pair(_fds[i].fd, res));
+					Response *res = new Response(req);
+					ress[res->getFileStatus().fd] = res;
 					requests.erase(_fds[i].fd);	
 				}
 			}		
-			if (read == 0)
+			if (readByte == 0)
 			{
 				std::cout << "client " << _fds[i].fd << " disconnected\n";
 				_fds.erase(_fds.begin() + i--);
 				break;
+			}
+			if (_fds[i].revents & (POLL_OUT))
+			{
+				std::cout << RED << "pollout:  " << _fds[i].fd << std::endl
+					<< RESET;
+				for (std::map<int, Response *>::iterator it = ress.begin();
+						it != ress.end(); it++)
+				{
+					Response *tmp = it->second;
+					if (tmp->getSocket() == _fds[i].fd)
+					{
+						std::cout << RED << "trouve une reponse" << std::endl
+							<< RESET;
+						std::string	file = tmp->getResponse();
+						send(_fds[i].fd, file.c_str(), 4, 0);
+						if (file.size() > 4)
+							tmp->setResponse(file.substr(4));
+						else
+						{
+							delete (tmp);
+							ress.erase(it);
+						}
+					}
+				}
 			}
 							
 							

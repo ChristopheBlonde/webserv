@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 10:46:49 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/13 16:52:41 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/14 15:37:17 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -169,7 +169,9 @@ void	Requests::parse(std::string str)
 			break ;
 		initHeaders(line, _headers);
 	}
-	handleHost();	
+	handleHost();
+	std::cout << RED << "Request host: " << _host << "port: " << _port
+		<< " path: " << _path << "file: " << _fileName << RESET << std::endl;
 	return ;
 }
 
