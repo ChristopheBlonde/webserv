@@ -16,7 +16,8 @@ SRC = main.cpp \
 	$(SERV_DIR)Conf.cpp \
 	$(SERV_DIR)ConfParser.cpp \
 	$(SERV_DIR)ConfParserWords.cpp \
-	$(SERV_DIR)ConfParserFillBlanks.cpp
+	$(SERV_DIR)ConfParserFillBlanks.cpp \
+	Client.cpp
 
 OBJ = $(SRC:%.cpp=$(OBJ_DIR)%.o)
 

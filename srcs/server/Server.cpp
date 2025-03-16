@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/20 11:59:15 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/14 18:32:17 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/16 19:13:15 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,83 +61,3 @@ Server::~Server()
 		socketIdMap.erase(it);
 	}
 }
-
-//void	Server::get_client_maybe(void)
-//{
-//	sockaddr_in	sin;
-//	socklen_t	size_sin = sizeof(sin);
-//	long int	client = -1;
-//	pollfd		fd;
-//
-//	std::memset(reinterpret_cast<char *>(&sin), 0, sizeof(sin));
-//	client = accept(_socket, reinterpret_cast<sockaddr *>(&sin),
-//			&size_sin);
-//	if (client == -1)
-//		return ;
-//	fd.fd = client;
-//	fd.events = POLL_IN;
-//	_fds.push_back(fd);
-//}
-//
-//void	Server::run(void)
-//{
-//	int			check = -1;
-//	char		request[1024];
-//	int			read;
-//	
-//	get_client_maybe();//FIXME this needs to be polled
-//	if (_fds.size())
-//		check = poll(_fds.data(), _fds.size(), 5000);
-//	if (check < 0)
-//		return ;
-//	for (size_t i = 0; i < _fds.size(); i++)
-//	{
-//		if (_fds[i].fd == -1)
-//			continue ;
-//		if (_fds[i].revents & (POLL_ERR | POLL_HUP))
-//			throw Server::ServerException(
-//					std::string("ERROR: poll: ") + strerror(errno));
-//		if (_fds[i].revents & (POLL_IN))
-//		{
-//			read = recv(_fds[i].fd, request, 1023, 0);
-//			if (read == 0)
-//			{
-//				std::cout << "client " << _fds[i].fd << " disconnected\n";
-//				_fds.erase(_fds.begin() + i--);
-//				break;
-//			}
-//			request[read] = '\0';
-//			std::cout << "client " << _fds[i].fd << " " << CYAN << request << RESET << std::endl;
-//		}
-//	}
-//	return ;
-//}
-//
-//const char *Server::ServerException::what() const throw()
-//{
-//	return (this->getStr());
-//}
-//	private:
-//		std::vector<pollfd>	_fds;
-//		long int		_socket;
-//		short int		_port;
-//		std::string		_address;
-//		Server(void);
-//	public:
-//		Server(short int port);
-//		Server(Server const &src);
-//		~Server(void);
-//		Server &operator=(Server const &rhs);
-//		long int	init(void);
-//		void		run(void);
-//		void		get_client_maybe(void);
-//		class ServerException : public std::exception
-//		{
-//			private:
-//				std::string	_str;
-//			public:
-//				ServerException(std::string const str);
-//				virtual ~ServerException(void) throw();
-//				virtual const char *what(void) const throw();
-//				const char	*getStr(void) const;
-//		};

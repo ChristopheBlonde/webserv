@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/16 17:07:01 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/16 19:49:05 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 #include <vector>
 #include <string>
 #include <iostream>
+#include "Client.hpp"
 #include "PollFd.hpp"
 #include "Server.hpp"
 #include "ConfParser.hpp"
@@ -25,8 +26,11 @@ class Cluster
 	std::vector<Server>			servers;
 	std::vector<PollFd>			fds;
 	std::map<int, std::vector<Server *> >	serverFds;
+	std::map<int, Client>			clients;
 	//serveurs, clients, fichiers, cgi, envoi reponses, envoi cgi
-	//liste de clients
+
+	PollFd	&getPollFd(int fd);
+	void	addClients();
 
 	public:
 	static const std::string	defaultRoot;
@@ -38,15 +42,9 @@ class Cluster
 	Server			*addServer();
 	std::vector<Server>	&getServers();
 	void			startServers();
-
-	Server	&getServer(int fd, const std::string &host);
-	Route	&getRoute(Route &r, const std::string &path);
-	//get clients
-	//une fonction run qui appelle polli
-
-
-	//get requests (poll avec clients)
-		//renvoie un fd mais aussi des infos sur le client
+	Server			&getServer(int fd, const std::string &host);
+	Route			&getRoute(Route &r, const std::string &path);
+	void			run();
 };
 
 #endif // CLUSTER_HPP

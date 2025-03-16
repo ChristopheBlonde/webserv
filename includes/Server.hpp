@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/20 11:46:41 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/14 18:58:57 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/16 18:40:14 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,6 @@ class Server : public Conf
 	Server(size_t index);
 	~Server();
 	int	start();
-	//TODO add func to connect to client
 };
 
 #endif
