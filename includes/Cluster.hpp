@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/14 18:46:29 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/16 17:07:01 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,6 @@ class Cluster
 	std::vector<Server>			servers;
 	std::vector<PollFd>			fds;
 	std::map<int, std::vector<Server *> >	serverFds;
-	//std::map<fd, ??>	fdMap;
 	//serveurs, clients, fichiers, cgi, envoi reponses, envoi cgi
 	//liste de clients
 
@@ -40,10 +39,12 @@ class Cluster
 	std::vector<Server>	&getServers();
 	void			startServers();
 
-	//TODO
-	Server	&getServer(int fd, const std::string &host);//
-	Route	&getRoute(Server &s, const std::string &path);//
-	//une fonction run qui appelle poll
+	Server	&getServer(int fd, const std::string &host);
+	Route	&getRoute(Route &r, const std::string &path);
+	//get clients
+	//une fonction run qui appelle polli
+
+
 	//get requests (poll avec clients)
 		//renvoie un fd mais aussi des infos sur le client
 };

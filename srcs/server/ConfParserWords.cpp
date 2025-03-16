@@ -6,7 +6,7 @@
 /*   By: glaguyon <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/04 18:27:52 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/12 15:39:58 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/16 15:09:20 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -284,7 +284,7 @@ void	ConfParser::parseWordAutoindex(const std::string &s)
 
 void	ConfParser::parseWordCgi(const std::string &s)
 {
-	if (routes.empty())
+	if (!server && routes.empty())
 		throw KeywordWrongLevelException();
 	if (!s[0])
 		return;
@@ -295,9 +295,18 @@ void	ConfParser::parseWordCgi(const std::string &s)
 	if (argc < 2)
 		return;
 	good = true;
-	if (routes.top()->getCgi()[argv[0]][0])
-		throw IncorrectArgException("duplicate cgi extension found");
-	routes.top()->addCgi(argv[0], argv[1]);
+	if (!routes.empty())
+	{
+		if (routes.top()->getCgi()[argv[0]][0])
+			throw IncorrectArgException("duplicate cgi extension found");
+		routes.top()->addCgi(argv[0], argv[1]);
+	}
+	else
+	{
+		if (server->getCgi()[argv[0]][0])
+			throw IncorrectArgException("duplicate cgi extension found");
+		server->addCgi(argv[0], argv[1]);
+	}
 }
 
 void	ConfParser::parseWordReturn(const std::string &s)
