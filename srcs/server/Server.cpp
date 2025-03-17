@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/20 11:59:15 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/14 16:42:07 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/15 20:11:20 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -149,10 +149,52 @@ void	Server::run(void)
 	int			readByte;
 	
 	get_client_maybe();
+	for (std::map<int, Response *>::iterator it = ress.begin();
+			it != ress.end(); it++)
+	{
+		bool	test = false;
+		Response* res = it->second;
+		if (!res->getResponse().empty())
+		{
+			std::cout << GREEN << " Loop Socket: " << res->getSocket()
+				<< RESET << std::endl;
+			for (size_t i = 0; i < _fds.size(); i++)
+			{
+				if (_fds[i].fd == res->getSocket())
+				{
+					_fds[i].events = POLL_OUT | POLL_IN;
+					std::cout << "Activating POLL_OUT for FD: " << _fds[i].fd << std::endl;
+
+
+						std::string	file = res->getResponse();
+						ssize_t	sended;
+						if (file.empty())
+							continue ;
+					//	std::cout << RED << "trouve une reponse file:" << file
+					//		<< std::endl
+					//		<< RESET;
+						sended = send(_fds[i].fd, file.c_str(), file.size(), 0);
+						if (static_cast<unsigned long>(sended) < file.size())
+							res->setResponse(file.substr(sended));
+						else
+						{
+							std::cout << "Sortie" << std::endl;
+							delete (res);
+							ress.erase(it);
+							test = true;
+							break ;
+						}
+				}
+			}
+		}
+		if (test)
+			break ;
+	}
 	if (_fds.size())
 		check = poll(_fds.data(), _fds.size(), 5000);
 	if (check < 0)
 		return ;
+
 	for (std::map<int, Response *>::iterator it = ress.begin();
 			it !=  ress.end(); it++)
 	{
@@ -165,13 +207,11 @@ void	Server::run(void)
 				files[tmp.fd] = "";
 		}
 	}
+	for (size_t i = 0; i < _fds.size(); i++) {
+		std::cout << "FD: " << _fds[i].fd << " Events: " << _fds[i].events
+			<< " Revents: " << _fds[i].revents << std::endl;
+	}
 
-	for (size_t i = 0; i < _fds.size(); i++)
-{
-	std::cout << GREEN << "fd: " << _fds[i].fd << " " << RESET;
-    if (_fds[i].revents & POLL_OUT)
-        std::cout << "DEBUG: POLL_OUT ready on fd " << _fds[i].fd << std::endl;
-}
 std::cout << std::endl;
 	for (size_t i = 0; i < _fds.size(); i++)
 	{
@@ -197,16 +237,24 @@ std::cout << std::endl;
 					/* if read finish close pollfd and exec response */
 				if (readByte == 0)
 				{
+				//	int	fd = ress[_fds[i].fd]->getSocket();
 					struct pollfd tmp;
 					tmp.fd = -1;
 					tmp.events = 0;
 					tmp.revents = 0;
-					for (std::map<int, Response *>::iterator it = ress.begin();
-							it != ress.end(); it++)
 					ress[_fds[i].fd]->setFileContent(files[_fds[i].fd]);
 					ress[_fds[i].fd]->setFileStatus(tmp);
 					close(_fds[i].fd);
 					ress[_fds[i].fd]->createResponse();
+				//	for (size_t i = 0; i < _fds.size(); i++)
+				//	{
+				//		if (_fds[i].fd == fd)
+				//		{
+				//			std::cout << "Client socket founded !" << std::endl;
+				//			_fds[i].events = (POLL_OUT | POLL_IN);
+				//		}
+				//		break ;
+				//	}
 					_fds.erase(_fds.begin() + i--);
 					continue ;
 				}
@@ -224,6 +272,8 @@ std::cout << std::endl;
 					Requests req(requests[_fds[i].fd]);
 					Response *res = new Response(req);
 					res->setSocket(_fds[i].fd);
+					std::cout << GREEN << "Socket: " << res->getSocket()
+						<< RESET << std::endl;
 					ress[res->getFileStatus().fd] = res;
 					requests.erase(_fds[i].fd);	
 				}
@@ -236,6 +286,9 @@ std::cout << std::endl;
 				{
 					Requests req(requests[_fds[i].fd]);
 					Response *res = new Response(req);
+					res->setSocket(_fds[i].fd);
+					std::cout << GREEN << "Socket: " << res->getSocket()
+						<< RESET << std::endl;
 					ress[res->getFileStatus().fd] = res;
 					requests.erase(_fds[i].fd);	
 				}
@@ -259,9 +312,9 @@ std::cout << std::endl;
 						std::string	file = tmp->getResponse();
 						if (file.empty())
 							continue ;
-						std::cout << RED << "trouve une reponse file:" << file
-							<< std::endl
-							<< RESET;
+					//	std::cout << RED << "trouve une reponse file:" << file
+					//		<< std::endl
+					//		<< RESET;
 						send(_fds[i].fd, file.c_str(), 4, 0);
 						if (file.size() > 4)
 							tmp->setResponse(file.substr(4));

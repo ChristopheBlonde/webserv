@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:15:20 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/14 16:12:11 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/15 20:26:05 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -104,6 +104,8 @@ void	Response::handleFile(void)
 	fd.fd = openDir(_path, _fileName);
 	fd.events = POLLIN;
 	fd.revents = 0;
+	if (fd.fd == -1)
+		createError(404);
 	/* add fd to poll*/
 	setFileStatus(fd);
 	std::cout << RED << "FD OPEN BY OPEN DIR: " << fd.fd
@@ -200,7 +202,8 @@ void	Response::createResponse(void)
 	_response = _protocol + " 200 OK\n";
 	/* Create headers */
 	_headers["Content-Length"] += to_string(_fileContent.size());
-	_headers["Content-Type"] += !_cgi ? _mimeTypes[getFileType(_path)]
+	_headers["Content-Type"] += !_cgi
+		? _mimeTypes[getFileType(_path + _fileName)]
 		: "text/html; charset=UFT-8";
 	_headers["Set-Cookie"] += "name=Chris";
 	/* join all */
