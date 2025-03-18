@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 10:24:52 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/12 13:03:09 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/18 09:22:14 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,6 +38,10 @@ class Requests
 		std::string							_query;
 		std::string							_fileName;
 		int									_port;
+		/* handle in out */
+		std::vector<unsigned char> 			_buffer;
+
+
 		void	parse(std::string str);
 		void	handlePath(void);
 		void	handleHost(void);

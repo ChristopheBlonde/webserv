@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/20 11:59:15 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/15 20:11:20 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/18 16:23:43 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -142,197 +142,98 @@ bool	checkEndOfFile(std::string str)
 		return (true);
 }
 
-void	Server::run(void)
+void	Server::handleRequests(struct pollfd &fd)
 {
-	int			check = -1;
-	char		buffer[5];
-	int			readByte;
-	
-	get_client_maybe();
+	int		readByte;
+	char	buffer[BUFFER_SIZE];
+
+	if (!(fd.revents & POLL_IN))
+		return ;
+	readByte = recv(fd.fd, buffer, BUFFER_SIZE - 1, 0);
+	if (readByte > 0)
+		buffer[readByte] = '\0';
+	requests[fd.fd] += buffer;
+	if (checkEndOfFile(requests[fd.fd]))
+	{
+		std::cout << CYAN << requests[fd.fd] << std::endl << RESET;
+		Requests req(requests[fd.fd]);
+		Response *res = new Response(req);
+		res->setSocket(fd.fd);
+		std::cout << GREEN << "new Request create with Socket: "
+			<< res->getSocket() << RESET << std::endl;
+		ress[fd.fd] = res;
+		requests.erase(fd.fd);	
+	}
+}
+
+void	Server::handleFiles(void)
+{
+	struct pollfd fd;
+
 	for (std::map<int, Response *>::iterator it = ress.begin();
 			it != ress.end(); it++)
 	{
-		bool	test = false;
-		Response* res = it->second;
-		if (!res->getResponse().empty())
-		{
-			std::cout << GREEN << " Loop Socket: " << res->getSocket()
-				<< RESET << std::endl;
-			for (size_t i = 0; i < _fds.size(); i++)
-			{
-				if (_fds[i].fd == res->getSocket())
-				{
-					_fds[i].events = POLL_OUT | POLL_IN;
-					std::cout << "Activating POLL_OUT for FD: " << _fds[i].fd << std::endl;
-
-
-						std::string	file = res->getResponse();
-						ssize_t	sended;
-						if (file.empty())
-							continue ;
-					//	std::cout << RED << "trouve une reponse file:" << file
-					//		<< std::endl
-					//		<< RESET;
-						sended = send(_fds[i].fd, file.c_str(), file.size(), 0);
-						if (static_cast<unsigned long>(sended) < file.size())
-							res->setResponse(file.substr(sended));
-						else
-						{
-							std::cout << "Sortie" << std::endl;
-							delete (res);
-							ress.erase(it);
-							test = true;
-							break ;
-						}
-				}
-			}
-		}
-		if (test)
-			break ;
+		fd.fd = it->second->getFileFd();
+		if (fd.fd < 0 || (files.find(fd.fd) != files.end()))
+			continue ;
+		fd.events = POLL_IN;
+		fd.revents = 0;
+		_fds.push_back(fd);
+		files.insert(std::make_pair(fd.fd, it->second));
 	}
+}
+
+void	Server::run(void)
+{
+	int			check = -1;
+
+	get_client_maybe();
 	if (_fds.size())
 		check = poll(_fds.data(), _fds.size(), 5000);
 	if (check < 0)
 		return ;
-
-	for (std::map<int, Response *>::iterator it = ress.begin();
-			it !=  ress.end(); it++)
-	{
-		struct pollfd tmp = it->second->getFileStatus();
-		if (files.find(tmp.fd) == files.end() && tmp.fd >= 0)
-		{
-			std::cout << GREEN << "In add file to poll" << std::endl << RESET;
-			_fds.push_back(tmp);
-			if (tmp.events & (POLLIN))
-				files[tmp.fd] = "";
-		}
-	}
-	for (size_t i = 0; i < _fds.size(); i++) {
-		std::cout << "FD: " << _fds[i].fd << " Events: " << _fds[i].events
-			<< " Revents: " << _fds[i].revents << std::endl;
-	}
-
-std::cout << std::endl;
 	for (size_t i = 0; i < _fds.size(); i++)
 	{
-		memset(&buffer, 0, 5);
 		if (_fds[i].fd == -1)
+		{
+			std::cout << "ERrr -1" << std::endl;
 			continue ;
-		if (_fds[i].revents & (POLL_ERR | POLL_HUP))
+		}
+		if (_fds[i].revents & POLL_ERR)
 			throw Server::ServerException(
 					std::string("ERROR: poll: ") + strerror(errno));
-		if (_fds[i].revents & (POLL_IN))
+		if (_fds[i].revents & POLLHUP)
 		{
-			readByte = recv(_fds[i].fd, buffer, 4, 0);
-			if (readByte != 0)
-				buffer[readByte] = '\0';
-			/* add to request map or file map */
-			
-			/* find if request already exist or is file */
-			if (files.find(_fds[i].fd) != files.end())
-			{
-				readByte = read(_fds[i].fd, buffer, 4);
-				buffer[readByte] = '\0';
-				/* if file update string */
-					/* if read finish close pollfd and exec response */
-				if (readByte == 0)
-				{
-				//	int	fd = ress[_fds[i].fd]->getSocket();
-					struct pollfd tmp;
-					tmp.fd = -1;
-					tmp.events = 0;
-					tmp.revents = 0;
-					ress[_fds[i].fd]->setFileContent(files[_fds[i].fd]);
-					ress[_fds[i].fd]->setFileStatus(tmp);
-					close(_fds[i].fd);
-					ress[_fds[i].fd]->createResponse();
-				//	for (size_t i = 0; i < _fds.size(); i++)
-				//	{
-				//		if (_fds[i].fd == fd)
-				//		{
-				//			std::cout << "Client socket founded !" << std::endl;
-				//			_fds[i].events = (POLL_OUT | POLL_IN);
-				//		}
-				//		break ;
-				//	}
-					_fds.erase(_fds.begin() + i--);
-					continue ;
-				}
-					/* if file not finish add string and continue */
-					files[_fds[i].fd] += buffer;
-					continue ;
-			}
-			/* if request */
-			if (requests.find(_fds[i].fd) != requests.end())
-			{
-				/* if read finish create request and delete in map */
-				requests[_fds[i].fd] += buffer;
-				if (checkEndOfFile(requests[_fds[i].fd]))
-				{
-					Requests req(requests[_fds[i].fd]);
-					Response *res = new Response(req);
-					res->setSocket(_fds[i].fd);
-					std::cout << GREEN << "Socket: " << res->getSocket()
-						<< RESET << std::endl;
-					ress[res->getFileStatus().fd] = res;
-					requests.erase(_fds[i].fd);	
-				}
-			}
-			else
-			{
-				/* add new request in requests map */
-				requests[_fds[i].fd] = buffer;
-				if (checkEndOfFile(requests[_fds[i].fd]))
-				{
-					Requests req(requests[_fds[i].fd]);
-					Response *res = new Response(req);
-					res->setSocket(_fds[i].fd);
-					std::cout << GREEN << "Socket: " << res->getSocket()
-						<< RESET << std::endl;
-					ress[res->getFileStatus().fd] = res;
-					requests.erase(_fds[i].fd);	
-				}
-			}		
-			if (readByte == 0)
-			{
-				std::cout << "client " << _fds[i].fd << " disconnected\n";
-				_fds.erase(_fds.begin() + i--);
-				break;
-			}
-			if (_fds[i].revents & (POLL_OUT))
-			{
-				std::cout << GREEN << "pollout:  " << _fds[i].fd << std::endl
-					<< RESET;
-				for (std::map<int, Response *>::iterator it = ress.begin();
-						it != ress.end(); it++)
-				{
-					Response *tmp = it->second;
-					if (tmp->getSocket() == _fds[i].fd)
-					{
-						std::string	file = tmp->getResponse();
-						if (file.empty())
-							continue ;
-					//	std::cout << RED << "trouve une reponse file:" << file
-					//		<< std::endl
-					//		<< RESET;
-						send(_fds[i].fd, file.c_str(), 4, 0);
-						if (file.size() > 4)
-							tmp->setResponse(file.substr(4));
-						else
-						{
-							std::cout << "Sortie" << std::endl;
-							delete (tmp);
-							ress.erase(it);
-						}
-					}
-				}
-			}	
-			//Requests	test1((std::string(request)));
-			//Response	test2(test1);
-			//test2.createResponse();
-
-			//send(_fds[i].fd, test2.getResponse().c_str(), test2.getResSize(), 0);
+			close(_fds[i].fd);
+			_fds.erase(_fds.begin() + i--);
+			continue;
 		}
+		std::map<int, Response *>::iterator  it;
+		std::map<int, Response *>::iterator  ite;
+		it = ress.find(_fds[i].fd);
+		ite = files.find(_fds[i].fd);
+		if (it != ress.end())
+		{
+			if (!it->second->handleInOut(_fds[i]))
+			{
+				std::cout << "dans delete" << std::endl;
+				delete it->second;
+				ress.erase(it);
+				_fds.erase(_fds.begin() + i--);
+			}
+		}
+		else if (ite != files.end())
+		{
+			if (!ite->second->handleInOut(_fds[i]))
+			{
+				close (ite->first);
+				files.erase(ite);
+				_fds.erase(_fds.begin() + i--);
+			}
+		}
+		else
+			handleRequests(_fds[i]);
+		handleFiles();
 	}
 	return ;
 }
