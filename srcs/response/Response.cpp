@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:15:20 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/18 16:27:43 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/19 09:54:20 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,8 @@ Response::Response(void)
 Response::Response(Requests const &req) : _path(req.getPath())
 {
 	std::cout << GREEN << req.getBody() << RESET <<std::endl;
-	this->_headerSend = false;
+	this->_headerSent = false;
+	this->_headerReady = false;
 	this->_sizeSend = 0;
 	this->_fileFd = -1;
 	this->_protocol = req.getProtocol();
@@ -31,6 +32,7 @@ Response::Response(Requests const &req) : _path(req.getPath())
 	this->_port = req.getPort();
 	this->_fileName = req.getFileName();
 	this->_cgi = false;
+	this->_autoIndex = false;
 	initMimeTypes(_mimeTypes);
 	initResponseHeaders(_headers);
 	
@@ -155,7 +157,6 @@ void	Response::createError(int stat)
 	else
 		content = AutoIndex::generate(_path.data(), "localhost", 8080);
 	result += getNameError(stat) + "\n";
-	//_contentLen = content.size();
 	result += "Content-Type: text/html; charset=UTF-8\nContent-Length: "
 		+ to_string(content.size()) + "\n"
 		+ (_autoIndex ? "Connection: close\n" : "")
@@ -164,7 +165,7 @@ void	Response::createError(int stat)
 	result += content;
 	_resSize = result.size();
 	_response = result;
-	send(getSocket(), _response.c_str(), _response.size(), 0);
+	_headerReady = true;
 	return ;
 }
 
@@ -183,12 +184,8 @@ void	Response::createResponse(void)
 		_response += (it->second + "\r\n");
 	_response += "\r\n";
 
-	//_response += _fileContent;
-	//_resSize = _response.size();
+	_headerReady = true;
 	std::cout << CYAN << "Header ready" << RESET << std::endl;
-	_response.insert(_response.end(), _buffer.begin(), _buffer.end());
-	send(getSocket(), _response.c_str(), _response.size(), 0);
-	//setFileStatus(fd);
 	return ;
 }
 
@@ -198,10 +195,10 @@ bool	Response::handleInOut(struct pollfd &fd)
 	int				sentByte;
 	unsigned char	buffer[BUFFER_SIZE];
 
-	//std::cout << GREEN << "In handleInOut: fd: " << fd.fd
-	//	<< " envent: " << fd.events << " revent: " << fd.revents
-	//	<< RESET << std::endl;
-	if (fd.revents & POLL_IN)
+	std::cout << GREEN << "In handleInOut: fd: " << fd.fd
+		<< " envent: " << fd.events << " revent: " << fd.revents
+		<< RESET << std::endl;
+	if (fd.revents & POLLIN)
 	{
 		if (fd.fd == _fileFd)
 		{
@@ -217,24 +214,29 @@ bool	Response::handleInOut(struct pollfd &fd)
 	}
 		if (_buffer.empty() && fd.fd == -1)
 			return (false);
-	if (fd.revents & POLL_OUT)
+	if (fd.revents & POLLOUT)
 	{
-		if (!_headerSend)
+		if (!_headerSent && _headerReady)
 		{
 			if (!_response.empty())
 			{
-				sentByte = send(fd.fd, _response.c_str(), BUFFER_SIZE, 0);
+				sentByte = send(fd.fd, _response.c_str(),
+						_response.size() < BUFFER_SIZE
+						? _response.size() : BUFFER_SIZE, 0);
 				_response.erase(0, sentByte);
 			}
 			else
-				_headerSend = true;
+				_headerSent = true;
 		}
-		if (!_buffer.empty())
+		if (!_buffer.empty() && _headerSent)
 		{
-			sentByte = send(fd.fd, _buffer.data(), BUFFER_SIZE, 0);
+			sentByte = send(fd.fd, _buffer.data(), _buffer.size() < BUFFER_SIZE
+					? _buffer.size() : BUFFER_SIZE, 0);
 			if (sentByte > 0)
 				_buffer.erase(_buffer.begin(), _buffer.begin() + sentByte);
 		}
+		if (_buffer.empty() && _headerSent)
+			return (false);
 	}
 	return (true);
 }

@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/20 11:59:15 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/18 16:23:43 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/19 09:39:32 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -100,7 +100,7 @@ void	Server::get_client_maybe(void)
 	if (client == -1)
 		return ;
 	fd.fd = client;
-	fd.events = POLL_IN | POLL_OUT;
+	fd.events = POLLIN | POLLOUT;
 	_fds.push_back(fd);
 }
 
@@ -147,7 +147,7 @@ void	Server::handleRequests(struct pollfd &fd)
 	int		readByte;
 	char	buffer[BUFFER_SIZE];
 
-	if (!(fd.revents & POLL_IN))
+	if (!(fd.revents & POLLIN))
 		return ;
 	readByte = recv(fd.fd, buffer, BUFFER_SIZE - 1, 0);
 	if (readByte > 0)
@@ -176,7 +176,7 @@ void	Server::handleFiles(void)
 		fd.fd = it->second->getFileFd();
 		if (fd.fd < 0 || (files.find(fd.fd) != files.end()))
 			continue ;
-		fd.events = POLL_IN;
+		fd.events = POLLIN;
 		fd.revents = 0;
 		_fds.push_back(fd);
 		files.insert(std::make_pair(fd.fd, it->second));
@@ -199,7 +199,7 @@ void	Server::run(void)
 			std::cout << "ERrr -1" << std::endl;
 			continue ;
 		}
-		if (_fds[i].revents & POLL_ERR)
+		if (_fds[i].revents & POLLERR)
 			throw Server::ServerException(
 					std::string("ERROR: poll: ") + strerror(errno));
 		if (_fds[i].revents & POLLHUP)
@@ -219,7 +219,7 @@ void	Server::run(void)
 				std::cout << "dans delete" << std::endl;
 				delete it->second;
 				ress.erase(it);
-				_fds.erase(_fds.begin() + i--);
+				//_fds.erase(_fds.begin() + i--);
 			}
 		}
 		else if (ite != files.end())

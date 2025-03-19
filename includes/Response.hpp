@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:16:02 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/18 15:06:14 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/19 09:11:53 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,8 @@ class Response
 		std::map<std::string, std::string>	_mimeTypes;
 		std::vector<unsigned char>			_buffer;
 		int									_fileFd;
-		bool								_headerSend;
+		bool								_headerSent;
+		bool								_headerReady;
 		int									_sizeSend;
 		Response(void);
 		void	isReferer(Requests const &req);
