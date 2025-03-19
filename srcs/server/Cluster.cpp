@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/16 20:23:44 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/19 22:23:03 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -131,6 +131,84 @@ void	Cluster::addClients()
 	}
 }
 
+bool	checkEndOfFile(std::string str)
+{
+	size_t		index;
+	std::string	headers;
+	std::string body;
+	size_t		len;
+	size_t		start;
+	size_t		end;
+	size_t		body_start;
+
+	index = str.find("\r\n\r\n");
+	if (index == std::string::npos)
+		return (false);
+	body_start = index + 4;
+	headers = str.substr(0, index + 4);
+	index = headers.find("Content-Length: ");
+	if (index != std::string::npos)
+	{
+		start = index + 16;
+		end	= headers.find("\r\n", start);
+		if (end == std::string::npos)
+			return (false);
+		len = std::atoi(headers.substr(start, end - start).c_str());
+		if (str.size() >= body_start + len)
+			return (true);
+		else
+			return (false);
+	}
+	index = headers.find("Transfer-Encoding: chunked");
+	if (index == std::string::npos)
+		return (true);
+	index = str.find("0\r\n\r\n");
+	if (index == std::string::npos)
+		return (false);
+	else
+		return (true);
+}
+
+void	Cluster::handleRequests(struct pollfd &fd)
+{
+	int		readByte;
+	char	buffer[BUFFER_SIZE];
+
+	if (!(fd.revents & POLLIN))
+		return ;
+	readByte = recv(fd.fd, buffer, BUFFER_SIZE - 1, 0);
+	if (readByte > 0)
+		buffer[readByte] = '\0';
+	requests[fd.fd] += buffer;
+	if (checkEndOfFile(requests[fd.fd]))
+	{
+		std::cout << CYAN << requests[fd.fd] << std::endl << RESET;
+		Requests req(requests[fd.fd]);
+		Response *res = new Response(req);
+		res->setSocket(fd.fd);
+		std::cout << GREEN << "new Request create with Socket: "
+			<< res->getSocket() << RESET << std::endl;
+		ress[fd.fd] = res;
+		requests.erase(fd.fd);	
+	}
+}
+
+void	Cluster::handleFiles(void)
+{
+	PollFd	res;
+
+	for (std::map<int, Response *>::iterator it = ress.begin();
+			it != ress.end(); it++)
+	{
+		res.fd = it->second->getFileFd();
+		if (res.fd < 0 || (files.find(res.fd) != files.end()))
+			continue ;
+		res.events = POLLIN;
+		res.revents = 0;
+		fds.push_back(res);
+		files.insert(std::make_pair(res.fd, it->second));
+	}
+}
 void	Cluster::run()
 {
 	if (poll(fds.data(), fds.size(), 1000) < 0)
@@ -141,67 +219,45 @@ void	Cluster::run()
 
 	std::vector<std::map<int, Client>::iterator>	destroyList;
 	//XXX poc
-	for (std::map<int, Client>::iterator it = clients.begin(); it != clients.end(); ++it)
+//	for (std::map<int, Client>::iterator it = clients.begin(); it != clients.end(); ++it)
+	for(size_t i = 0; i < fds.size(); i++)
 	{
 		//std::cout << it->first << "\n";
-		if (getPollFd(it->first).revents & (POLLERR | POLLHUP))
+		struct pollfd pfd = getPollFd(fds[i].fd);
+
+		if (pfd.revents & (POLLERR | POLLHUP))
 		{
 			//? close the client ?
 		}
-		if (getPollFd(it->first).revents & POLLIN)
+		std::map<int, Response *>::iterator  res;
+		std::map<int, Response *>::iterator  file;
+		res = ress.find(pfd.fd);
+		file = files.find(pfd.fd);
+		if (res != ress.end())
 		{
-			char		request[1024];
-			int			read;
-
-			read = recv(it->first, request, 1023, 0);
-			if (read == 0)
+			if (!res->second->handleInOut(pfd))
 			{
-				std::cout << "client " << it->first << " disconnected\n";
-				close(it->first);//use client close instead
-				destroyList.push_back(it);
-				//clients.erase(it);
-				fds.erase(std::find(fds.begin(), fds.end(), PollFd(it->first)));
+				std::cout << "dans delete" << std::endl;
+				delete res->second;
+				ress.erase(res);
+				//_fds.erase(_fds.begin() + i--);
 			}
-			request[read] = '\0';
-			std::cout << "client " << it->first << " " << request << "\n";
 		}
+		else if (file != files.end())
+		{
+			if (!file->second->handleInOut(pfd))
+			{
+				close (file->first);
+				files.erase(file);
+			//	_fds.erase(_fds.begin() + i--);
+			}
+		}
+		else
+			handleRequests(pfd);
+		handleFiles();
 	}
 	for (std::vector<std::map<int, Client>::iterator>::iterator it = destroyList.begin();
 		it < destroyList.end(); ++it)
 		clients.erase(*it);
 
 }
-
-//void	Server::run(void)
-//{
-//	int			check = -1;
-//	char		request[1024];
-//	int			read;
-//	
-//	get_client_maybe();//FIXME this needs to be polled
-//	if (_fds.size())
-//		check = poll(_fds.data(), _fds.size(), 5000);
-//	if (check < 0)
-//		return ;
-//	for (size_t i = 0; i < _fds.size(); i++)
-//	{
-//		if (_fds[i].fd == -1)
-//			continue ;
-//		if (_fds[i].revents & (POLL_ERR | POLL_HUP))
-//			throw Server::ServerException(
-//					std::string("ERROR: poll: ") + strerror(errno));
-//		if (_fds[i].revents & (POLL_IN))
-//		{
-//			read = recv(_fds[i].fd, request, 1023, 0);
-//			if (read == 0)
-//			{
-//				std::cout << "client " << _fds[i].fd << " disconnected\n";
-//				_fds.erase(_fds.begin() + i--);
-//				break;
-//			}
-//			request[read] = '\0';
-//			std::cout << "client " << _fds[i].fd << " " << CYAN << request << RESET << std::endl;
-//		}
-//	}
-//	return ;
-//}

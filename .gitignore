@@ -5,3 +5,5 @@ obj/
 test/
 webserv
 .vscode/
+.DS_Store
+test.zip

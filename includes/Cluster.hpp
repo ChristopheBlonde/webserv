@@ -6,20 +6,20 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/16 19:49:05 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/19 21:43:40 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef CLUSTER_HPP
 # define CLUSTER_HPP
 
-#include <vector>
-#include <string>
-#include <iostream>
+# include <webserv.hpp>
 #include "Client.hpp"
 #include "PollFd.hpp"
 #include "Server.hpp"
 #include "ConfParser.hpp"
+# include <Response.hpp>
+# include <Requests.hpp>
 
 class Cluster
 {
@@ -27,10 +27,15 @@ class Cluster
 	std::vector<PollFd>			fds;
 	std::map<int, std::vector<Server *> >	serverFds;
 	std::map<int, Client>			clients;
+	std::map<int, std::string>	requests;
+	std::map<int, Response *>	ress;
+	std::map<int, Response *>	files;
 	//serveurs, clients, fichiers, cgi, envoi reponses, envoi cgi
 
 	PollFd	&getPollFd(int fd);
 	void	addClients();
+	void	handleFiles(void);
+	void	handleRequests(struct pollfd &fd);
 
 	public:
 	static const std::string	defaultRoot;
