@@ -6,14 +6,14 @@
 /*   By: cblonde <cblonde@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/19 07:00:26 by cblonde           #+#    #+#             */
-/*   Updated: 2025/02/21 09:14:27 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/16 19:50:15 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <webserv.hpp>
 #include <Server.hpp>
 
-int sig = 0;
+volatile sig_atomic_t sig = 0;
 
 void ft_exit(int signal)
 {
@@ -21,23 +21,25 @@ void ft_exit(int signal)
 		sig = 1;
 }
 
-int main(void)
+#include "Cluster.hpp"
+
+int main(int argc, char **argv)
 {
-	signal(SIGINT, ft_exit);
+	//signal(SIGINT, ft_exit);
+	//todo args parsing
 	try
 	{
-		Server test(8080);
+		Cluster	cluster((argc >= 2) ? argv[1] : DEFAULT_CONF);
 
-		test.init();
-		while (!sig)
-		{
-			test.run();
-			usleep(200);
-		}
+		cluster.startServers();
+		while (1)
+			cluster.run();
 	}
-	catch (std::exception &e)
+	catch (std::exception &e)//XXX check if conf test route etc ? (origine de l'exception)
 	{
-		std::cerr << e.what() << std::endl;
+		std::cerr << "error: " << e.what() << std::endl;
+		return 1;
 	}
+
 	return (0);
 }
