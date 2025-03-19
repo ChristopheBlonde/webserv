@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/19 22:23:03 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/19 22:28:29 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -249,7 +249,7 @@ void	Cluster::run()
 			{
 				close (file->first);
 				files.erase(file);
-			//	_fds.erase(_fds.begin() + i--);
+			fds.erase(fds.begin() + i--);
 			}
 		}
 		else

@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/20 11:59:15 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/19 21:26:50 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/19 22:34:11 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,59 +62,4 @@ Server::~Server()
 		close(socketIdMap[socketId]);
 		socketIdMap.erase(it);
 	}
-
-//void	Server::run(void)
-//{
-//	int			check = -1;
-//
-//	get_client_maybe();
-//	if (_fds.size())
-//		check = poll(_fds.data(), _fds.size(), 5000);
-//	if (check < 0)
-//		return ;
-//	for (size_t i = 0; i < _fds.size(); i++)
-//	{
-//		if (_fds[i].fd == -1)
-//		{
-//			std::cout << "ERrr -1" << std::endl;
-//			continue ;
-//		}
-//		if (_fds[i].revents & POLLERR)
-//			throw Server::ServerException(
-//					std::string("ERROR: poll: ") + strerror(errno));
-//		if (_fds[i].revents & POLLHUP)
-//		{
-//			close(_fds[i].fd);
-//			_fds.erase(_fds.begin() + i--);
-//			continue;
-//		}
-//		std::map<int, Response *>::iterator  it;
-//		std::map<int, Response *>::iterator  ite;
-//		it = ress.find(_fds[i].fd);
-//		ite = files.find(_fds[i].fd);
-//		if (it != ress.end())
-//		{
-//			if (!it->second->handleInOut(_fds[i]))
-//			{
-//				std::cout << "dans delete" << std::endl;
-//				delete it->second;
-//				ress.erase(it);
-//				//_fds.erase(_fds.begin() + i--);
-//			}
-//		}
-//		else if (ite != files.end())
-//		{
-//			if (!ite->second->handleInOut(_fds[i]))
-//			{
-//				close (ite->first);
-//				files.erase(ite);
-//				_fds.erase(_fds.begin() + i--);
-//			}
-//		}
-//		else
-//			handleRequests(_fds[i]);
-//		handleFiles();
-//	}
-//	return ;
-//}
 }
