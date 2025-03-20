@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 10:46:49 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/14 15:37:17 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/20 16:27:42 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -143,8 +143,9 @@ static void	initHeaders(std::string str,
 void	Requests::parse(std::string str)
 {
 	std::stringstream	ss(str);
-	std::string word;
-	std::string	line;
+	std::string			word;
+	std::string			line;
+	size_t				index;
 
 	getline(ss, line);
 	std::stringstream ssLine(line);
@@ -170,9 +171,25 @@ void	Requests::parse(std::string str)
 		initHeaders(line, _headers);
 	}
 	handleHost();
+	index = str.find("\r\n\r\n");
+	if (index != std::string::npos)
+		_body = str.substr(index +4);
 	std::cout << RED << "Request host: " << _host << "port: " << _port
-		<< " path: " << _path << "file: " << _fileName << RESET << std::endl;
+		<< " path: " << _path << "file: " << _fileName << " Body: "
+		<< _body << RESET << std::endl;
 	return ;
+}
+
+void	Requests::checkConf(void)
+{
+	std::cout << GREEN << "Conf:" << std::endl << "\troot: " << _conf.getRoot()
+		<< " name: " << _conf.getName() << " auto index: " << _conf.getAutoindex()
+		<< RESET << std::endl;
+}
+
+void	Requests::setConf(Route &conf)
+{
+	_conf = conf;
 }
 
 std::string	Requests::getProtocol(void) const
@@ -225,4 +242,9 @@ std::string Requests::getFileName(void) const
 int			Requests::getPort(void) const
 {
 	return (_port);
+}
+
+Route	Requests::getConf(void) const
+{
+	return (_conf);
 }

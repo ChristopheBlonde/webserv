@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 10:24:52 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/18 09:22:14 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/20 16:20:55 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 
 # include <webserv.hpp>
 # include <utils.hpp>
+# include <Route.hpp>
 
 typedef enum	e_request_type
 {
@@ -38,6 +39,7 @@ class Requests
 		std::string							_query;
 		std::string							_fileName;
 		int									_port;
+		Route								_conf;
 		/* handle in out */
 		std::vector<unsigned char> 			_buffer;
 
@@ -50,7 +52,8 @@ class Requests
 		Requests(Requests const &src);
 		~Requests(void);
 		Requests	&operator=(Requests const &rhs);
-
+		void								checkConf(void);
+		void								setConf(Route &conf);
 		std::string							getProtocol(void) const;
 		std::string							getPath(void) const;
 		std::map<std::string,std::string>	getHeaders(void) const;
@@ -60,6 +63,7 @@ class Requests
 		std::string							getQuery(void) const;
 		std::string							getFileName(void) const;
 		int									getPort(void) const;
+		Route								getConf(void) const;
 };
 
 #endif

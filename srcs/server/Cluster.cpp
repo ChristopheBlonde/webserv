@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/19 22:28:29 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/20 16:21:53 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,11 +67,15 @@ void	Cluster::startServers()
 
 Server	&Cluster::getServer(int fd, const std::string &host)
 {
-	std::map<int, std::vector<Server *> >::iterator it = serverFds.find(fd);
 
+	std::map<int, std::vector<Server *> >::iterator it = serverFds.find(fd);
+	std::map<int, std::vector<Server *> >::iterator socket;
+	for (socket = serverFds.begin(); socket != serverFds.end(); socket++)
+		std::cout << RED << "Server: fd: " << socket->first
+			<< RESET << std::endl;
 //not supposed to happen
-//	if (it == serverFds.end())
-//		throw std::runtime_error("socket fd not in fd map");
+	if (it == serverFds.end())
+		throw std::runtime_error("socket fd not in fd map");
 	
 	std::vector<Server *>	currServers = it->second;
 	
@@ -177,6 +181,8 @@ void	Cluster::handleRequests(struct pollfd &fd)
 	if (!(fd.revents & POLLIN))
 		return ;
 	readByte = recv(fd.fd, buffer, BUFFER_SIZE - 1, 0);
+	if (readByte < 0)
+		return ;
 	if (readByte > 0)
 		buffer[readByte] = '\0';
 	requests[fd.fd] += buffer;
@@ -184,6 +190,12 @@ void	Cluster::handleRequests(struct pollfd &fd)
 	{
 		std::cout << CYAN << requests[fd.fd] << std::endl << RESET;
 		Requests req(requests[fd.fd]);
+		std::cout << GREEN << "Args pass to getServer: host: "<< req.getHost()
+			<< " socket: " << fd.fd << RESET << std::endl;
+		Server srv = getServer(3, req.getHost());
+		Route  rt = getRoute(srv, req.getPath());
+		req.setConf(rt);
+		req.checkConf();
 		Response *res = new Response(req);
 		res->setSocket(fd.fd);
 		std::cout << GREEN << "new Request create with Socket: "

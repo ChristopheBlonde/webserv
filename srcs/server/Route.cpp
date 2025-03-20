@@ -6,11 +6,15 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/12 15:36:06 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/20 12:31:40 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Route.hpp"
+Route::Route(void)
+{
+	return ;
+}
 
 Route::Route(const std::string &name) :
 	name(name),
