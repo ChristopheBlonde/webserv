@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/16 20:18:36 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/20 17:29:47 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@
 class Client
 {
 	int	fd;
+	int	serverFd;
 
 	public:
 	Client(int fd);
