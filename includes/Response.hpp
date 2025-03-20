@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:16:02 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/19 09:11:53 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/20 22:10:26 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@
 # include <Requests.hpp>
 # include <AutoIndex.hpp>
 
-# define BUFFER_SIZE 1024
+#define FILE_BUFFER_SIZE 1024
 
 class Response
 {

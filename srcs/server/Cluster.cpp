@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/20 18:36:05 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/20 22:06:12 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -133,80 +133,74 @@ void	Cluster::addClients()
 
 void	Cluster::closeClient(int fd)
 {
-	clients.erase(clients.find(fd));
-	clientFdToServFd.erase(clientFdToServFd.find(fd));
-	fds.erase(std::find(fds.begin(), fds.end(), PollFd(fd)));
+	clientCloseList.push_back(fd);
 }
 
-void	Cluster::closeClient(std::vector<int> vec)
+void	Cluster::destroyClients()
 {
-	for (std::vector<int>::iterator it = vec.begin(); it < vec.end(); ++it)
-		closeClient(*it);
-}
-
-bool	checkEndOfFile(std::string str)
-{
-	size_t		index;
-	std::string	headers;
-	std::string body;
-	size_t		len;
-	size_t		start;
-	size_t		end;
-	size_t		body_start;
-
-	index = str.find("\r\n\r\n");
-	if (index == std::string::npos)
-		return (false);
-	body_start = index + 4;
-	headers = str.substr(0, index + 4);
-	index = headers.find("Content-Length: ");
-	if (index != std::string::npos)
+	for (std::vector<int>::iterator it = clientCloseList.begin();
+		it < clientCloseList.end(); ++it)
 	{
-		start = index + 16;
-		end	= headers.find("\r\n", start);
-		if (end == std::string::npos)
-			return (false);
-		len = std::atoi(headers.substr(start, end - start).c_str());
-		if (str.size() >= body_start + len)
-			return (true);
-		else
-			return (false);
-	}
-	index = headers.find("Transfer-Encoding: chunked");
-	if (index == std::string::npos)
-		return (true);
-	index = str.find("0\r\n\r\n");
-	if (index == std::string::npos)
-		return (false);
-	else
-		return (true);
-}
-
-void	Cluster::handleRequests(struct pollfd &fd)
-{
-	int		readByte;
-	char	buffer[BUFFER_SIZE];
-
-	if (!(fd.revents & POLLIN))
-		return ;
-	readByte = recv(fd.fd, buffer, BUFFER_SIZE - 1, 0);
-	if (readByte > 0)
-		buffer[readByte] = '\0';
-	requests[fd.fd] += buffer;
-	if (checkEndOfFile(requests[fd.fd]))
-	{
-		std::cout << CYAN << requests[fd.fd] << std::endl << RESET;
-		Requests req(requests[fd.fd]);
-		Response *res = new Response(req);
-		res->setSocket(fd.fd);
-		std::cout << GREEN << "new Request create with Socket: "
-			<< res->getSocket() << RESET << std::endl;
-		ress[fd.fd] = res;
-		requests.erase(fd.fd);	
+		clients.erase(clients.find(*it));
+		clientFdToServFd.erase(clientFdToServFd.find(*it));
+		fds.erase(std::find(fds.begin(), fds.end(), PollFd(*it)));
 	}
 }
 
-void	Cluster::handleFiles(void)
+void	Cluster::run()
+{
+
+	if (poll(fds.data(), fds.size(), POLL_TIMEOUT) < 0 && errno != EINTR)
+		throw std::runtime_error("poll error");
+	addClients();
+	for (std::map<int, Client>::iterator it = clients.begin(); it != clients.end(); ++it)
+	{
+		if (getPollFd(it->first).revents & POLLERR)
+			clientCloseList.push_back(it->first);
+		else if (getPollFd(it->first).revents & POLLIN)
+			it->second.handleRequest();
+		else if (getPollFd(it->first).revents & POLLIN)
+			it->second.handleResponse(0);//TODO
+	}
+//	for(size_t i = 0; i < fds.size(); i++)
+//	{
+//		//std::cout << it->first << "\n";
+//		PollFd pfd = getPollFd(fds[i].fd);
+//
+//		if (pfd.revents & POLLERR)
+//		{//?}
+//		//XXX il faut check poll in ici de preference
+//		std::map<int, Response *>::iterator  res;
+//		std::map<int, Response *>::iterator  file;
+//		res = ress.find(pfd.fd);
+//		file = files.find(pfd.fd);
+//		if (res != ress.end())
+//		{
+//			if (!res->second->handleInOut(pfd))
+//			{
+//				std::cout << "dans delete" << std::endl;
+//				delete res->second;
+//				ress.erase(res);
+//				//_fds.erase(_fds.begin() + i--);
+//			}
+//		}
+//		else if (file != files.end())
+//		{
+//			if (!file->second->handleInOut(pfd))
+//			{
+//				close (file->first);
+//				files.erase(file);
+//			fds.erase(fds.begin() + i--);
+//			}
+//		}
+//		else
+//			handleRequests(pfd);
+//		handleFiles();
+//	}
+	destroyClients();
+}
+
+void	Cluster::handleFiles(void)//
 {
 	PollFd	res;
 
@@ -221,57 +215,4 @@ void	Cluster::handleFiles(void)
 		fds.push_back(res);
 		files.insert(std::make_pair(res.fd, it->second));
 	}
-}
-
-void	Cluster::run()
-{
-	if (poll(fds.data(), fds.size(), 1000) < 0 && errno != EINTR)
-		throw std::runtime_error("poll error");
-
-	addClients();
-	//manage requests, clients, cgi
-
-	std::vector<std::map<int, Client>::iterator>	destroyList;
-	//XXX poc
-//	for (std::map<int, Client>::iterator it = clients.begin(); it != clients.end(); ++it)
-	for(size_t i = 0; i < fds.size(); i++)
-	{
-		//std::cout << it->first << "\n";
-		PollFd pfd = getPollFd(fds[i].fd);
-
-		if (pfd.revents & (POLLERR | POLLHUP))
-		{
-			//? close the client ?
-		}
-		std::map<int, Response *>::iterator  res;
-		std::map<int, Response *>::iterator  file;
-		res = ress.find(pfd.fd);
-		file = files.find(pfd.fd);
-		if (res != ress.end())
-		{
-			if (!res->second->handleInOut(pfd))
-			{
-				std::cout << "dans delete" << std::endl;
-				delete res->second;
-				ress.erase(res);
-				//_fds.erase(_fds.begin() + i--);
-			}
-		}
-		else if (file != files.end())
-		{
-			if (!file->second->handleInOut(pfd))
-			{
-				close (file->first);
-				files.erase(file);
-			fds.erase(fds.begin() + i--);
-			}
-		}
-		else
-			handleRequests(pfd);
-		handleFiles();
-	}
-	for (std::vector<std::map<int, Client>::iterator>::iterator it = destroyList.begin();
-		it < destroyList.end(); ++it)
-		clients.erase(*it);
-
 }

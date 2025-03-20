@@ -6,15 +6,15 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 10:24:52 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/18 09:22:14 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/20 21:15:53 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef REQUESTS_HPP
 # define REQUESTS_HPP
 
-# include <webserv.hpp>
-# include <utils.hpp>
+#include "webserv.hpp"
+#include "utils.hpp"
 
 typedef enum	e_request_type
 {

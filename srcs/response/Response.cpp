@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:15:20 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/19 09:54:20 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/20 22:10:00 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -193,7 +193,7 @@ bool	Response::handleInOut(struct pollfd &fd)
 {
 	int				readByte;
 	int				sentByte;
-	unsigned char	buffer[BUFFER_SIZE];
+	unsigned char	buffer[FILE_BUFFER_SIZE];
 
 	std::cout << GREEN << "In handleInOut: fd: " << fd.fd
 		<< " envent: " << fd.events << " revent: " << fd.revents
@@ -202,7 +202,7 @@ bool	Response::handleInOut(struct pollfd &fd)
 	{
 		if (fd.fd == _fileFd)
 		{
-			readByte = read(fd.fd, buffer, BUFFER_SIZE - 1);
+			readByte = read(fd.fd, buffer, FILE_BUFFER_SIZE - 1);
 			if (readByte <= 0)
 			{
 				createResponse();
@@ -221,8 +221,8 @@ bool	Response::handleInOut(struct pollfd &fd)
 			if (!_response.empty())
 			{
 				sentByte = send(fd.fd, _response.c_str(),
-						_response.size() < BUFFER_SIZE
-						? _response.size() : BUFFER_SIZE, 0);
+						_response.size() < FILE_BUFFER_SIZE
+						? _response.size() : FILE_BUFFER_SIZE, 0);
 				_response.erase(0, sentByte);
 			}
 			else
@@ -230,8 +230,8 @@ bool	Response::handleInOut(struct pollfd &fd)
 		}
 		if (!_buffer.empty() && _headerSent)
 		{
-			sentByte = send(fd.fd, _buffer.data(), _buffer.size() < BUFFER_SIZE
-					? _buffer.size() : BUFFER_SIZE, 0);
+			sentByte = send(fd.fd, _buffer.data(), _buffer.size() < FILE_BUFFER_SIZE
+					? _buffer.size() : FILE_BUFFER_SIZE, 0);
 			if (sentByte > 0)
 				_buffer.erase(_buffer.begin(), _buffer.begin() + sentByte);
 		}
