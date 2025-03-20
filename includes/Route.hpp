@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/12 15:34:28 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/20 17:53:45 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,6 @@
 #include <vector>
 #include <string>
 #include <stdexcept>
-#include <iostream>
 #include "ExceptionTemplate.hpp"
 
 class Route

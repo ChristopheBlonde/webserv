@@ -6,21 +6,45 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/16 20:19:00 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/20 17:42:09 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Client.hpp"
 
-Client::Client(int fd) : fd(fd)
+Client::Client() :
+	on(false),
+	fd(-1)
+{
+}
+
+Client::Client(int fd) :
+	on(false),
+	fd(fd)
 {
 }
 
 Client::~Client()
 {
+	if (!on)
+		return;
+	close(fd);
 }
 
-void	Client::closefd()
+void	Client::init()
 {
-	close(fd);
+	on = true;
+}
+
+void	Client::requestAppend(const std::string &s)
+{
+	currRequest += s;
+}
+
+Requests	Client::getRequest()
+{
+	Requests	req(currRequest);
+
+	currRequest = "";
+	return req;
 }

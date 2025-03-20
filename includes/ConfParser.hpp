@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/12 15:37:40 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/20 17:55:36 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,6 @@
 #include <map>
 #include <vector>
 #include <string>
-#include <iostream>
 #include <fstream>
 #include <string>
 #include "ExceptionTemplate.hpp"

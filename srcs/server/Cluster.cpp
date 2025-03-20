@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/19 22:28:29 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/20 18:36:05 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,7 @@ Cluster::~Cluster()
 
 Server			*Cluster::addServer()
 {
-	servers.push_back(Server(servers.size()));
+	servers.push_back(Server());
 	return &servers.back();
 }
 
@@ -69,9 +69,8 @@ Server	&Cluster::getServer(int fd, const std::string &host)
 {
 	std::map<int, std::vector<Server *> >::iterator it = serverFds.find(fd);
 
-//not supposed to happen
-//	if (it == serverFds.end())
-//		throw std::runtime_error("socket fd not in fd map");
+	if (it == serverFds.end())
+		it = serverFds.find(clientFdToServFd[fd]);
 	
 	std::vector<Server *>	currServers = it->second;
 	
@@ -122,13 +121,27 @@ void	Cluster::addClients()
 		PollFd	pfd;
 
 		pfd.fd = accept(it->first, NULL, NULL);
-		std::cout << pfd.fd << " client found\n";
 		if (pfd.fd == -1)
 			continue;
 		pfd.events = POLLIN | POLLOUT;
 		fds.push_back(pfd);
 		clients.insert(std::make_pair(pfd.fd, Client(pfd.fd)));
+		clients[pfd.fd].init();
+		clientFdToServFd[pfd.fd] = it->first;
 	}
+}
+
+void	Cluster::closeClient(int fd)
+{
+	clients.erase(clients.find(fd));
+	clientFdToServFd.erase(clientFdToServFd.find(fd));
+	fds.erase(std::find(fds.begin(), fds.end(), PollFd(fd)));
+}
+
+void	Cluster::closeClient(std::vector<int> vec)
+{
+	for (std::vector<int>::iterator it = vec.begin(); it < vec.end(); ++it)
+		closeClient(*it);
 }
 
 bool	checkEndOfFile(std::string str)
@@ -209,9 +222,10 @@ void	Cluster::handleFiles(void)
 		files.insert(std::make_pair(res.fd, it->second));
 	}
 }
+
 void	Cluster::run()
 {
-	if (poll(fds.data(), fds.size(), 1000) < 0)
+	if (poll(fds.data(), fds.size(), 1000) < 0 && errno != EINTR)
 		throw std::runtime_error("poll error");
 
 	addClients();
@@ -223,7 +237,7 @@ void	Cluster::run()
 	for(size_t i = 0; i < fds.size(); i++)
 	{
 		//std::cout << it->first << "\n";
-		struct pollfd pfd = getPollFd(fds[i].fd);
+		PollFd pfd = getPollFd(fds[i].fd);
 
 		if (pfd.revents & (POLLERR | POLLHUP))
 		{
