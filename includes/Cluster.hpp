@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/20 22:04:04 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/20 22:18:08 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,6 @@
 #include "Requests.hpp"
 
 #define POLL_TIMEOUT 1000
-#define BUFFER_SIZE 1024
 
 class Cluster
 {
@@ -34,7 +33,6 @@ class Cluster
 	std::map<int, Client>			clients;
 	std::map<int, int>			clientFdToServFd;
 	std::vector<int>			clientCloseList;
-	std::map<int, std::string>		requests;//
 	std::map<int, Response *>		ress;//
 	std::map<int, Response *>		files;//
 

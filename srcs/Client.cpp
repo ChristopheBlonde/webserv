@@ -6,11 +6,12 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/20 22:07:00 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/21 01:07:56 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Client.hpp"
+#include "Cluster.hpp"
 
 Client::Client() :
 	on(false),
@@ -40,88 +41,194 @@ void	Client::init()
 
 void	Client::resetRequest()
 {
+	readSize = 1;
 	currRequest = "";
 	currRequestRaw = "";
-	index = std::string::npos;
 	transferType = UNDEFINED;
-	expectedLen = -1;
+	mode = HEADERS;
+	chunkMode = CHUNKLEN;
 }
 
-bool	Client::checkEndRequest(ssize_t readByte)
+int	Client::getTransferType(Cluster &c)
 {
-//	if (index == std::string::npos)
-//		index = currRequest.find("\r\n\r\n",
-//			currRequest.size() - readbyte - 4);
-//	if (index == std::string::npos)
-//		return (false);
-//	if (transferType == UNDEFINED)
-//	{
-//		size_t	transferHeader = currRequest.find("transfer-encoding:", 0, index);
-//
-//		if (transferHeader != std::string::npos)
-//		{
-//			transferHeader += std::strlen("transfer-encoding:"); 
-//			while (currRequest[transferHeader] == " "
-//				|| currRequest[transferHeader] == "\t")
-//				++transferHeader;
-//			if (currRequest.find("chunked", transferHeader) == transferHeader)
-//				transferType = CHUNKED;
-//		}
-//		if (transferType == UNDEFINED)
-//		{
-//			transferHeader = currRequest.find("content-length:", 0, index);
-//			if (transferHeader == std::string::npos)
-//				return true;
-//			expectedLen = std::strtol(
-//				&currRequest[transferHeader + std::strlen("content-length:")],
-//				NULL, 10);
-//			if (expectedLen < 0)
-//				expectedLen = 0;
-//			transferType = LENGTH;
-//		}
-//	}
-//	if (transferType == CHUNKED
-//		&& currRequest.find("0\r\n\r\n", currRequest.size() - readByte - 5)//XXX tout 1 coup
-//			!= std::string:npos)
-//		return true;
-//	if (transferType == LENGTH)
-//	{
-//		//?
-//		end	= headers.find("\r\n", start);
-//		if (end == std::string::npos)
-//			return (false);
-//		len = std::atoi(headers.substr(start, end - start).c_str());
-//		if (str.size() >= body_start + len)
-//			return (true);
-//		else
-//			return (false);
-//	}
+	size_t	transferHeader = currRequest.find("transfer-encoding:");
+
+	if (transferHeader != std::string::npos)
+	{
+		transferHeader += std::strlen("transfer-encoding:"); 
+		while (currRequest[transferHeader] == ' '
+			|| currRequest[transferHeader] == '\t')
+			++transferHeader;
+		if (currRequest.find("chunked", transferHeader) == transferHeader)
+			return CHUNKED;
+	}
+	transferHeader = currRequest.find("content-length:");
+	if (transferHeader == std::string::npos)
+		return UNDEFINED;
+	if (currRequest.find("content-length:", transferHeader) != std::string::npos)
+	{
+		c.closeClient(fd);
+		readSize = 1;
+		return LENGTH;
+	}
+
+	char	*num = &currRequest[transferHeader + std::strlen("content-length:")];
+	readSize = 0;
+
+	while (*num == ' ' || *num == '\t')
+		++num;
+	while (*num >= '0' && *num <= '9' && readSize < MAXLENHEADER)
+		readSize = readSize * 10 + *num++ - '0';
+	while (*num == ' ' || *num == '\t')
+		++num;
+	if (num[0] != '\r' || num[1] != '\n')
+	{
+		c.closeClient(fd);
+		readSize = 1;
+		return LENGTH;
+	}
+	return LENGTH;
+}
+
+void	Client::handleRequestHeaders(Cluster &c)
+{
+	ssize_t	readByte;
+
+	readByte = recv(fd, buffer, 1, 0);
+	if (readByte <= 0)
+	{
+		c.closeClient(fd);
+		return ;
+	}
+	else
+		buffer[readByte] = '\0';
+
+	std::string	bufferLow = buffer;
+	
+	for (std::string::iterator it = bufferLow.begin(); it < bufferLow.end(); ++it)
+		*it = std::tolower(*it);
+	currRequest += bufferLow;
+	currRequestRaw += buffer;
+	if (currRequest.size() < 4
+		|| currRequest.compare(currRequest.size() - 4, 4, "\r\n\r\n") != 0)
+		return ;
+	transferType = getTransferType(c);
+	mode = BODY;
+}
+
+bool	Client::handleRequestBodyChunked(Cluster &c)
+{
+	ssize_t	readByte;
+
+	if (readSize > BUFFER_SIZE - 1)
+		readByte = recv(fd, buffer, BUFFER_SIZE - 1, 0);
+	else
+		readByte = recv(fd, buffer, readSize, 0);
+	if (readByte <= 0)
+	{
+		c.closeClient(fd);
+		return false;
+	}
+	else
+		buffer[readByte] = '\0';
+
+	switch (chunkMode)
+	{
+	case CHUNKLENEND:
+		if (*buffer != '\n')
+		{
+			c.closeClient(fd);
+			return false;
+		}
+		readSize = 0;
+		for (std::string::iterator it = currRequest.begin(); it <= currRequest.end(); ++it)
+		{
+			if (*it >= '0' && *it <= '9')
+				readSize = readSize * 16 + *it - '0';
+			else if (*it >= 'a' && *it <= 'f')
+				readSize = readSize * 16 + *it - 'a';
+			else
+			{
+				c.closeClient(fd);
+				return false;
+			}
+			if (readSize > MAXLENHEADER)
+			{
+				c.closeClient(fd);
+				return false;
+			}
+		}
+		if (readSize == 0)
+			return true;
+		currRequest = "";
+		chunkMode = CHUNKBODY;
+		break;
+
+	case CHUNKLEN:
+		if (*buffer == '\r')
+			chunkMode = CHUNKLENEND;
+		else
+			currRequest += std::tolower(*buffer);
+		break;
+
+	case CHUNKBODY:
+		readSize -= readByte;
+		currRequestRaw += buffer;
+		if (readSize == 0)
+		{
+			chunkMode = CHUNKBODYEND;
+			readSize = 2;
+		}
+		break;
+
+	case CHUNKBODYEND:
+		readSize -= readByte;
+		currRequest += buffer;
+		if (readSize == 0)
+		{
+			if (currRequest != "\r\n")
+			{
+				c.closeClient(fd);
+				return false;
+			}
+			chunkMode = CHUNKLEN;
+			readSize = 1;
+			currRequest = "";
+		}
+		break;
+	}
 	return false;
 }
 
-//GET or DELETE: no header expected, if found discard body
-//
-void	Client::handleRequest()
+bool	Client::handleRequestBodyLength(Cluster &c)
 {
-//			ssize_t	readByte;
-//			char	buffer[BUFFER_SIZE];
-//
-//			readByte = recv(fd, buffer, BUFFER_SIZE - 1, 0);
-//			if (readByte <= 0)
-//				clientCloseList.push_back(it->first);
-//			else
-//			{
-//				buffer[readByte] = '\0';
-//			}
-//	std::string	s_low = s;
-//
-//	currRequestRaw += s;
-//	for (std::string::iterator it = s_low.begin(); it < s_low.end(); ++it)
-//		*it = std::tolower(*it);
-//	currRequest += s_low;
-//	if (checkEndRequest())
-//	{
-//		//lancer la Request
+	ssize_t	readByte;
+
+	if (readSize > BUFFER_SIZE - 1)
+		readByte = recv(fd, buffer, BUFFER_SIZE - 1, 0);
+	else
+		readByte = recv(fd, buffer, readSize, 0);
+	if (readByte <= 0)
+	{
+		c.closeClient(fd);
+		return false;
+	}
+	buffer[readByte] = '\0';
+	readSize -= readByte;
+	currRequestRaw += buffer;
+	if (readSize == 0)
+		return true;
+	return false;
+}
+
+void	Client::handleRequest(Cluster &c)
+{
+	if (mode == HEADERS)
+		handleRequestHeaders(c);
+	if ((mode == BODY && transferType == UNDEFINED)
+		|| (mode == BODY && transferType == CHUNKED && handleRequestBodyChunked(c))
+		|| (mode == BODY && transferType == LENGTH && handleRequestBodyLength(c)))
+	{
 //		std::cout << CYAN << requests[fd.fd] << std::endl << RESET;
 //		Requests req(requests[fd.fd]);
 //		Response *res = new Response(req);
@@ -131,8 +238,8 @@ void	Client::handleRequest()
 //		ress[fd.fd] = res;
 //		requests.erase(fd.fd);
 //
-//		resetRequest();
-//	}
+		resetRequest();
+	}
 }
 
 void	Client::handleResponse(int fd)
