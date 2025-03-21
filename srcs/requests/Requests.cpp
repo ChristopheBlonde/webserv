@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 10:46:49 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/21 09:58:54 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/21 14:09:50 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -133,7 +133,7 @@ static void	initHeaders(std::string str,
 			pair.first = line.substr(0, index);
 			pair.second = line.substr(index + 1, line.size() - index - 2);
 		}
-		trim(pair.first);
+		formatHeader(pair.first);
 		trim(pair.second);
 		if (!pair.first.empty())
 			headers.insert(pair);
@@ -142,6 +142,7 @@ static void	initHeaders(std::string str,
 
 void	Requests::parse(std::string str)
 {
+	std::cout << CYAN << "Request: " << str << RESET << std::endl;
 	std::stringstream	ss(str);
 	std::string			word;
 	std::string			line;
@@ -170,6 +171,12 @@ void	Requests::parse(std::string str)
 			break ;
 		initHeaders(line, _headers);
 	}
+
+	std::map<std::string, std::string>::iterator it;
+	for (it = _headers.begin(); it != _headers.end(); it++)
+		std::cout << YELLOW << "key: " << it->first << " value: " << it->second
+			<< RESET << std::endl;
+
 	handleHost();
 	index = str.find("\r\n\r\n");
 	if (index != std::string::npos)
@@ -182,14 +189,22 @@ void	Requests::parse(std::string str)
 
 void	Requests::checkConf(void)
 {
-	std::cout << GREEN << "Conf:" << std::endl << "\troot: " << _conf.getRoot()
-		<< " name: " << _conf.getName() << " auto index: " << _conf.getAutoindex()
-		<< RESET << std::endl;
+	std::cout << "Name: " << _conf->getName() << " Path: " << _path << std::endl;
+	std::string routePath = _conf->getName() == _path
+		? _conf->getRoot()
+		: _path;
+
+	if (*(routePath.begin() + routePath.size() - 1) == '/')
+		routePath = routePath.substr(0, routePath.size() - 1);
+	if (!_headers["Referer"].empty())
+		_path = routePath + _path;
+	else
+		_path = routePath;
 }
 
 void	Requests::setConf(Route &conf)
 {
-	_conf = conf;
+	_conf = &conf;
 }
 
 std::string	Requests::getProtocol(void) const
@@ -244,7 +259,7 @@ int			Requests::getPort(void) const
 	return (_port);
 }
 
-Route	Requests::getConf(void) const
+Route	&Requests::getConf(void) const
 {
-	return (_conf);
+	return (*_conf);
 }

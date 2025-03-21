@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/21 10:21:30 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/21 10:31:23 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,6 +67,7 @@ void	Cluster::startServers()
 
 Server	&Cluster::getServer(int fd, const std::string &host)
 {
+	std::map<int, std::vector<Server *> >::iterator it = serverFds.find(fd);
 
 	if (it == serverFds.end())
 		it = serverFds.find(clientFdToServFd[fd]);

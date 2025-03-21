@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:15:20 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/20 22:10:00 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/21 13:42:08 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,7 @@ Response::Response(Requests const &req) : _path(req.getPath())
 	
 	/* check headers request */
 
-	isReferer(req);
+//	isReferer(req);
 	handleFile();
 //if (_path.find_last_of(".") != std::string::npos
 //		&& (std::string(_path.substr(_path.size() - 3))) == ".js")
@@ -265,11 +265,6 @@ void	Response::setResponse(std::string str)
 {
 	_response = str;
 }
-
-//void	Response::setFileContent(std::string &str)
-//{
-//	_fileContent = str;
-//}
 
 void	Response::setSocket(int const socket)
 {

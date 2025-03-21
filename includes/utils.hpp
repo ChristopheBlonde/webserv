@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/24 10:26:29 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/13 13:54:43 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/21 13:40:11 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,8 @@
 void						trim(std::string &str);
 void						toUpper(std::string &str);
 void						toLower(std::string &str);
+void						capitalize(std::string &str);
+void						formatHeader(std::string &str);
 std::vector<std::string>	split(std::string str, char sep);
 int							getFile(std::string path);
 void						initMimeTypes(std::map<std::string,

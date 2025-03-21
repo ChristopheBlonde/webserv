@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:47:28 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/13 13:57:49 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/21 13:20:24 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,7 +51,10 @@ int	openDir(std::string path, std::string file)
 	struct	dirent *dirp;
 	int		fd = -1;
 
-	path = "." + path;
+//	if (*(path.begin() + (path.size() - 1)) == '/')
+//		path = path.substr(0, path.size() - 1);
+	std::cout << CYAN << "Path: " << path << RESET <<std::endl;
+	//path = "." + path;
 	dir = opendir(path.c_str());
 	if (!dir)
 	{
@@ -75,10 +78,6 @@ int	openDir(std::string path, std::string file)
 			closedir(dir);
 			return (fd);
 		}
-//	std::cout << CYAN << dirp->d_name << ": file: "
-//		<< file << " dir: " << path
-//		<< (!std::string(dirp->d_name).compare("index.html")
-//				? " true" : " false") << RESET << std::endl;
 	}
 	closedir(dir);
 	return (fd);

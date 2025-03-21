@@ -6,7 +6,7 @@
 /*   By: cblonde <cblonde@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/19 07:03:14 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/10 12:01:14 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/21 13:29:21 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,7 @@
 
 # define RED "\e[0;31m"
 # define GREEN "\e[0;32m"
+# define YELLOW "\e[0;33m"
 # define CYAN "\e[0;36m"
 # define RESET "\e[0m"
 
