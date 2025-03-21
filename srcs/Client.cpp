@@ -65,7 +65,7 @@ int	Client::getTransferType(Cluster &c)
 	transferHeader = currRequest.find("content-length:");
 	if (transferHeader == std::string::npos)
 		return UNDEFINED;
-	if (currRequest.find("content-length:", transferHeader) != std::string::npos)
+	if (currRequest.find("content-length:", transferHeader + 1) != std::string::npos)
 	{
 		c.closeClient(fd);
 		readSize = 1;
@@ -232,7 +232,11 @@ bool	Client::handleRequestBodyLength(Cluster &c)
 void	Client::handleRequest(Cluster &c)
 {
 	if (mode == HEADERS)
+	{
 		handleRequestHeaders(c);
+		if (!(mode == BODY && transferType == UNDEFINED))
+			return;
+	}
 	if ((mode == BODY && transferType == UNDEFINED)
 		|| (mode == BODY && transferType == CHUNKED && handleRequestBodyChunked(c))
 		|| (mode == BODY && transferType == LENGTH && handleRequestBodyLength(c)))
