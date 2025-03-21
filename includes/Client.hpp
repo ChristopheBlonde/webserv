@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/21 00:22:05 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/21 01:15:02 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,8 @@ enum
 	CHUNKLEN,
 	CHUNKLENEND,
 	CHUNKBODY,
-	CHUNKBODYEND
+	CHUNKBODYEND,
+	CHUNKLASTLINE
 } e_chunkmode;
 
 class Client

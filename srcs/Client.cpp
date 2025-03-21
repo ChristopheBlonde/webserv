@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/21 01:07:56 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/21 01:31:47 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -148,20 +148,21 @@ bool	Client::handleRequestBodyChunked(Cluster &c)
 			else if (*it >= 'a' && *it <= 'f')
 				readSize = readSize * 16 + *it - 'a';
 			else
-			{
-				c.closeClient(fd);
-				return false;
-			}
+				break;
 			if (readSize > MAXLENHEADER)
 			{
 				c.closeClient(fd);
 				return false;
 			}
 		}
-		if (readSize == 0)
-			return true;
 		currRequest = "";
-		chunkMode = CHUNKBODY;
+		if (readSize == 0)
+		{
+			chunkMode = CHUNKLASTLINE;
+			readSize = 1;
+		}
+		else
+			chunkMode = CHUNKBODY;
 		break;
 
 	case CHUNKLEN:
@@ -195,6 +196,13 @@ bool	Client::handleRequestBodyChunked(Cluster &c)
 			readSize = 1;
 			currRequest = "";
 		}
+		break;
+	
+	case CHUNKLASTLINE:
+		currRequest += buffer;
+		if (currRequest.size() >= 4
+			&& currRequest.compare(currRequest.size() - 4, 4, "\r\n\r\n") == 0)
+			return true;
 		break;
 	}
 	return false;
