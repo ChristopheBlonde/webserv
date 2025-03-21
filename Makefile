@@ -11,7 +11,7 @@ AUTO_DIR = autoindex/
 CGI_DIR = cgi/
 
 COMP = c++
-CPPFLAGS = -Wall -Wextra -Werror -std=c++98 -g
+CPPFLAGS = -Wall -Wextra -std=c++98 -g #-Werror
 
 SRC = main.cpp \
 	$(SERV_DIR)PollFd.cpp \

@@ -6,20 +6,24 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/19 21:43:40 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/21 01:35:33 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef CLUSTER_HPP
 # define CLUSTER_HPP
 
-# include <webserv.hpp>
+#include <vector>
+#include <string>
+#include <iostream>
 #include "Client.hpp"
 #include "PollFd.hpp"
 #include "Server.hpp"
 #include "ConfParser.hpp"
-# include <Response.hpp>
-# include <Requests.hpp>
+#include "Response.hpp"
+#include "Requests.hpp"
+
+#define POLL_TIMEOUT 1000
 
 class Cluster
 {
@@ -27,15 +31,16 @@ class Cluster
 	std::vector<PollFd>			fds;
 	std::map<int, std::vector<Server *> >	serverFds;
 	std::map<int, Client>			clients;
-	std::map<int, std::string>	requests;
-	std::map<int, Response *>	ress;
-	std::map<int, Response *>	files;
-	//serveurs, clients, fichiers, cgi, envoi reponses, envoi cgi
-
+	std::map<int, int>			clientFdToServFd;
+	std::vector<int>			clientCloseList;
+	public:
+	std::map<int, Response *>		ress;//
+	std::map<int, Response *>		files;//
+	private:
 	PollFd	&getPollFd(int fd);
+	void	destroyClients();
 	void	addClients();
-	void	handleFiles(void);
-	void	handleRequests(struct pollfd &fd);
+	void	handleFiles(void);//
 
 	public:
 	static const std::string	defaultRoot;
@@ -49,6 +54,7 @@ class Cluster
 	void			startServers();
 	Server			&getServer(int fd, const std::string &host);
 	Route			&getRoute(Route &r, const std::string &path);
+	void			closeClient(int fd);
 	void			run();
 };
 

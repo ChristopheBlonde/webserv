@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/20 16:21:53 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/21 10:21:30 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,7 @@ Cluster::~Cluster()
 
 Server			*Cluster::addServer()
 {
-	servers.push_back(Server(servers.size()));
+	servers.push_back(Server());
 	return &servers.back();
 }
 
@@ -68,14 +68,8 @@ void	Cluster::startServers()
 Server	&Cluster::getServer(int fd, const std::string &host)
 {
 
-	std::map<int, std::vector<Server *> >::iterator it = serverFds.find(fd);
-	std::map<int, std::vector<Server *> >::iterator socket;
-	for (socket = serverFds.begin(); socket != serverFds.end(); socket++)
-		std::cout << RED << "Server: fd: " << socket->first
-			<< RESET << std::endl;
-//not supposed to happen
 	if (it == serverFds.end())
-		throw std::runtime_error("socket fd not in fd map");
+		it = serverFds.find(clientFdToServFd[fd]);
 	
 	std::vector<Server *>	currServers = it->second;
 	
@@ -126,121 +120,59 @@ void	Cluster::addClients()
 		PollFd	pfd;
 
 		pfd.fd = accept(it->first, NULL, NULL);
-		std::cout << pfd.fd << " client found\n";
 		if (pfd.fd == -1)
 			continue;
 		pfd.events = POLLIN | POLLOUT;
 		fds.push_back(pfd);
 		clients.insert(std::make_pair(pfd.fd, Client(pfd.fd)));
+		clients[pfd.fd].init();
+		clientFdToServFd[pfd.fd] = it->first;
 	}
 }
 
-bool	checkEndOfFile(std::string str)
+void	Cluster::closeClient(int fd)
 {
-	size_t		index;
-	std::string	headers;
-	std::string body;
-	size_t		len;
-	size_t		start;
-	size_t		end;
-	size_t		body_start;
-
-	index = str.find("\r\n\r\n");
-	if (index == std::string::npos)
-		return (false);
-	body_start = index + 4;
-	headers = str.substr(0, index + 4);
-	index = headers.find("Content-Length: ");
-	if (index != std::string::npos)
-	{
-		start = index + 16;
-		end	= headers.find("\r\n", start);
-		if (end == std::string::npos)
-			return (false);
-		len = std::atoi(headers.substr(start, end - start).c_str());
-		if (str.size() >= body_start + len)
-			return (true);
-		else
-			return (false);
-	}
-	index = headers.find("Transfer-Encoding: chunked");
-	if (index == std::string::npos)
-		return (true);
-	index = str.find("0\r\n\r\n");
-	if (index == std::string::npos)
-		return (false);
-	else
-		return (true);
+	clientCloseList.push_back(fd);
 }
 
-void	Cluster::handleRequests(struct pollfd &fd)
+void	Cluster::destroyClients()
 {
-	int		readByte;
-	char	buffer[BUFFER_SIZE];
-
-	if (!(fd.revents & POLLIN))
-		return ;
-	readByte = recv(fd.fd, buffer, BUFFER_SIZE - 1, 0);
-	if (readByte < 0)
-		return ;
-	if (readByte > 0)
-		buffer[readByte] = '\0';
-	requests[fd.fd] += buffer;
-	if (checkEndOfFile(requests[fd.fd]))
+	for (std::vector<int>::iterator it = clientCloseList.begin();
+		it < clientCloseList.end(); ++it)
 	{
-		std::cout << CYAN << requests[fd.fd] << std::endl << RESET;
-		Requests req(requests[fd.fd]);
-		std::cout << GREEN << "Args pass to getServer: host: "<< req.getHost()
-			<< " socket: " << fd.fd << RESET << std::endl;
-		Server srv = getServer(3, req.getHost());
-		Route  rt = getRoute(srv, req.getPath());
-		req.setConf(rt);
-		req.checkConf();
-		Response *res = new Response(req);
-		res->setSocket(fd.fd);
-		std::cout << GREEN << "new Request create with Socket: "
-			<< res->getSocket() << RESET << std::endl;
-		ress[fd.fd] = res;
-		requests.erase(fd.fd);	
+		clients.erase(clients.find(*it));
+		clientFdToServFd.erase(clientFdToServFd.find(*it));
+		fds.erase(std::find(fds.begin(), fds.end(), PollFd(*it)));
 	}
+	clientCloseList.clear();
 }
 
-void	Cluster::handleFiles(void)
-{
-	PollFd	res;
-
-	for (std::map<int, Response *>::iterator it = ress.begin();
-			it != ress.end(); it++)
-	{
-		res.fd = it->second->getFileFd();
-		if (res.fd < 0 || (files.find(res.fd) != files.end()))
-			continue ;
-		res.events = POLLIN;
-		res.revents = 0;
-		fds.push_back(res);
-		files.insert(std::make_pair(res.fd, it->second));
-	}
-}
 void	Cluster::run()
 {
-	if (poll(fds.data(), fds.size(), 1000) < 0)
+
+	if (poll(fds.data(), fds.size(), POLL_TIMEOUT) < 0 && errno != EINTR)
 		throw std::runtime_error("poll error");
-
 	addClients();
-	//manage requests, clients, cgi
-
-	std::vector<std::map<int, Client>::iterator>	destroyList;
-	//XXX poc
-//	for (std::map<int, Client>::iterator it = clients.begin(); it != clients.end(); ++it)
+	for (std::map<int, Client>::iterator it = clients.begin(); it != clients.end(); ++it)
+	{
+		if (getPollFd(it->first).revents & POLLERR)
+			closeClient(it->first);
+		else if (getPollFd(it->first).revents & POLLIN)
+			it->second.handleRequest(*this);
+		else if (getPollFd(it->first).revents & POLLOUT)
+			it->second.handleResponse(0);//TODO
+	}
+	//XXX
 	for(size_t i = 0; i < fds.size(); i++)
 	{
 		//std::cout << it->first << "\n";
-		struct pollfd pfd = getPollFd(fds[i].fd);
+		PollFd pfd = getPollFd(fds[i].fd);
 
-		if (pfd.revents & (POLLERR | POLLHUP))
-		{
-			//? close the client ?
+		if (pfd.revents & POLLERR)
+		{//?
 		}
+		//XXX il faut check poll in ici de preference
+		
 		std::map<int, Response *>::iterator  res;
 		std::map<int, Response *>::iterator  file;
 		res = ress.find(pfd.fd);
@@ -264,12 +196,26 @@ void	Cluster::run()
 			fds.erase(fds.begin() + i--);
 			}
 		}
-		else
-			handleRequests(pfd);
 		handleFiles();
-	}
-	for (std::vector<std::map<int, Client>::iterator>::iterator it = destroyList.begin();
-		it < destroyList.end(); ++it)
-		clients.erase(*it);
 
+	}
+	//XXX
+	destroyClients();
+}
+
+void	Cluster::handleFiles(void)//XXX (or not idk)
+{
+	PollFd	res;
+
+	for (std::map<int, Response *>::iterator it = ress.begin();
+			it != ress.end(); it++)
+	{
+		res.fd = it->second->getFileFd();
+		if (res.fd < 0 || (files.find(res.fd) != files.end()))
+			continue ;
+		res.events = POLLIN;
+		res.revents = 0;
+		fds.push_back(res);
+		files.insert(std::make_pair(res.fd, it->second));
+	}
 }

@@ -6,11 +6,10 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/14 18:43:18 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/20 17:47:45 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <iostream>
 #include "PollFd.hpp"
 
 PollFd::PollFd()

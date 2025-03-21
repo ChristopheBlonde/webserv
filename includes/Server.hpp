@@ -6,28 +6,18 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/20 11:46:41 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/19 18:58:14 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/20 17:50:50 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef SERVER_HPP
 # define SERVER_HPP
 
-	//	std::vector<pollfd>	_fds;
-	//	long int		_socket;
-	//	short int		_port;
-	//	std::string		_address;	
-	//	std::map<int, std::string>	requests;
-	//	//std::map<int, std::string>	files;
-	//	std::map<int, Response *>	ress;
-	//	std::map<int, Response *> files;
-	//	Server(void);
-	//	void	handleRequests(struct pollfd &fd);
-	//	void	handleFiles(void);
-#include <webserv.hpp>
-#include <Conf.hpp>
-#include <Route.hpp>
-#include <ExceptionTemplate.hpp>
+#include <cstring>
+#include <unistd.h>
+#include "Conf.hpp"
+#include "Route.hpp"
+#include "ExceptionTemplate.hpp"
 
 class Server : public Conf
 {
@@ -35,12 +25,11 @@ class Server : public Conf
 
 	static std::map<uint64_t, int>	socketIdMap;
 
-	size_t		index;
 	uint64_t	socketId;
 	int		socketFd;
 
 	public:
-	Server(size_t index);
+	Server();
 	~Server();
 	int	start();
 };
