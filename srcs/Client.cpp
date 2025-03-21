@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/21 01:31:47 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/21 01:47:32 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -237,15 +237,15 @@ void	Client::handleRequest(Cluster &c)
 		|| (mode == BODY && transferType == CHUNKED && handleRequestBodyChunked(c))
 		|| (mode == BODY && transferType == LENGTH && handleRequestBodyLength(c)))
 	{
+		//XXX
 //		std::cout << CYAN << requests[fd.fd] << std::endl << RESET;
-//		Requests req(requests[fd.fd]);
-//		Response *res = new Response(req);
-//		res->setSocket(fd.fd);
+		Requests req(currRequestRaw);
+		Response *res = new Response(req);
+		res->setSocket(fd);
 //		std::cout << GREEN << "new Request create with Socket: "
 //			<< res->getSocket() << RESET << std::endl;
-//		ress[fd.fd] = res;
-//		requests.erase(fd.fd);
-//
+		c.ress[fd] = res;
+		//XXX
 		resetRequest();
 	}
 }
