@@ -6,11 +6,12 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/20 11:59:15 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/20 17:52:50 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/21 17:13:51 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
+#include <fcntl.h>
 
 EXC_FUNC(Server, ServerStartException, "server start failed");
 
@@ -31,10 +32,11 @@ int	Server::start()
 		socketFd = socketIdMap[socketId];
 		return socketFd;
 	}
-	socketFd = socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0);
+	socketFd = socket(AF_INET, SOCK_STREAM /*| SOCK_NONBLOCK*/, 0);
 	socketIdMap[socketId] = socketFd;
 	if (socketFd == -1)
 		throw (ServerStartException("cannot create socket"));
+	fcntl(socketFd, F_SETFL, O_NONBLOCK);
 	sin.sin_addr.s_addr = ip;
 	sin.sin_family = AF_INET;
 	sin.sin_port = port;

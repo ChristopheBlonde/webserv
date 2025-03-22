@@ -6,7 +6,7 @@
 /*   By: cblonde <cblonde@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/06 07:14:01 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/10 14:57:24 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/22 16:41:59 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,17 +58,24 @@ Cgi	&Cgi::operator=(Cgi const &rhs)
 
 void	Cgi::initCgi(Requests const &req)
 {
-	//root                /users/folder;
-	//gzip                off;
-	//fastcgi_pass        unix:/var/run/fcgiwrap.socket;
-	_envMap["QUERY_STRING"] = "";
+	std::map<std::string, std::string>::const_iterator it;
+	std::map<std::string, std::string> reqHeaders(req.getHeaders());
+	std::string	tmp;
+
+	for (it = reqHeaders.begin(); it != reqHeaders.end(); it++)
+	{
+		tmp = "HTTP_" + it->first;
+		toUpper(tmp);
+		_envMap[tmp] = it->second;
+	}
+	_envMap["QUERY_STRING"] = req.getQuery();
 	_envMap["REQUEST_METHOD"] = req.getType();
 	_envMap["CONTENT_TYPE"] = "";
-	_envMap["CONTENT_LENGTH"] = "";
-	_envMap["SCRIPT_NAME"] = "";
-	_envMap["PATH_INFO"] = "";
-	_envMap["REQUEST_URI"] = "";
-	_envMap["DOCUMENT_URI"] = "";
+	_envMap["CONTENT_LENGTH"] = to_string(req.getBody().size());
+	_envMap["SCRIPT_NAME"] = req.getFileName();
+	_envMap["PATH_INFO"] = req.getPath();
+	_envMap["REQUEST_URI"] = req.getRequestUri();
+	_envMap["DOCUMENT_URI"] = req.getDocumentUri();
 	_envMap["SERVER_PROTOCOL"] = "HTTP/1.1";
 	_envMap["GATEWAY_INTERFACE"] = "CGI/1.0";
 	_envMap["SERVER_SOFTWARE"] = "webserv/1.0";

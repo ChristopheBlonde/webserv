@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 10:46:49 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/21 14:09:50 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/22 16:02:59 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,6 +72,7 @@ void	Requests::handlePath(void)
 	size_t		index;
 	std::string	tmp;
 
+	_requestUri = _path;
 	index = _path.find("?");
 	if (index != std::string::npos)
 	{
@@ -80,6 +81,7 @@ void	Requests::handlePath(void)
 	}
 	else
 		_query = "";
+	_documentUri = _path;
 	index = _path.find_last_of("/\\");
 	if (index != std::string::npos)
 	{
@@ -172,34 +174,14 @@ void	Requests::parse(std::string str)
 		initHeaders(line, _headers);
 	}
 
-	std::map<std::string, std::string>::iterator it;
-	for (it = _headers.begin(); it != _headers.end(); it++)
-		std::cout << YELLOW << "key: " << it->first << " value: " << it->second
-			<< RESET << std::endl;
-
 	handleHost();
 	index = str.find("\r\n\r\n");
 	if (index != std::string::npos)
 		_body = str.substr(index +4);
-	std::cout << RED << "Request host: " << _host << "port: " << _port
-		<< " path: " << _path << "file: " << _fileName << " Body: "
-		<< _body << RESET << std::endl;
+//	std::cout << RED << "Request host: " << _host << "port: " << _port
+//		<< " path: " << _path << "file: " << _fileName << " Body: "
+//		<< _body << RESET << std::endl;
 	return ;
-}
-
-void	Requests::checkConf(void)
-{
-	std::cout << "Name: " << _conf->getName() << " Path: " << _path << std::endl;
-	std::string routePath = _conf->getName() == _path
-		? _conf->getRoot()
-		: _path;
-
-	if (*(routePath.begin() + routePath.size() - 1) == '/')
-		routePath = routePath.substr(0, routePath.size() - 1);
-	if (!_headers["Referer"].empty())
-		_path = routePath + _path;
-	else
-		_path = routePath;
 }
 
 void	Requests::setConf(Route &conf)
@@ -217,7 +199,7 @@ std::string	Requests::getPath(void) const
 	return (_path);
 }
 
-std::map<std::string,std::string>	Requests::getHeaders(void) const
+std::map<std::string,std::string> const	&Requests::getHeaders(void) const
 {
 	return (_headers);
 }
@@ -239,7 +221,7 @@ std::string	Requests::getType(void) const
 	return ("");
 }
 
-std::string	Requests::getBody(void) const
+std::string const	&Requests::getBody(void) const
 {
 	return (_body);
 }
@@ -262,4 +244,14 @@ int			Requests::getPort(void) const
 Route	&Requests::getConf(void) const
 {
 	return (*_conf);
+}
+
+std::string	Requests::getDocumentUri(void) const
+{
+	return (_documentUri);
+}
+
+std::string Requests::getRequestUri(void) const
+{
+	return (_requestUri);
 }

@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/21 12:09:25 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/21 17:44:55 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -245,7 +245,6 @@ void	Client::handleRequest(Cluster &c)
 //		std::cout << CYAN << requests[fd.fd] << std::endl << RESET;
 		Requests req(currRequestRaw);
 		req.setConf(c.getRoute(c.getServer(fd, req.getHost()), req.getPath()));
-		req.checkConf();
 		Response *res = new Response(req);
 		res->setSocket(fd);
 //		std::cout << GREEN << "new Request create with Socket: "

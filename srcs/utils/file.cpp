@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:47:28 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/21 13:20:24 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/22 14:11:04 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,16 +45,13 @@ std::string	getFileName(std::string &path)
 	return (name);
 }
 
-int	openDir(std::string path, std::string file)
+int	openDir(std::string path, std::string &file, std::vector<std::string> &files)
 {
 	DIR		*dir;
 	struct	dirent *dirp;
 	int		fd = -1;
+	std::vector<std::string>::iterator it;
 
-//	if (*(path.begin() + (path.size() - 1)) == '/')
-//		path = path.substr(0, path.size() - 1);
-	std::cout << CYAN << "Path: " << path << RESET <<std::endl;
-	//path = "." + path;
 	dir = opendir(path.c_str());
 	if (!dir)
 	{
@@ -64,13 +61,18 @@ int	openDir(std::string path, std::string file)
 	}
 	while ((dirp = readdir(dir)) != NULL)
 	{
-		/* find conf file.mime */
-		if (file.empty()
-				&& !std::string(dirp->d_name).compare("index.html"))
+		if (file.empty())
 		{
-			fd = getFile(path + "/index.html");
-			closedir(dir);
-			return (fd);
+			for (it = files.begin(); it != files.end(); it++)
+			{
+				if (!std::string(dirp->d_name).compare(*it))
+				{
+					file = *it;
+					fd = getFile(path + "/" + *it);
+					closedir(dir);
+					return (fd);
+				}
+			}
 		}
 		else if (!file.empty() && !std::string(dirp->d_name).compare(file))
 		{
@@ -124,5 +126,5 @@ void initResponseHeaders(std::map<std::string, std::string> &headers)
 {
 	headers["Content-Type"] = "Content-Type: ";
 	headers["Content-Length"] = "Content-Length: ";
-	headers["Set-Cookie"] = "Set-Cookie: ";
+	headers["Connection"] = "Connection: ";
 }

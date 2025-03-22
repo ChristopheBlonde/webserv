@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:16:02 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/20 22:10:26 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/22 17:52:45 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@
 class Response
 {
 	private:
+		Route								*_conf;
 		int									_socket;
 		std::string							_protocol;
 		std::string							_body;
@@ -40,7 +41,11 @@ class Response
 		bool								_headerReady;
 		int									_sizeSend;
 		Response(void);
-		void	isReferer(Requests const &req);
+		void	handleFile(Requests const &req);
+		void	isReferer(std::map<std::string, std::string> const &headers);
+		void	checkConnection(std::map<std::string,
+				std::string> const &headers);
+		bool	checkMethod(std::string method);
 	public:
 		Response(Requests const &req);
 		Response(Response const &src);
@@ -52,10 +57,7 @@ class Response
 		int				getFileFd(void) const;
 		int				getSocket(void) const;
 		void			setResponse(std::string str);
-		//void			setFileStatus(struct pollfd &src);
-		//void			setFileContent(std::string &str);
 		void			setSocket(int const socket);
-		void	handleFile(void);
 		void	createError(int stat);
 		void	createResponse(void);
 		bool	handleInOut(struct pollfd &fd);

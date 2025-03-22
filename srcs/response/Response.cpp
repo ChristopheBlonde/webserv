@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:15:20 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/21 13:42:08 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/22 17:53:18 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,8 @@ Response::Response(void)
 
 Response::Response(Requests const &req) : _path(req.getPath())
 {
-	std::cout << GREEN << req.getBody() << RESET <<std::endl;
+	std::map<std::string, std::string> const &headers = req.getHeaders();
+
 	this->_headerSent = false;
 	this->_headerReady = false;
 	this->_sizeSend = 0;
@@ -31,15 +32,20 @@ Response::Response(Requests const &req) : _path(req.getPath())
 	this->_path = req.getPath();
 	this->_port = req.getPort();
 	this->_fileName = req.getFileName();
-	this->_cgi = false;
-	this->_autoIndex = false;
+	this->_conf = &req.getConf();
+	this->_cgi = _conf->getCgi().empty() ? false : true;
+	this->_autoIndex = _conf->getAutoindex();
 	initMimeTypes(_mimeTypes);
 	initResponseHeaders(_headers);
 	
 	/* check headers request */
 
-//	isReferer(req);
-	handleFile();
+	checkConnection(headers);
+	if(!checkMethod(req.getType()))
+		return ;
+	isReferer(headers);
+	handleFile(req);
+
 //if (_path.find_last_of(".") != std::string::npos
 //		&& (std::string(_path.substr(_path.size() - 3))) == ".js")
 //{
@@ -79,29 +85,70 @@ Response	&Response::operator=(Response const &rhs)
 	return (*this);
 }
 
-void	Response::isReferer(Requests const &req)
+void	Response::checkConnection(std::map<std::string,
+		std::string> const &headers)
 {
-	std::map<std::string,std::string>	header(req.getHeaders());
-	size_t								index;
-	std::string							path;
+	std::map<std::string, std::string>::const_iterator it;
 
-	if (!header["Referer"].empty())
-	{
-		path = header["Referer"];
-		index = path.find(header["Host"]);
-		path = path.substr(index + header["Host"].size());
-		index = _path.find(path);
-		if (index == std::string::npos || index != 0)
-			_path = path + _path;
-	}
+	it = headers.find("Connection");
+	if (it != headers.end())
+		_headers["Connection"] += it->second;
 }
 
-void	Response::handleFile(void)
+
+bool	Response::checkMethod(std::string method)
+{
+	std::set<std::string> &methods(_conf->getAcceptedMethods());
+	std::set<std::string>::iterator it;
+
+	it = methods.find(method);
+	if (it == methods.end())
+	{
+		createError(400);
+		return (false);
+	}
+	return (true);
+}
+
+void	Response::isReferer(std::map<std::string, std::string> const &headers)
+{
+	std::map<std::string, std::string>::const_iterator it;
+
+	it = headers.find("Referer");
+	std::string referer = it != headers.end() ? it->second : "";
+	if (!referer.empty())
+	{
+		size_t index = referer.find(to_string(_port));
+		referer = referer.substr(index + to_string(_port).size());
+	}
+	std::string routePath = _conf->getName();
+	if (routePath == _path || routePath == referer)
+		routePath = _conf->getRoot();
+	else
+		routePath = _path;
+
+	if (*(routePath.begin() + routePath.size() - 1) == '/')
+		routePath = routePath.substr(0, routePath.size() - 1);
+	if (!referer.empty())
+		_path = routePath + _path;
+	else
+		_path = routePath;
+}
+
+void	Response::handleFile(Requests const &req)
 {
 	/* check cgi */
-
+	if (_cgi)
+	{
+		std::map<std::string, std::string> cgi(_conf->getCgi());
+		for (std::map<std::string, std::string>::iterator it = cgi.begin();
+				it != cgi.end(); it++)
+			std::cout << YELLOW << "ext: " << it->first << " path: "
+				<< it->second << RESET << std::endl;
+		Cgi cgiObj(req);
+	}
 	/* no cgi */
-	_fileFd = openDir(_path, _fileName);
+	_fileFd = openDir(_path, _fileName, _conf->getIndex());
 	if (_fileFd == -1)
 	{
 		createError(404);
@@ -155,11 +202,13 @@ void	Response::createError(int stat)
 		content = ERROR_PAGE(getNameError(stat), getContentError(stat),
 				to_string(stat));
 	else
-		content = AutoIndex::generate(_path.data(), "localhost", 8080);
-	result += getNameError(stat) + "\n";
-	result += "Content-Type: text/html; charset=UTF-8\nContent-Length: "
-		+ to_string(content.size()) + "\n"
-		+ (_autoIndex ? "Connection: close\n" : "")
+		content = AutoIndex::generate(_path.data(), _host, _port);
+	result += getNameError(stat) + "\r\n";
+	result += "Content-Type: text/html; charset=UTF-8\r\nContent-Length: "
+		+ to_string(content.size()) + "\r\n"
+		+ (_autoIndex
+				? "Connection: close\r\n"
+				: _headers["Connection"] + "\r\n")
 		+ "Server: webserv 1.0\n"
 		+"\r\n";
 	result += content;
@@ -173,7 +222,7 @@ void	Response::createResponse(void)
 {
 	std::map<std::string,std::string>::iterator it;
 	/* Create first line */
-	_response = _protocol + " 200 OK\n";
+	_response = _protocol + " 200 OK\r\n";
 	/* Create headers */
 	_headers["Content-Length"] += to_string(_buffer.size());
 	_headers["Content-Type"] += !_cgi
@@ -195,9 +244,9 @@ bool	Response::handleInOut(struct pollfd &fd)
 	int				sentByte;
 	unsigned char	buffer[FILE_BUFFER_SIZE];
 
-	std::cout << GREEN << "In handleInOut: fd: " << fd.fd
-		<< " envent: " << fd.events << " revent: " << fd.revents
-		<< RESET << std::endl;
+//	std::cout << GREEN << "In handleInOut: fd: " << fd.fd
+//		<< " envent: " << fd.events << " revent: " << fd.revents
+//		<< RESET << std::endl;
 	if (fd.revents & POLLIN)
 	{
 		if (fd.fd == _fileFd)

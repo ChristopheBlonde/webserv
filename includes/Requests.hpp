@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 10:24:52 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/21 11:53:30 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/22 15:59:19 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,8 @@ class Requests
 	private:
 		Requests(void);
 		std::map<std::string,std::string>	_headers;
+		std::string							_requestUri;
+		std::string							_documentUri;
 		std::string							_host;
 		std::string							_path;
 		std::string							_protocol;
@@ -56,14 +58,16 @@ class Requests
 		void								setConf(Route &conf);
 		std::string							getProtocol(void) const;
 		std::string							getPath(void) const;
-		std::map<std::string,std::string>	getHeaders(void) const;
+		std::map<std::string,std::string> const	&getHeaders(void) const;
 		std::string							getHost(void) const;
 		std::string							getType(void) const;
-		std::string							getBody(void) const;
+		std::string const					&getBody(void) const;
 		std::string							getQuery(void) const;
 		std::string							getFileName(void) const;
 		int									getPort(void) const;
 		Route								&getConf(void) const;
+		std::string							getRequestUri(void) const;
+		std::string							getDocumentUri(void) const;
 };
 
 #endif
