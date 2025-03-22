@@ -6,17 +6,19 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/21 01:15:02 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/22 18:52:08 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef CLIENT_HPP
 # define CLIENT_HPP
 
+#include <map>
 #include <iostream>
 #include <string>
 #include <cstring>
 #include <unistd.h>
+#include "Response.hpp"
 
 #define BUFFER_SIZE 1024
 #define MAXLENHEADER 1e11
@@ -63,6 +65,9 @@ class Client
 	bool		handleRequestBodyLength(Cluster &c);
 	void		resetRequest();
 	int		getTransferType(Cluster &c);
+	
+	std::map<int, Response *>		ress;
+	std::map<int, Response *>		files;
 
 	public:
 	Client();
@@ -70,7 +75,8 @@ class Client
 	~Client();
 	void		init();
 	void		handleRequest(Cluster &c);
-	void		handleResponse(int fd);
+	void		handleResponse(Cluster &c);
+	void	handleFiles(Cluster &c);//
 };
 
 #endif // CLIENT_HPP

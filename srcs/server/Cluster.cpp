@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/21 01:47:19 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/22 18:49:00 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -161,62 +161,7 @@ void	Cluster::run()
 		else if (getPollFd(it->first).revents & POLLIN)
 			it->second.handleRequest(*this);
 		else if (getPollFd(it->first).revents & POLLOUT)
-			it->second.handleResponse(0);//TODO
+			it->second.handleResponse(*this);
 	}
-	//XXX
-	for(size_t i = 0; i < fds.size(); i++)
-	{
-		//std::cout << it->first << "\n";
-		PollFd pfd = getPollFd(fds[i].fd);
-
-		if (pfd.revents & POLLERR)
-		{//?
-		}
-		//XXX il faut check poll in ici de preference
-		
-		std::map<int, Response *>::iterator  res;
-		std::map<int, Response *>::iterator  file;
-		res = ress.find(pfd.fd);
-		file = files.find(pfd.fd);
-		if (res != ress.end())
-		{
-			if (!res->second->handleInOut(pfd))
-			{
-				std::cout << "dans delete" << std::endl;
-				delete res->second;
-				ress.erase(res);
-				//_fds.erase(_fds.begin() + i--);
-			}
-		}
-		else if (file != files.end())
-		{
-			if (!file->second->handleInOut(pfd))
-			{
-				close (file->first);
-				files.erase(file);
-			fds.erase(fds.begin() + i--);
-			}
-		}
-		handleFiles();
-
-	}
-	//XXX
 	destroyClients();
-}
-
-void	Cluster::handleFiles(void)//XXX (or not idk)
-{
-	PollFd	res;
-
-	for (std::map<int, Response *>::iterator it = ress.begin();
-			it != ress.end(); it++)
-	{
-		res.fd = it->second->getFileFd();
-		if (res.fd < 0 || (files.find(res.fd) != files.end()))
-			continue ;
-		res.events = POLLIN;
-		res.revents = 0;
-		fds.push_back(res);
-		files.insert(std::make_pair(res.fd, it->second));
-	}
 }

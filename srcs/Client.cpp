@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/21 01:47:32 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/22 18:52:14 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -248,12 +248,67 @@ void	Client::handleRequest(Cluster &c)
 		res->setSocket(fd);
 //		std::cout << GREEN << "new Request create with Socket: "
 //			<< res->getSocket() << RESET << std::endl;
-		c.ress[fd] = res;
+		ress[fd] = res;
 		//XXX
 		resetRequest();
 	}
 }
 
-void	Client::handleResponse(int fd)
+void	Client::handleResponse(Cluster &c)
 {
+	//XXX
+	for(size_t i = 0; i < c.fds.size(); i++)
+	{
+		//std::cout << it->first << "\n";
+		PollFd pfd = c.getPollFd(c.fds[i].fd);
+
+		if (pfd.revents & POLLERR)
+		{//?
+		}
+		//XXX il faut check poll in ici de preference
+		
+		std::map<int, Response *>::iterator  res;
+		std::map<int, Response *>::iterator  file;
+		res = ress.find(pfd.fd);
+		file = files.find(pfd.fd);
+		if (res != ress.end())
+		{
+			if (!res->second->handleInOut(pfd))
+			{
+				std::cout << "dans delete" << std::endl;
+				delete res->second;
+				ress.erase(res);
+				//_c.fds.erase(_c.fds.begin() + i--);
+			}
+		}
+		else if (file != files.end())
+		{
+			if (!file->second->handleInOut(pfd))
+			{
+				close (file->first);
+				files.erase(file);
+			c.fds.erase(c.fds.begin() + i--);
+			}
+		}
+		handleFiles(c);
+
+	}
+	//XXX
+}
+
+void	Client::handleFiles(Cluster &c)//XXX (or not idk)
+{
+	PollFd	res;
+
+	for (std::map<int, Response *>::iterator it = ress.begin();
+			it != ress.end(); it++)
+	{
+		res.fd = it->second->getFileFd();
+		if (res.fd < 0 || (files.find(res.fd) != files.end()))
+			continue ;
+		res.events = POLLIN;
+		res.revents = 0;
+		c.fds.push_back(res);
+		files.insert(std::make_pair(res.fd, it->second));
+	}
 }
