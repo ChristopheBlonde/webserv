@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:15:20 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/22 17:53:18 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/23 07:42:56 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,15 +45,6 @@ Response::Response(Requests const &req) : _path(req.getPath())
 		return ;
 	isReferer(headers);
 	handleFile(req);
-
-//if (_path.find_last_of(".") != std::string::npos
-//		&& (std::string(_path.substr(_path.size() - 3))) == ".js")
-//{
-//	std::cout << CYAN << "CGI test file: " << _path << RESET << std::endl;
-//	_cgi = true;
-//	Cgi	test(req);
-//	_response = test.execScript();
-//}
 	return ;
 }
 

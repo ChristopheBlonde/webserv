@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 10:46:49 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/22 16:02:59 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/23 09:45:00 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,11 +67,33 @@ static void initMethod(std::string str, t_rqType &type)
 	return ;
 }
 
+static void	handleBadPath(std::string &str)
+{
+	std::string::iterator	it;
+	size_t					i;
+
+	std::cout << GREEN << "before: " << str << RESET << std::endl;
+	i = str.find_last_of("/");
+	if (i == str.size() - 1)
+		str.erase(i);
+	for (it = str.begin(); it != str.end(); it++)
+	{
+		if (*it == '/' && (*(it + 1) == '/' || *(it + 1) == '.'))
+		{
+			str.erase(it + 1);
+			it--;
+		}
+	}
+	std::cout << GREEN << "after: " << str << RESET << std::endl;
+}
+
 void	Requests::handlePath(void)
 {
 	size_t		index;
+	size_t		j;
 	std::string	tmp;
 
+	handleBadPath(_path);
 	_requestUri = _path;
 	index = _path.find("?");
 	if (index != std::string::npos)
@@ -82,18 +104,30 @@ void	Requests::handlePath(void)
 	else
 		_query = "";
 	_documentUri = _path;
-	index = _path.find_last_of("/\\");
-	if (index != std::string::npos)
+	index = 0;
+	while (index != std::string::npos)
 	{
-			_fileName = _path.substr(index + 1);
-			index = _fileName.find_last_of(".");
-			if (index != std::string::npos)
-				tmp = _mimeTypes[std::string(_fileName.substr(index + 1))];
+			index = _path.find("/", index);
+			index++;
+			j = _path.find("/", index);
+			if (j != std::string::npos)
+			{
+				_fileName = _path.substr(index, j - index);
+				_pathInfo = _path.substr(j + 1);
+			}
+			j = _fileName.find_last_of(".");
+			if (j != std::string::npos)
+				tmp = _mimeTypes[std::string(_fileName.substr(j + 1))];
 			if (tmp != "")
-				_path = _path.substr(0, _path.find_last_of("/\\"));
+			{
+				_path = _path.substr(0, index - 1);
+				break ;
+			}
 			else
 				_fileName = "";
 	}
+	std::cout << CYAN << "Path: " << _path << " file: " << _fileName
+		<< " pathInfo: " << _pathInfo << RESET << std::endl;
 }
 
 void	Requests::handleHost(void)
@@ -178,9 +212,6 @@ void	Requests::parse(std::string str)
 	index = str.find("\r\n\r\n");
 	if (index != std::string::npos)
 		_body = str.substr(index +4);
-//	std::cout << RED << "Request host: " << _host << "port: " << _port
-//		<< " path: " << _path << "file: " << _fileName << " Body: "
-//		<< _body << RESET << std::endl;
 	return ;
 }
 
@@ -254,4 +285,9 @@ std::string	Requests::getDocumentUri(void) const
 std::string Requests::getRequestUri(void) const
 {
 	return (_requestUri);
+}
+
+std::string	Requests::getPathInfo(void) const
+{
+	return (_pathInfo);
 }
