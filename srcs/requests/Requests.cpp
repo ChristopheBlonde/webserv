@@ -6,25 +6,22 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 10:46:49 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/24 08:56:05 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/24 14:43:08 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Requests.hpp"
+#include <Requests.hpp>
+#include <Client.hpp>
 
-Requests::Requests(void)
-{
-	return ;
-}
-
-Requests::Requests(std::string str)
+Requests::Requests(std::string str, Client &client)
+	: _client(client)
 {
 	initMimeTypes(_mimeTypes);
 	this->parse(str);
 	return ;
 }
 
-Requests::Requests(Requests const &src)
+Requests::Requests(Requests const &src) : _client(src._client)
 {
 	*this = src;
 	return ;
@@ -67,26 +64,6 @@ static void initMethod(std::string str, t_rqType &type)
 	return ;
 }
 
-static void	handleBadPath(std::string &str)
-{
-	std::string::iterator	it;
-	size_t					i;
-
-	std::cout << GREEN << "before: " << str << RESET << std::endl;
-	i = str.find_last_of("/");
-	if (i == str.size() - 1 && i != 0)
-		str.erase(i);
-	for (it = str.begin(); it != str.end(); it++)
-	{
-		if (*it == '/' && (*(it + 1) == '/' || *(it + 1) == '.'))
-		{
-			str.erase(it + 1);
-			it--;
-		}
-	}
-	std::cout << GREEN << "after: " << str << RESET << std::endl;
-}
-
 void	Requests::handlePath(void)
 {
 	size_t		index;
@@ -117,6 +94,8 @@ void	Requests::handlePath(void)
 			}
 			else
 				_fileName = _path.substr(index);
+			if (_fileName.empty())
+				break ;
 			j = _fileName.find_last_of(".");
 			if (j != std::string::npos)
 				tmp = _mimeTypes[std::string(_fileName.substr(j + 1))];
@@ -295,4 +274,37 @@ std::string Requests::getRequestUri(void) const
 std::string	Requests::getPathInfo(void) const
 {
 	return (_pathInfo);
+}
+
+std::string Requests::getContentType(void) const
+{
+	std::map<std::string, std::string>::const_iterator it;
+	std::string	contentType = "";
+	size_t	index;
+
+	it = _headers.find("Content-Type");
+	if (it != _headers.end())
+	{
+		index = it->second.find(";");
+		if (index != std::string::npos)
+			contentType = it->second.substr(0, index);
+		else
+			contentType = it->second;
+	}
+	return (contentType);
+}
+
+std::string Requests::getClientHostName(void) const
+{
+	return (_client.getHostName());
+}
+
+std::string Requests::getClientIpStr(void) const
+{
+	return (_client.getIpStr());
+}
+
+std::string Requests::getClientPort(void) const
+{
+	return (_client.getPortStr());
 }

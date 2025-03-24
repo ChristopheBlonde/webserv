@@ -6,7 +6,7 @@
 /*   By: cblonde <cblonde@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/06 07:05:16 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/10 14:54:22 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/24 16:21:57 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,8 @@
 
 # include <webserv.hpp>
 # include <Requests.hpp>
+# include <Route.hpp>
+# include <utils.hpp>
 
 class Cgi
 {
@@ -27,7 +29,8 @@ class Cgi
 		std::string							_fileType;
 		int									_status;
 		std::string							_body;
-		std::string							_scriptPass;
+		std::string							_scriptPath;
+		std::string							_cgiPath;
 		Cgi(void);
 		char	**createEnvArr(void);
 		void	initCgi(Requests const &req);

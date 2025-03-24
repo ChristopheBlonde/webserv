@@ -6,7 +6,7 @@
 /*   By: cblonde <cblonde@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/06 07:14:01 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/24 08:56:39 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/24 17:44:28 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,19 +58,22 @@ Cgi	&Cgi::operator=(Cgi const &rhs)
 
 void	Cgi::initCgi(Requests const &req)
 {
-	std::map<std::string, std::string>::const_iterator it;
+	Route	&reqConf = req.getConf();
+	std::map<std::string, std::string>::const_iterator head;
+	std::map<std::string, std::string>::iterator cgi;
 	std::map<std::string, std::string> reqHeaders(req.getHeaders());
 	std::string	tmp;
 
-	for (it = reqHeaders.begin(); it != reqHeaders.end(); it++)
+	for (head = reqHeaders.begin(); head != reqHeaders.end(); head++)
 	{
-		tmp = "HTTP_" + it->first;
+		tmp = "HTTP_" + head->first;
 		toUpper(tmp);
-		_envMap[tmp] = it->second;
+		_envMap[tmp] = head->second;
 	}
+	cgi = reqConf.getCgi().find(getFileType(req.getFileName()));
 	_envMap["QUERY_STRING"] = req.getQuery();
 	_envMap["REQUEST_METHOD"] = req.getType();
-	_envMap["CONTENT_TYPE"] = "";
+	_envMap["CONTENT_TYPE"] = req.getContentType();
 	_envMap["CONTENT_LENGTH"] = to_string(req.getBody().size());
 	_envMap["SCRIPT_NAME"] = req.getFileName();
 	_envMap["PATH_INFO"] = req.getPathInfo();
@@ -79,8 +82,8 @@ void	Cgi::initCgi(Requests const &req)
 	_envMap["SERVER_PROTOCOL"] = "HTTP/1.1";
 	_envMap["GATEWAY_INTERFACE"] = "CGI/1.0";
 	_envMap["SERVER_SOFTWARE"] = "webserv/1.0";
-	_envMap["REMOTE_ADDR"] = "";
-	_envMap["REMOTE_PORT"] = "";
+	_envMap["REMOTE_ADDR"] = req.getClientHostName();
+	_envMap["REMOTE_PORT"] = req.getClientPort();
 	_envMap["SERVER_ADDR"] = "";
 	_envMap["SERVER_PORT"] = "";
 	_envMap["SERVER_NAME"] = "";
@@ -88,9 +91,11 @@ void	Cgi::initCgi(Requests const &req)
 	_contentSize = 0;
 	_content = "";
 	_status = -1;
-	_body = req.getBody();
-	_scriptPass = req.getPath();
+	_scriptPath = reqConf.getRoot() + "/" + req.getFileName();
+	_cgiPath = cgi->second;
 	_env = NULL;
+	std::cout << RED << "cgi path: " << _cgiPath << " script path: "
+		<< _scriptPath << RESET << std::endl;
 }
 
 char	**Cgi::createEnvArr(void)
@@ -117,13 +122,13 @@ std::string	Cgi::execScript(void)
 	try
 	{
 		_env = createEnvArr();
-	//	size_t i = 0;
-	//	while (_env[i])
-	//	{
-	//		std::cout << GREEN << "_envArr: [" << i << "] :" << _env[i]
-	//			<< std::endl << RESET;
-	//		i++;
-	//	}
+		size_t i = 0;
+		while (_env[i])
+		{
+			std::cout << GREEN << "_envArr: [" << i << "] :" << _env[i]
+				<< std::endl << RESET;
+			i++;
+		}
 	}
 	catch (std::bad_alloc &e)
 	{
@@ -147,14 +152,11 @@ std::string	Cgi::execScript(void)
 	}
 	else if (!_pid)
 	{
-		char	*argv[2];
-
-		argv[0] = NULL;
+		char const *argv[3] = {_cgiPath.data(), _scriptPath.data(), NULL};
 		dup2(fdIn, 0);
 		dup2(fdOut, 1);
-		_scriptPass = "."+ _scriptPass;
-		execve(_scriptPass.data(), argv, _env);
-		std::cout << RED << "FAIL EXECVE: path: " << _scriptPass
+		execve(argv[0], (char *const *)(argv), _env);
+		std::cout << RED << "FAIL EXECVE: path: " << _scriptPath
 			<< RESET << std::endl;
 	}
 	else

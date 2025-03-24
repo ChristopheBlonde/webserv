@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:47:28 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/22 14:11:04 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/24 14:54:09 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,25 +24,6 @@ int	getFile(std::string path)
 		return (-1);
 	}
 	return (fd);
-}
-
-std::string	getFileName(std::string &path)
-{
-	std::string				name;
-	std::string				extention;
-	size_t					pos;
-	std::string::iterator	it;
-
-	if (*(it = path.end() - 1) == '/')
-		path.erase(it);
-	pos = path.find_last_of(".");
-	if (pos == std::string::npos)
-		return (path);
-	extention = path.substr(pos + 1);
-	pos = path.find_last_of("/");
-	name = path.substr(pos + 1);
-	path = path.substr(0, pos);
-	return (name);
 }
 
 int	openDir(std::string path, std::string &file, std::vector<std::string> &files)
@@ -85,15 +66,10 @@ int	openDir(std::string path, std::string &file, std::vector<std::string> &files
 	return (fd);
 }
 
-std::string	getFileType(std::string path)
+std::string	getFileType(std::string file)
 {
-	std::string	file;
 	size_t		index;
 
-	file = getFileName(path);
-	/* conf index */
-	if (!file.compare(path))
-		return ("html");
 	index = file.find_last_of(".");
 	if (index == std::string::npos)
 		return ("error");

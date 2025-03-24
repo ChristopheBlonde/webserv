@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 10:24:52 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/23 09:41:35 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/24 14:41:54 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,8 @@
 # include <webserv.hpp>
 # include <utils.hpp>
 # include <Route.hpp>
+
+class Client;
 
 typedef enum	e_request_type
 {
@@ -28,7 +30,6 @@ typedef enum	e_request_type
 class Requests
 {
 	private:
-		Requests(void);
 		std::map<std::string,std::string>	_headers;
 		std::string							_requestUri;
 		std::string							_documentUri;
@@ -43,6 +44,7 @@ class Requests
 		std::string							_fileName;
 		int									_port;
 		Route								*_conf;
+		Client								&_client;
 		/* handle in out */
 		std::vector<unsigned char> 			_buffer;
 
@@ -51,7 +53,7 @@ class Requests
 		void	handlePath(void);
 		void	handleHost(void);
 	public:
-		Requests(std::string str);
+		Requests(std::string str, Client  &client);
 		Requests(Requests const &src);
 		~Requests(void);
 		Requests	&operator=(Requests const &rhs);
@@ -70,6 +72,10 @@ class Requests
 		std::string							getRequestUri(void) const;
 		std::string							getDocumentUri(void) const;
 		std::string							getPathInfo(void) const;
+		std::string							getContentType(void) const;
+		std::string							getClientHostName(void) const;
+		std::string							getClientIpStr(void) const;
+		std::string							getClientPort(void) const;
 };
 
 #endif

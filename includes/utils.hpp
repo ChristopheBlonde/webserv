@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/24 10:26:29 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/22 13:54:17 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/24 14:30:03 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,5 +30,6 @@ void						initResponseHeaders(std::map<std::string,
 		std::string> &headers);
 std::string					getFileType(std::string path);
 std::string					to_string(long int num);
+void						handleBadPath(std::string &str);
 
 #endif

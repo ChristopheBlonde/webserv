@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:16:02 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/22 17:52:45 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/24 11:53:08 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,8 @@
 
 # include <Requests.hpp>
 # include <AutoIndex.hpp>
+# include <ErrorPages.hpp>
+# include <Cgi.hpp>
 
 #define FILE_BUFFER_SIZE 1024
 
@@ -46,6 +48,7 @@ class Response
 		void	checkConnection(std::map<std::string,
 				std::string> const &headers);
 		bool	checkMethod(std::string method);
+		bool	checkContentLen(std::map<std::string, std::string> const &headers);
 	public:
 		Response(Requests const &req);
 		Response(Response const &src);

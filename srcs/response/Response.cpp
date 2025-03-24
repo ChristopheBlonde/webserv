@@ -6,20 +6,18 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:15:20 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/23 07:42:56 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/24 17:26:34 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <Response.hpp>
-#include <ErrorPages.hpp>
-#include <Cgi.hpp>
 
 Response::Response(void)
 {
 	return ;
 }
 
-Response::Response(Requests const &req) : _path(req.getPath())
+Response::Response(Requests const &req)
 {
 	std::map<std::string, std::string> const &headers = req.getHeaders();
 
@@ -41,7 +39,9 @@ Response::Response(Requests const &req) : _path(req.getPath())
 	/* check headers request */
 
 	checkConnection(headers);
-	if(!checkMethod(req.getType()))
+	if (!checkMethod(req.getType()))
+		return ;
+	if (!checkContentLen(headers))
 		return ;
 	isReferer(headers);
 	handleFile(req);
@@ -95,8 +95,27 @@ bool	Response::checkMethod(std::string method)
 	it = methods.find(method);
 	if (it == methods.end())
 	{
-		createError(400);
+		createError(405);
 		return (false);
+	}
+	return (true);
+}
+
+bool	Response::checkContentLen(std::map<std::string,
+		std::string> const &headers)
+{
+	std::map<std::string, std::string>::const_iterator it;
+	long	contentLen;
+
+	it = headers.find("Content-Length");
+	if (it != headers.end())
+	{
+		contentLen = strtol(it->second.data(), NULL, 10);
+		if (12500000 < contentLen)
+		{
+			createError(413);
+			return (false);
+		}
 	}
 	return (true);
 }
@@ -111,8 +130,10 @@ void	Response::isReferer(std::map<std::string, std::string> const &headers)
 	{
 		size_t index = referer.find(to_string(_port));
 		referer = referer.substr(index + to_string(_port).size());
+		handleBadPath(referer);
 	}
 	std::string routePath = _conf->getName();
+	std::cout << RED << "pathRoute: " << routePath << RESET <<std::endl;
 	if (routePath == _path || routePath == referer)
 		routePath = _conf->getRoot();
 	else
@@ -137,16 +158,22 @@ void	Response::handleFile(Requests const &req)
 			std::cout << YELLOW << "ext: " << it->first << " path: "
 				<< it->second << RESET << std::endl;
 		Cgi cgiObj(req);
+		std::string result = cgiObj.execScript();
+		_buffer.insert(_buffer.begin(), result.begin(), result.end());
+		createResponse();
 	}
-	/* no cgi */
-	_fileFd = openDir(_path, _fileName, _conf->getIndex());
-	if (_fileFd == -1)
+	else
 	{
-		createError(404);
+		/* no cgi */
+		_fileFd = openDir(_path, _fileName, _conf->getIndex());
+		if (_fileFd == -1)
+		{
+			createError(404);
+		}
+		/* add fd to poll*/
+		std::cout << RED << "FD OPEN BY OPEN DIR: " << _fileFd
+			<< RESET << std::endl;
 	}
-	/* add fd to poll*/
-	std::cout << RED << "FD OPEN BY OPEN DIR: " << _fileFd
-		<< RESET << std::endl;
 }
 
 static std::string	getNameError(int stat)
