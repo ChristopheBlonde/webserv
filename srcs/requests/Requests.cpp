@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 10:46:49 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/23 09:45:00 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/24 08:56:05 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,7 +74,7 @@ static void	handleBadPath(std::string &str)
 
 	std::cout << GREEN << "before: " << str << RESET << std::endl;
 	i = str.find_last_of("/");
-	if (i == str.size() - 1)
+	if (i == str.size() - 1 && i != 0)
 		str.erase(i);
 	for (it = str.begin(); it != str.end(); it++)
 	{
@@ -105,7 +105,7 @@ void	Requests::handlePath(void)
 		_query = "";
 	_documentUri = _path;
 	index = 0;
-	while (index != std::string::npos)
+	while (index != std::string::npos && _path.size() > 1)
 	{
 			index = _path.find("/", index);
 			index++;
@@ -115,6 +115,8 @@ void	Requests::handlePath(void)
 				_fileName = _path.substr(index, j - index);
 				_pathInfo = _path.substr(j + 1);
 			}
+			else
+				_fileName = _path.substr(index);
 			j = _fileName.find_last_of(".");
 			if (j != std::string::npos)
 				tmp = _mimeTypes[std::string(_fileName.substr(j + 1))];
@@ -124,7 +126,10 @@ void	Requests::handlePath(void)
 				break ;
 			}
 			else
+			{
 				_fileName = "";
+				_pathInfo = "";
+			}
 	}
 	std::cout << CYAN << "Path: " << _path << " file: " << _fileName
 		<< " pathInfo: " << _pathInfo << RESET << std::endl;

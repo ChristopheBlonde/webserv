@@ -6,7 +6,7 @@
 /*   By: cblonde <cblonde@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/06 07:14:01 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/22 16:41:59 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/24 08:56:39 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,7 +73,7 @@ void	Cgi::initCgi(Requests const &req)
 	_envMap["CONTENT_TYPE"] = "";
 	_envMap["CONTENT_LENGTH"] = to_string(req.getBody().size());
 	_envMap["SCRIPT_NAME"] = req.getFileName();
-	_envMap["PATH_INFO"] = req.getPath();
+	_envMap["PATH_INFO"] = req.getPathInfo();
 	_envMap["REQUEST_URI"] = req.getRequestUri();
 	_envMap["DOCUMENT_URI"] = req.getDocumentUri();
 	_envMap["SERVER_PROTOCOL"] = "HTTP/1.1";
