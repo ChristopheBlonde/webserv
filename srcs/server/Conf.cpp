@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/11 23:26:17 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/24 04:42:22 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,9 +46,19 @@ void	Conf::addName(const std::string &s)
 	names.insert(s);
 }
 
+std::string	Conf::getErrorPage(int code)
+{
+	return errorPages[code];
+}
+
 void	Conf::setErrorPage(unsigned code, const std::string &page)
 {
 	errorPages[code] = page;
+}
+
+size_t	Conf::getMaxSize()
+{
+	return maxBodySize;
 }
 
 void	Conf::setMaxSize(size_t size)

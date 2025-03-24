@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/21 10:31:23 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/24 08:20:49 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -118,14 +118,17 @@ void	Cluster::addClients()
 		if (!(getPollFd(it->first).revents & POLLIN))
 			continue;
 
-		PollFd	pfd;
+		PollFd			pfd;
+		struct sockaddr_in	addr;
+		socklen_t		addrlen = sizeof(addr);
 
-		pfd.fd = accept(it->first, NULL, NULL);
+		pfd.fd = accept(it->first, (struct sockaddr *)&addr, &addrlen);
 		if (pfd.fd == -1)
 			continue;
 		pfd.events = POLLIN | POLLOUT;
 		fds.push_back(pfd);
-		clients.insert(std::make_pair(pfd.fd, Client(pfd.fd)));
+		clients.insert(std::make_pair(pfd.fd,
+					Client(pfd.fd, addr)));
 		clients[pfd.fd].init();
 		clientFdToServFd[pfd.fd] = it->first;
 	}
