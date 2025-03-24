@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/24 05:57:25 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/24 06:09:23 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,9 +50,13 @@ Client::Client(int fd, struct sockaddr_in addr) :
 		freeaddrinfo(res);
 	}
 	else
-	{
 		hostName = "";
-	}
+
+	int		opt = 1;
+	socklen_t	optLen = sizeof(opt);
+
+	getsockopt(fd, SOL_SOCKET, SO_RCVBUF, &opt, &optLen);
+	bufferSize = opt;
 	resetRequest();
 }
 
@@ -86,6 +90,11 @@ std::string	Client::getPortStr()
 std::string	Client::getHostName()
 {
 	return hostName;
+}
+
+size_t	Client::getBufferSize()
+{
+	return bufferSize;
 }
 
 void	Client::init()
