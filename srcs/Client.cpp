@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/21 01:47:32 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/24 05:57:25 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,15 +15,44 @@
 
 Client::Client() :
 	on(false),
-	fd(-1)
+	fd(-1),
+	ip(-1ULL),
+	port(-1),
+	hostName("")
 {
 	resetRequest();
 }
 
-Client::Client(int fd) :
+Client::Client(int fd, struct sockaddr_in addr) :
 	on(false),
-	fd(fd)
+	fd(fd),
+	ip(addr.sin_addr.s_addr),
+	port(addr.sin_port),
+	hostName("")
 {
+	char                    ipStrChar[INET_ADDRSTRLEN];
+        std::stringstream       ss;
+	struct addrinfo		hints;
+	struct addrinfo		*res = 0;
+
+        inet_ntop(AF_INET, &addr, ipStrChar, sizeof(ipStrChar));
+        ipStr = ipStrChar;
+        ss << ntohs(port);
+        portStr = ss.str();
+	memset(&hints, 0, sizeof(hints));
+	hints.ai_flags = AI_CANONNAME;
+	hints.ai_family = AF_INET;
+	hints.ai_socktype = SOCK_STREAM;
+	hints.ai_protocol = IPPROTO_TCP;
+	if (getaddrinfo(ipStrChar, portStr.c_str(), &hints, &res) == 0)
+	{
+		hostName = res->ai_canonname;
+		freeaddrinfo(res);
+	}
+	else
+	{
+		hostName = "";
+	}
 	resetRequest();
 }
 
@@ -32,6 +61,31 @@ Client::~Client()
 	if (!on)
 		return;
 	close(fd);
+}
+
+uint64_t	Client::getIp()
+{
+	return ip;
+}
+
+std::string	Client::getIpStr()
+{
+	return ipStr;
+}
+
+uint16_t	Client::getPort()
+{
+	return port;
+}
+
+std::string	Client::getPortStr()
+{
+	return portStr;
+}
+
+std::string	Client::getHostName()
+{
+	return hostName;
 }
 
 void	Client::init()

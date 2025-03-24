@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/24 05:32:45 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/24 04:17:46 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -127,8 +127,7 @@ void	Cluster::addClients()
 			continue;
 		pfd.events = POLLIN | POLLOUT;
 		fds.push_back(pfd);
-		clients.insert(std::make_pair(pfd.fd,
-					Client(pfd.fd, addr)));
+		clients.insert(std::make_pair(pfd.fd, Client(pfd.fd, addr.sin_addr, addr.sin_port)));
 		clients[pfd.fd].init();
 		clientFdToServFd[pfd.fd] = it->first;
 	}
