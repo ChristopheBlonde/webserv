@@ -6,13 +6,14 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/25 18:58:45 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/25 21:22:45 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef CLIENT_HPP
 # define CLIENT_HPP
 
+#include <vector>
 #include <map>
 #include <iostream>
 #include <sstream>
@@ -53,6 +54,7 @@ enum e_chunkmode
 class Client
 {
 	bool		on;
+	Cluster		*c;
 	int		fd;
 	uint32_t	ip;
 	uint16_t	port;
@@ -69,18 +71,22 @@ class Client
 	int		mode;
 	int		chunkMode;
 	
-	void		handleRequestHeaders(Cluster &c);
-	bool		handleRequestBodyChunked(Cluster &c);
-	bool		handleRequestBodyLength(Cluster &c);
+	void		handleRequestHeaders();
+	bool		handleRequestBodyChunked();
+	bool		handleRequestBodyLength();
 	void		resetRequest();
-	int		getTransferType(Cluster &c);
+	int		getTransferType();
 	
-	std::map<int, Response *>		ress;
+	std::map<int, Response *>		responses;
 	std::map<int, Response *>		files;
+	std::vector<int>			responseDeleteList;
+	std::vector<int>			fileDeleteList;
+	void					deleteResponses();
+	void					deleteFiles();
 
 	public:
 	Client();
-	Client(int fd, struct sockaddr_in addr);
+	Client(int fd, struct sockaddr_in addr, Cluster *c);
 	~Client();
 	uint64_t	getIp();
 	std::string	getIpStr();
@@ -89,9 +95,8 @@ class Client
 	std::string	getHostName();
 	size_t		getBufferSize();
 	void		init();
-	void		handleRequest(Cluster &c);
-	void		handleResponse(Cluster &c);
-	void	handleFiles(Cluster &c);//
+	void		handleRequest();
+	void		handleResponse();
 };
 
 #endif // CLIENT_HPP

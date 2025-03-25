@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/25 20:29:03 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/25 21:37:06 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 
 Client::Client() :
 	on(false),
+	c(NULL),
 	fd(-1),
 	ip(-1),
 	port(-1),
@@ -23,8 +24,9 @@ Client::Client() :
 	resetRequest();
 }
 
-Client::Client(int fd, struct sockaddr_in addr) :
+Client::Client(int fd, struct sockaddr_in addr, Cluster *c) :
 	on(false),
+	c(c),
 	fd(fd),
 	ip(addr.sin_addr.s_addr),
 	port(addr.sin_port),
@@ -58,13 +60,6 @@ Client::Client(int fd, struct sockaddr_in addr) :
 	getsockopt(fd, SOL_SOCKET, SO_RCVBUF, &opt, &optLen);
 	bufferSize = opt;
 	resetRequest();
-}
-
-Client::~Client()
-{
-	if (!on)
-		return;
-	close(fd);
 }
 
 uint64_t	Client::getIp()
@@ -112,7 +107,7 @@ void	Client::resetRequest()
 	chunkMode = CHUNKLEN;
 }
 
-int	Client::getTransferType(Cluster &c)
+int	Client::getTransferType()
 {
 	size_t	transferHeader = currRequest.find("transfer-encoding:");
 
@@ -130,7 +125,7 @@ int	Client::getTransferType(Cluster &c)
 		return UNDEFINED;
 	if (currRequest.find("content-length:", transferHeader + 1) != std::string::npos)
 	{
-		c.closeClient(fd);
+		c->closeClient(fd);
 		readSize = 1;
 		return LENGTH;
 	}
@@ -146,21 +141,21 @@ int	Client::getTransferType(Cluster &c)
 		++num;
 	if (num[0] != '\r' || num[1] != '\n')
 	{
-		c.closeClient(fd);
+		c->closeClient(fd);
 		readSize = 1;
 		return LENGTH;
 	}
 	return LENGTH;
 }
 
-void	Client::handleRequestHeaders(Cluster &c)
+void	Client::handleRequestHeaders()
 {
 	ssize_t	readByte;
 
 	readByte = recv(fd, buffer, 1, 0);
 	if (readByte <= 0)
 	{
-		c.closeClient(fd);
+		c->closeClient(fd);
 		return ;
 	}
 	else
@@ -175,11 +170,11 @@ void	Client::handleRequestHeaders(Cluster &c)
 	if (currRequest.size() < 4
 		|| currRequest.compare(currRequest.size() - 4, 4, "\r\n\r\n") != 0)
 		return ;
-	transferType = getTransferType(c);
+	transferType = getTransferType();
 	mode = BODY;
 }
 
-bool	Client::handleRequestBodyChunked(Cluster &c)
+bool	Client::handleRequestBodyChunked()
 {
 	ssize_t	readByte;
 
@@ -189,7 +184,7 @@ bool	Client::handleRequestBodyChunked(Cluster &c)
 		readByte = recv(fd, buffer, readSize, 0);
 	if (readByte <= 0)
 	{
-		c.closeClient(fd);
+		c->closeClient(fd);
 		return false;
 	}
 	else
@@ -200,7 +195,7 @@ bool	Client::handleRequestBodyChunked(Cluster &c)
 	case CHUNKLENEND:
 		if (*buffer != '\n')
 		{
-			c.closeClient(fd);
+			c->closeClient(fd);
 			return false;
 		}
 		readSize = 0;
@@ -214,7 +209,7 @@ bool	Client::handleRequestBodyChunked(Cluster &c)
 				break;
 			if (readSize > MAXLENHEADER)
 			{
-				c.closeClient(fd);
+				c->closeClient(fd);
 				return false;
 			}
 		}
@@ -252,7 +247,7 @@ bool	Client::handleRequestBodyChunked(Cluster &c)
 		{
 			if (currRequest != "\r\n")
 			{
-				c.closeClient(fd);
+				c->closeClient(fd);
 				return false;
 			}
 			chunkMode = CHUNKLEN;
@@ -271,7 +266,7 @@ bool	Client::handleRequestBodyChunked(Cluster &c)
 	return false;
 }
 
-bool	Client::handleRequestBodyLength(Cluster &c)
+bool	Client::handleRequestBodyLength()
 {
 	ssize_t	readByte;
 
@@ -281,7 +276,7 @@ bool	Client::handleRequestBodyLength(Cluster &c)
 		readByte = recv(fd, buffer, readSize, 0);
 	if (readByte <= 0)
 	{
-		c.closeClient(fd);
+		c->closeClient(fd);
 		return false;
 	}
 	buffer[readByte] = '\0';
@@ -292,17 +287,17 @@ bool	Client::handleRequestBodyLength(Cluster &c)
 	return false;
 }
 
-void	Client::handleRequest(Cluster &c)
+void	Client::handleRequest()
 {
 	if (mode == HEADERS)
 	{
-		handleRequestHeaders(c);
+		handleRequestHeaders();
 		if (!(mode == BODY && transferType == UNDEFINED))
 			return;
 	}
 	if ((mode == BODY && transferType == UNDEFINED)
-		|| (mode == BODY && transferType == CHUNKED && handleRequestBodyChunked(c))
-		|| (mode == BODY && transferType == LENGTH && handleRequestBodyLength(c)))
+		|| (mode == BODY && transferType == CHUNKED && handleRequestBodyChunked())
+		|| (mode == BODY && transferType == LENGTH && handleRequestBodyLength()))
 	{
 		//XXX
 //		std::cout << CYAN << requests[fd.fd] << std::endl << RESET;
@@ -311,67 +306,81 @@ void	Client::handleRequest(Cluster &c)
 		res->setSocket(fd);
 //		std::cout << GREEN << "new Request create with Socket: "
 //			<< res->getSocket() << RESET << std::endl;
-		ress[fd] = res;
+		responses[fd] = res;
 		//XXX
 		resetRequest();
 	}
 }
 
-void	Client::handleResponse(Cluster &c)
+//TODO get the poll checks out of the funcs
+void	Client::handleResponse()
 {
-	//XXX
-	for(size_t i = 0; i < c.fds.size(); i++)
+	for (std::map<int, Response *>::iterator it = responses.begin();
+		it != responses.end(); ++it)
 	{
-		//std::cout << it->first << "\n";
-		PollFd pfd = c.getPollFd(c.fds[i].fd);
+		PollFd		pfd(it->first);
 
-		if (pfd.revents & POLLERR)
-		{//?
-		}
-		//XXX il faut check poll in ici de preference
-		
-		std::map<int, Response *>::iterator  res;
-		std::map<int, Response *>::iterator  file;
-		res = ress.find(pfd.fd);
-		file = files.find(pfd.fd);
-		if (res != ress.end())
-		{
-			if (!res->second->handleInOut(pfd))
-			{
-				std::cout << "dans delete" << std::endl;
-				delete res->second;
-				ress.erase(res);
-				//_c.fds.erase(_c.fds.begin() + i--);
-			}
-		}
-		else if (file != files.end())
-		{
-			if (!file->second->handleInOut(pfd))
-			{
-				close (file->first);
-				files.erase(file);
-			c.fds.erase(c.fds.begin() + i--);
-			}
-		}
-		handleFiles(c);
+		pfd.revents = c->getRevents(it->first);
+		if (!it->second->handleInOut(pfd))
+			responseDeleteList.push_back(it->first);
+
+		PollFd		file(it->second->getFileFd());
+
+		if (file.fd < 0 || files.find(file.fd) != files.end())
+			continue;
+		file.events = POLLIN;
+		c->addFd(file);
+		files.insert(std::make_pair(file.fd, it->second));
+	}
+	for (std::map<int, Response *>::iterator it = files.begin();
+		it != files.end(); ++it)
+	{
+		PollFd		pfd(it->first);
+
+		pfd.revents = c->getRevents(it->first);
+		if (!it->second->handleInOut(pfd))
+			fileDeleteList.push_back(it->first);
 
 	}
-	//XXX
 }
 
-void	Client::handleFiles(Cluster &c)//XXX (or not idk)
+void	Client::deleteResponses()
 {
-	PollFd	res;
-
-	for (std::map<int, Response *>::iterator it = ress.begin();
-			it != ress.end(); it++)
+	for (std::vector<int>::iterator it = responseDeleteList.begin();
+		it < responseDeleteList.end(); ++it)
 	{
-		res.fd = it->second->getFileFd();
-		if (res.fd < 0 || (files.find(res.fd) != files.end()))
-			continue ;
-		res.events = POLLIN;
-		res.revents = 0;
-		c.addFd(res);
-		files.insert(std::make_pair(res.fd, it->second));
+		delete responses[*it];
+		responses.erase(responses.find(*it));
+		//_c.fds.erase(_c.fds.begin() + i--);//XXX what does this do ?
 	}
+	responseDeleteList.clear();
+}
+
+void	Client::deleteFiles()
+{
+	for (std::vector<int>::iterator it = fileDeleteList.begin();
+		it < fileDeleteList.end(); ++it)
+	{
+		close(*it);
+		files.erase(files.find(*it));
+		c->removeFd(*it);
+	}
+	fileDeleteList.clear();
+}
+
+Client::~Client()
+{
+	if (!on)
+		return;
+	close(fd);
+	deleteResponses();
+	deleteFiles();
+	for (std::map<int, Response *>::iterator it = responses.begin();
+		it != responses.end(); ++it)
+		responseDeleteList.push_back(it->first);
+	for (std::map<int, Response *>::iterator it = files.begin();
+		it != files.end(); ++it)
+		fileDeleteList.push_back(it->first);
+	deleteResponses();
+	deleteFiles();
 }

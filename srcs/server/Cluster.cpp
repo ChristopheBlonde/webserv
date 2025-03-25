@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/25 20:39:04 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/25 21:21:22 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -128,7 +128,7 @@ void	Cluster::addClients()
 		pfd.events = POLLIN | POLLOUT;
 		fds.push_back(pfd);
 		clients.insert(std::make_pair(pfd.fd,
-					Client(pfd.fd, addr)));
+					Client(pfd.fd, addr, this)));
 		clients[pfd.fd].init();
 		clientFdToServFd[pfd.fd] = it->first;
 	}
@@ -169,6 +169,11 @@ void	Cluster::deleteFds()
 	fdRemoveList.clear();
 }
 
+short	Cluster::getRevents(int fd)
+{
+	return getPollFd(fd).revents;
+}
+
 void	Cluster::run()
 {
 
@@ -180,9 +185,9 @@ void	Cluster::run()
 		if (getPollFd(it->first).revents & POLLERR)
 			closeClient(it->first);
 		else if (getPollFd(it->first).revents & POLLIN)
-			it->second.handleRequest(*this);
+			it->second.handleRequest();
 		else if (getPollFd(it->first).revents & POLLOUT)
-			it->second.handleResponse(*this);
+			it->second.handleResponse();
 	}
 	destroyClients();
 	deleteFds();

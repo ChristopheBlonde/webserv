@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/25 20:33:50 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/25 20:45:01 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,6 +52,7 @@ class Cluster
 	void			startServers();
 	Server			&getServer(int fd, const std::string &host);
 	Route			&getRoute(Route &r, const std::string &path);
+	short			getRevents(int fd);
 	void			closeClient(int fd);
 	void			addFd(PollFd pfd);
 	void			removeFd(int fd);
