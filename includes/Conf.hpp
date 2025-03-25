@@ -6,7 +6,7 @@
 /*   By: glaguyon <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/22 18:42:46 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/20 17:54:52 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/24 04:41:50 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,9 @@ class Conf : public Route
 	void			setPort(uint16_t port);
 	std::set<std::string>	&getNames();
 	void			addName(const std::string &s);
+	std::string		getErrorPage(int code);
 	void			setErrorPage(unsigned code, const std::string &page);
+	size_t			getMaxSize();
 	void			setMaxSize(size_t size);
 };
 

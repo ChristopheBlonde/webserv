@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/22 18:52:08 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/25 18:29:16 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,9 +15,12 @@
 
 #include <map>
 #include <iostream>
+#include <sstream>
 #include <string>
 #include <cstring>
 #include <unistd.h>
+#include <stdint.h>
+#include <netdb.h>
 #include "Response.hpp"
 
 #define BUFFER_SIZE 1024
@@ -25,32 +28,38 @@
 
 class Cluster;
 
-enum
+enum e_transfer
 {
 	UNDEFINED,
 	LENGTH,
 	CHUNKED
-} e_transfer;
+};
 
-enum
+enum e_mode
 {
 	HEADERS,
 	BODY
-} e_mode;
+};
 
-enum
+enum e_chunkmode
 {
 	CHUNKLEN,
 	CHUNKLENEND,
 	CHUNKBODY,
 	CHUNKBODYEND,
 	CHUNKLASTLINE
-} e_chunkmode;
+};
 
 class Client
 {
 	bool		on;
 	int		fd;
+	uint64_t	ip;
+	uint16_t	port;
+	std::string	ipStr;
+	std::string	portStr;
+	std::string	hostName;
+	size_t		bufferSize;
 
 	size_t		readSize;
 	std::string	currRequest;
@@ -71,8 +80,14 @@ class Client
 
 	public:
 	Client();
-	Client(int fd);
+	Client(int fd, struct sockaddr_in addr);
 	~Client();
+	uint64_t	getIp();
+	std::string	getIpStr();
+	uint16_t	getPort();
+	std::string	getPortStr();
+	std::string	getHostName();
+	size_t		getBufferSize();
 	void		init();
 	void		handleRequest(Cluster &c);
 	void		handleResponse(Cluster &c);
