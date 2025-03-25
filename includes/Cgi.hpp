@@ -6,7 +6,7 @@
 /*   By: cblonde <cblonde@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/06 07:05:16 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/24 16:21:57 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/25 13:13:30 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,8 @@
 # include <Requests.hpp>
 # include <Route.hpp>
 # include <utils.hpp>
+# include <cstdio>
+# include <sys/wait.h>
 
 class Cgi
 {

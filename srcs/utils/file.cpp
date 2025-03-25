@@ -6,11 +6,11 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:47:28 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/24 14:54:09 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/25 13:39:44 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <webserv.hpp>
+#include <utils.hpp>
 
 int	getFile(std::string path)
 {
@@ -38,7 +38,7 @@ int	openDir(std::string path, std::string &file, std::vector<std::string> &files
 	{
 		std::cerr << RED << "opendir: " << path << " " << strerror(errno)
 			<< RESET << std::endl;
-		return (fd);
+		return (-2);
 	}
 	while ((dirp = readdir(dir)) != NULL)
 	{
@@ -103,4 +103,38 @@ void initResponseHeaders(std::map<std::string, std::string> &headers)
 	headers["Content-Type"] = "Content-Type: ";
 	headers["Content-Length"] = "Content-Length: ";
 	headers["Connection"] = "Connection: ";
+	headers["Date"] = "Date: ";
+	headers["Last-Modified"] = "Last-Modified: ";
+}
+
+bool	testAccess(std::string path, int test)
+{
+	int	res;
+
+	switch (test)
+	{
+		case 0:
+			res = access(path.data(), F_OK);
+			if (res)
+				return (false);
+			break ;
+		case 1:
+			res = access(path.data(), R_OK);
+			if (res)
+				return (false);
+			break ;
+		case 2:
+			res = access(path.data(), W_OK);
+			if (res)
+				return (false);
+			break ;
+		case 3:
+			res = access(path.data(), X_OK);
+			if (res)
+				return (false);
+			break ;
+		default:
+			break ;
+	}
+	return (true);
 }

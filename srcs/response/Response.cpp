@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:15:20 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/24 17:26:34 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/25 14:08:52 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,6 +33,7 @@ Response::Response(Requests const &req)
 	this->_conf = &req.getConf();
 	this->_cgi = _conf->getCgi().empty() ? false : true;
 	this->_autoIndex = _conf->getAutoindex();
+	this->_status = 200;
 	initMimeTypes(_mimeTypes);
 	initResponseHeaders(_headers);
 	
@@ -155,28 +156,34 @@ void	Response::handleFile(Requests const &req)
 		std::map<std::string, std::string> cgi(_conf->getCgi());
 		for (std::map<std::string, std::string>::iterator it = cgi.begin();
 				it != cgi.end(); it++)
-			std::cout << YELLOW << "ext: " << it->first << " path: "
-				<< it->second << RESET << std::endl;
+		{
+			if (!testAccess(it->second, 0) || !testAccess(it->second, 3))
+			{
+				createError(400);
+				return ;
+			}
+		}
 		Cgi cgiObj(req);
 		std::string result = cgiObj.execScript();
 		_buffer.insert(_buffer.begin(), result.begin(), result.end());
-		createResponse();
+		createResponseHeader();
 	}
 	else
 	{
 		/* no cgi */
 		_fileFd = openDir(_path, _fileName, _conf->getIndex());
+		getStatFile();
 		if (_fileFd == -1)
-		{
 			createError(404);
-		}
+		else if (_fileFd == -2)
+			createError(400);
 		/* add fd to poll*/
 		std::cout << RED << "FD OPEN BY OPEN DIR: " << _fileFd
 			<< RESET << std::endl;
 	}
 }
 
-static std::string	getNameError(int stat)
+static std::string	getResponseTypeStr(int stat)
 {
 	std::map<int,std::string> names;
 
@@ -217,11 +224,11 @@ void	Response::createError(int stat)
 
 	result = _protocol + " " + to_string(stat) + " ";
 	if (!_autoIndex)
-		content = ERROR_PAGE(getNameError(stat), getContentError(stat),
+		content = ERROR_PAGE(getResponseTypeStr(stat), getContentError(stat),
 				to_string(stat));
 	else
 		content = AutoIndex::generate(_path.data(), _host, _port);
-	result += getNameError(stat) + "\r\n";
+	result += getResponseTypeStr(stat) + "\r\n";
 	result += "Content-Type: text/html; charset=UTF-8\r\nContent-Length: "
 		+ to_string(content.size()) + "\r\n"
 		+ (_autoIndex
@@ -236,15 +243,20 @@ void	Response::createError(int stat)
 	return ;
 }
 
-void	Response::createResponse(void)
+void	Response::createResponseHeader(void)
 {
 	std::map<std::string,std::string>::iterator it;
+
 	/* Create first line */
-	_response = _protocol + " 200 OK\r\n";
+	_response = _protocol
+		+ to_string(_status)
+		+ getResponseTypeStr(_status)
+		+ "\r\n";
 	/* Create headers */
+
 	_headers["Content-Length"] += to_string(_buffer.size());
 	_headers["Content-Type"] += !_cgi
-		? _mimeTypes[getFileType(_path + _fileName)]
+		? _mimeTypes[getFileType(_fileName)]
 		: "text/html; charset=UFT-8";
 	/* join all */
 	for (it = _headers.begin(); it != _headers.end(); it++)
@@ -272,7 +284,7 @@ bool	Response::handleInOut(struct pollfd &fd)
 			readByte = read(fd.fd, buffer, FILE_BUFFER_SIZE - 1);
 			if (readByte <= 0)
 			{
-				createResponse();
+				createResponseHeader();
 				_fileFd = -1;
 				return (false);
 			}
@@ -306,6 +318,37 @@ bool	Response::handleInOut(struct pollfd &fd)
 			return (false);
 	}
 	return (true);
+}
+
+void	Response::getStatFile(void)
+{
+	struct stat res;
+	int			status;
+	time_t		ttime;
+	struct tm	*tmTime;
+	char		buffer[1024];
+	size_t		size;
+
+	status = stat(std::string(_path + "/" + _fileName).c_str(), &res);
+	if (status)
+	{
+		std::cout << RED << "Error: stat: " << strerror(errno)
+			<< RESET << std::endl;
+		return ;
+	}
+	ttime = res.st_mtim.tv_sec;
+	tmTime = gmtime(&ttime);
+	strftime(buffer, 1024, "%a, %d %b %Y %T GMT", tmTime);
+	std::cout << CYAN << "Stat: Last-Modified: " << buffer << RESET << std::endl;
+	_headers["Last-Modified"] += buffer;
+	ttime = time(NULL);
+	tmTime = gmtime(&ttime);
+	strftime(buffer, 1024, "%a, %d %b %Y %T GMT", tmTime);
+	std::cout << CYAN << "Stat: Date: " << buffer << RESET << std::endl;
+	_headers["Date"] += buffer;
+	size = res.st_size;
+	_buffer.reserve(size * sizeof(unsigned char));
+	std::cout << CYAN << "Stat: Size: " << size << RESET << std::endl;
 }
 
 std::string	Response::getResponse(void) const

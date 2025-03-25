@@ -6,23 +6,29 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:16:02 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/24 11:53:08 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/25 13:40:19 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef RESPONSE_HPP
 # define RESPONSE_HPP
 
+# include <webserv.hpp>
 # include <Requests.hpp>
 # include <AutoIndex.hpp>
 # include <ErrorPages.hpp>
 # include <Cgi.hpp>
+# include <map>
+# include <string>
+# include <vector>
+# include <sys/socket.h>
+# include <poll.h>
 
-#define FILE_BUFFER_SIZE 1024
 
 class Response
 {
 	private:
+		int									_status;
 		Route								*_conf;
 		int									_socket;
 		std::string							_protocol;
@@ -48,7 +54,9 @@ class Response
 		void	checkConnection(std::map<std::string,
 				std::string> const &headers);
 		bool	checkMethod(std::string method);
-		bool	checkContentLen(std::map<std::string, std::string> const &headers);
+		bool	checkContentLen(std::map<std::string,
+				std::string> const &headers);
+		void	getStatFile(void);
 	public:
 		Response(Requests const &req);
 		Response(Response const &src);
@@ -62,7 +70,7 @@ class Response
 		void			setResponse(std::string str);
 		void			setSocket(int const socket);
 		void	createError(int stat);
-		void	createResponse(void);
+		void	createResponseHeader(void);
 		bool	handleInOut(struct pollfd &fd);
 };
 
