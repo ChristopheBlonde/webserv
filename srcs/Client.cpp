@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/25 18:30:15 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/25 19:08:42 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@
 Client::Client() :
 	on(false),
 	fd(-1),
-	ip(-1ULL),
+	ip(-1),
 	port(-1),
 	hostName("")
 {
@@ -35,7 +35,7 @@ Client::Client(int fd, struct sockaddr_in addr) :
 	struct addrinfo		hints;
 	struct addrinfo		*res = 0;
 
-        inet_ntop(AF_INET, &addr, ipStrChar, sizeof(ipStrChar));
+        inet_ntop(AF_INET, &addr.sin_addr, ipStrChar, sizeof(ipStrChar));
         ipStr = ipStrChar;
         ss << ntohs(port);
         portStr = ss.str();

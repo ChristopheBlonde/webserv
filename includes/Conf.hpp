@@ -6,7 +6,7 @@
 /*   By: glaguyon <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/22 18:42:46 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/24 04:41:50 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/25 19:13:00 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 
 #include <map>
 #include <set>
+#include <sstream>
 #include <string>
 #include <fstream>
 #include <cstdlib>
@@ -29,6 +30,8 @@ class Conf : public Route
 	protected:
 	uint32_t				ip;
 	uint16_t				port;
+	std::string				ipStr;
+	std::string				portStr;
 	std::set<std::string>			names;
 	size_t					maxBodySize;
 	std::map<unsigned, std::string>		errorPages;
@@ -38,6 +41,8 @@ class Conf : public Route
 	~Conf();
 	void			setIp(uint32_t ip);
 	void			setPort(uint16_t port);
+	std::string		getIpStr();
+	std::string		getPortStr();
 	std::set<std::string>	&getNames();
 	void			addName(const std::string &s);
 	std::string		getErrorPage(int code);

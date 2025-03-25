@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/25 18:29:16 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/25 18:58:45 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,7 +54,7 @@ class Client
 {
 	bool		on;
 	int		fd;
-	uint64_t	ip;
+	uint32_t	ip;
 	uint16_t	port;
 	std::string	ipStr;
 	std::string	portStr;
