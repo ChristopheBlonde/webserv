@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:16:02 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/25 13:40:19 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/25 15:20:45 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,6 +57,7 @@ class Response
 		bool	checkContentLen(std::map<std::string,
 				std::string> const &headers);
 		void	getStatFile(void);
+		void	uploadFile(std::map<std::string, std::string> const &headers);
 	public:
 		Response(Requests const &req);
 		Response(Response const &src);

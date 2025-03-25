@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:47:28 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/25 13:39:44 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/25 15:02:15 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -110,6 +110,7 @@ void initResponseHeaders(std::map<std::string, std::string> &headers)
 bool	testAccess(std::string path, int test)
 {
 	int	res;
+	DIR	*dir;
 
 	switch (test)
 	{
@@ -132,6 +133,12 @@ bool	testAccess(std::string path, int test)
 			res = access(path.data(), X_OK);
 			if (res)
 				return (false);
+			break ;
+		case 4:
+			dir = opendir(path.data());
+			if (!dir)
+				return (false);
+			closedir(dir);
 			break ;
 		default:
 			break ;

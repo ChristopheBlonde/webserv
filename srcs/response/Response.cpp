@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:15:20 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/25 14:08:52 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/25 17:05:58 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@ Response::Response(Requests const &req)
 {
 	std::map<std::string, std::string> const &headers = req.getHeaders();
 
+	this->_body = req.getBody();
 	this->_headerSent = false;
 	this->_headerReady = false;
 	this->_sizeSend = 0;
@@ -90,9 +91,11 @@ void	Response::checkConnection(std::map<std::string,
 
 bool	Response::checkMethod(std::string method)
 {
+	std::cout << RED << "METHOD: " << method << RESET << std::endl;
 	std::set<std::string> &methods(_conf->getAcceptedMethods());
 	std::set<std::string>::iterator it;
-
+	for (it = methods.begin(); it != methods.end(); it++)
+		std::cout << GREEN << "Method in conf: " << *it << RESET <<std::endl;
 	it = methods.find(method);
 	if (it == methods.end())
 	{
@@ -150,9 +153,15 @@ void	Response::isReferer(std::map<std::string, std::string> const &headers)
 
 void	Response::handleFile(Requests const &req)
 {
-	/* check cgi */
-	if (_cgi)
+		/* upload */
+	if ((req.getType() == "POST" || req.getType() == "DELETE")
+			&& !_conf->getUploadDir().empty())
 	{
+		uploadFile(req.getHeaders());
+	}
+	else if (_cgi)
+	{
+		/* cgi */
 		std::map<std::string, std::string> cgi(_conf->getCgi());
 		for (std::map<std::string, std::string>::iterator it = cgi.begin();
 				it != cgi.end(); it++)
@@ -349,6 +358,43 @@ void	Response::getStatFile(void)
 	size = res.st_size;
 	_buffer.reserve(size * sizeof(unsigned char));
 	std::cout << CYAN << "Stat: Size: " << size << RESET << std::endl;
+}
+
+void	Response::uploadFile(std::map<std::string, std::string> const &headers)
+{
+	std::string path = _conf->getUploadDir();
+	std::map<std::string, std::string>::const_iterator head;
+	size_t	index;
+	size_t	end;
+	std::string boundary;
+	std::string	fileName;
+
+	std::cout << GREEN << "Body: " << _body << RESET << std::endl;
+	if (testAccess(path, 4))
+	{
+		head = headers.find("Content-Type");
+		if (head != headers.end())
+		{
+			index = head->second.find("boundary=");
+			if (index != std::string::npos)
+			{
+				boundary = head->second.substr(index + 9);
+				index = _body.find("filename=\"");
+				std::cout << GREEN << "Index: " << index << RESET << std::endl;
+				end = _body.find("\"", index + 11);
+				std::cout << GREEN << "End: " << end << RESET << std::endl;
+				if (index != std::string::npos && end != std::string::npos)
+					fileName = _body.substr(index + 10, end - index - 10);
+				std::cout << YELLOW << "In upload: path:" << path << " header: "
+					<< head->second << std::endl << "boundary: " << boundary 
+					<< std::endl << "File Name: " << fileName<< RESET
+					<< std::endl;
+				return ;
+			}
+		}
+	}
+	createError(400);
+	return ;
 }
 
 std::string	Response::getResponse(void) const
