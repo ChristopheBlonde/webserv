@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/25 19:08:42 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/25 20:29:03 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -371,7 +371,7 @@ void	Client::handleFiles(Cluster &c)//XXX (or not idk)
 			continue ;
 		res.events = POLLIN;
 		res.revents = 0;
-		c.fds.push_back(res);
+		c.addFd(res);
 		files.insert(std::make_pair(res.fd, it->second));
 	}
 }

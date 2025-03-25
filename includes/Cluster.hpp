@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/22 18:55:12 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/25 20:33:50 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,17 +28,17 @@
 class Cluster
 {
 	std::vector<Server>			servers;
-	public://XXX
 	std::vector<PollFd>			fds;
 	std::map<int, std::vector<Server *> >	serverFds;
 	std::map<int, Client>			clients;
 	std::map<int, int>			clientFdToServFd;
 	std::vector<int>			clientCloseList;
+	std::vector<int>			fdRemoveList;
 
-	public://XXX
 	PollFd	&getPollFd(int fd);
 	void	destroyClients();
 	void	addClients();
+	void	deleteFds();
 
 	public:
 	static const std::string	defaultRoot;
@@ -53,6 +53,8 @@ class Cluster
 	Server			&getServer(int fd, const std::string &host);
 	Route			&getRoute(Route &r, const std::string &path);
 	void			closeClient(int fd);
+	void			addFd(PollFd pfd);
+	void			removeFd(int fd);
 	void			run();
 };
 

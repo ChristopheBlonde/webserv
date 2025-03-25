@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/25 18:30:49 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/25 20:39:04 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -151,6 +151,24 @@ void	Cluster::destroyClients()
 	clientCloseList.clear();
 }
 
+void	Cluster::addFd(PollFd pfd)
+{
+	fds.push_back(pfd);
+}
+
+void	Cluster::removeFd(int fd)
+{
+	fdRemoveList.push_back(fd);
+}
+
+void	Cluster::deleteFds()
+{
+	for (std::vector<int>::iterator it = fdRemoveList.begin();
+		it < fdRemoveList.end(); ++it)
+		fds.erase(std::find(fds.begin(), fds.end(), PollFd(*it)));
+	fdRemoveList.clear();
+}
+
 void	Cluster::run()
 {
 
@@ -167,4 +185,5 @@ void	Cluster::run()
 			it->second.handleResponse(*this);
 	}
 	destroyClients();
+	deleteFds();
 }
