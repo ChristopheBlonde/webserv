@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/25 21:21:22 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/25 21:56:03 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,6 +38,13 @@ Cluster::Cluster(const std::string &filename)
 
 Cluster::~Cluster()
 {
+	destroyClients();
+	deleteFds();
+	for (std::map<int, Client>::iterator it = clients.begin();
+		it != clients.end(); ++it)
+		clientCloseList.push_back(it->first);
+	destroyClients();
+	deleteFds();
 }
 
 Server			*Cluster::addServer()

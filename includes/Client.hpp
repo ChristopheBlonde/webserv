@@ -6,14 +6,14 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/25 21:22:45 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/25 22:19:59 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef CLIENT_HPP
 # define CLIENT_HPP
 
-#include <vector>
+#include <queue>
 #include <map>
 #include <iostream>
 #include <sstream>
@@ -77,12 +77,8 @@ class Client
 	void		resetRequest();
 	int		getTransferType();
 	
-	std::map<int, Response *>		responses;
-	std::map<int, Response *>		files;
-	std::vector<int>			responseDeleteList;
-	std::vector<int>			fileDeleteList;
-	void					deleteResponses();
-	void					deleteFiles();
+	std::queue<Response *>		responses;
+	int				currFile;
 
 	public:
 	Client();

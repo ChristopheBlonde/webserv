@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/25 21:37:06 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/25 22:29:59 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,8 @@ Client::Client() :
 	fd(-1),
 	ip(-1),
 	port(-1),
-	hostName("")
+	hostName(""),
+	currFile(-1)
 {
 	resetRequest();
 }
@@ -30,7 +31,8 @@ Client::Client(int fd, struct sockaddr_in addr, Cluster *c) :
 	fd(fd),
 	ip(addr.sin_addr.s_addr),
 	port(addr.sin_port),
-	hostName("")
+	hostName(""),
+	currFile(-1)
 {
 	char                    ipStrChar[INET_ADDRSTRLEN];
         std::stringstream       ss;
@@ -299,14 +301,14 @@ void	Client::handleRequest()
 		|| (mode == BODY && transferType == CHUNKED && handleRequestBodyChunked())
 		|| (mode == BODY && transferType == LENGTH && handleRequestBodyLength()))
 	{
-		//XXX
+		//TODO remove pointer maybe
 //		std::cout << CYAN << requests[fd.fd] << std::endl << RESET;
 		Requests req(currRequestRaw);
 		Response *res = new Response(req);
 		res->setSocket(fd);
+		responses.push(res);
 //		std::cout << GREEN << "new Request create with Socket: "
 //			<< res->getSocket() << RESET << std::endl;
-		responses[fd] = res;
 		//XXX
 		resetRequest();
 	}
@@ -315,57 +317,42 @@ void	Client::handleRequest()
 //TODO get the poll checks out of the funcs
 void	Client::handleResponse()
 {
-	for (std::map<int, Response *>::iterator it = responses.begin();
-		it != responses.end(); ++it)
+	if (responses.empty())
+		return;
+	
+	PollFd	pfd(fd);
+
+	pfd.revents = c->getRevents(fd);
+	//POLLOUT is on
+	if (!responses.front()->handleInOut(pfd))
 	{
-		PollFd		pfd(it->first);
-
-		pfd.revents = c->getRevents(it->first);
-		if (!it->second->handleInOut(pfd))
-			responseDeleteList.push_back(it->first);
-
-		PollFd		file(it->second->getFileFd());
-
-		if (file.fd < 0 || files.find(file.fd) != files.end())
-			continue;
-		file.events = POLLIN;
-		c->addFd(file);
-		files.insert(std::make_pair(file.fd, it->second));
+		delete responses.front();
+		responses.pop();
 	}
-	for (std::map<int, Response *>::iterator it = files.begin();
-		it != files.end(); ++it)
+	else
 	{
-		PollFd		pfd(it->first);
+		PollFd		file(responses.front()->getFileFd());
 
-		pfd.revents = c->getRevents(it->first);
-		if (!it->second->handleInOut(pfd))
-			fileDeleteList.push_back(it->first);
-
+		if (file.fd > 0 && file.fd != currFile)
+		{
+			file.events = POLLIN;
+			c->addFd(file);
+			currFile = file.fd;
+		}
 	}
-}
-
-void	Client::deleteResponses()
-{
-	for (std::vector<int>::iterator it = responseDeleteList.begin();
-		it < responseDeleteList.end(); ++it)
+	if (currFile != -1)
 	{
-		delete responses[*it];
-		responses.erase(responses.find(*it));
-		//_c.fds.erase(_c.fds.begin() + i--);//XXX what does this do ?
-	}
-	responseDeleteList.clear();
-}
+		PollFd		pfd(currFile);
 
-void	Client::deleteFiles()
-{
-	for (std::vector<int>::iterator it = fileDeleteList.begin();
-		it < fileDeleteList.end(); ++it)
-	{
-		close(*it);
-		files.erase(files.find(*it));
-		c->removeFd(*it);
+		pfd.revents = c->getRevents(currFile);
+		if (!responses.front()->handleInOut(pfd))
+		{
+			close(currFile);
+			c->removeFd(currFile);
+			currFile = -1;
+		}
+
 	}
-	fileDeleteList.clear();
 }
 
 Client::~Client()
@@ -373,14 +360,11 @@ Client::~Client()
 	if (!on)
 		return;
 	close(fd);
-	deleteResponses();
-	deleteFiles();
-	for (std::map<int, Response *>::iterator it = responses.begin();
-		it != responses.end(); ++it)
-		responseDeleteList.push_back(it->first);
-	for (std::map<int, Response *>::iterator it = files.begin();
-		it != files.end(); ++it)
-		fileDeleteList.push_back(it->first);
-	deleteResponses();
-	deleteFiles();
+	while (!responses.empty())
+	{
+		delete responses.front();
+		responses.pop();
+	}
+	if (currFile != -1)
+		close(currFile);
 }
