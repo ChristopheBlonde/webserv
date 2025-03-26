@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/24 10:26:29 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/25 13:44:34 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/26 16:21:31 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,7 @@ void						capitalize(std::string &str);
 void						formatHeader(std::string &str);
 std::vector<std::string>	split(std::string str, char sep);
 int							getFile(std::string path);
+int							openFileUpload(std::string path);
 void						initMimeTypes(std::map<std::string,
 		std::string> &mime_Types);
 int							openDir(std::string path, std::string &fileName,

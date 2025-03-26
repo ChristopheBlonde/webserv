@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:16:02 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/26 12:29:14 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/26 16:02:15 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,11 +24,12 @@
 # include <sys/socket.h>
 # include <poll.h>
 
-struct	Upload
+struct	FileData
 {
-	char	*start;
-	size_t	size;
-	size_t	offset;
+	std::string	fileName;
+	char const	*start;
+	size_t		size;
+	size_t		offset;
 };
 
 class Response
@@ -49,6 +50,7 @@ class Response
 		std::string							_response;
 		int									_resSize;
 		std::map<std::string, std::string>	_mimeTypes;
+		std::map<int, FileData>				_filesUpload;
 		std::vector<unsigned char>			_buffer;
 		int									_fileFd;
 		bool								_headerSent;
@@ -64,6 +66,8 @@ class Response
 				std::string> const &headers);
 		void	getStatFile(void);
 		void	uploadFile(std::map<std::string, std::string> const &headers);
+		std::string	handleBoundary(std::string &boundary,
+				size_t &step, size_t &currStart, std::string &filename);
 	public:
 		Response(Requests const &req);
 		Response(Response const &src);

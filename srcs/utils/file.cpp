@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:47:28 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/25 15:02:15 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/26 16:22:18 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@ int	getFile(std::string path)
 {
 	int	fd;
 
-	fd = open(path.c_str(), O_RDONLY);
+	fd = open(path.c_str(), O_RDONLY | O_NONBLOCK);
 	if (fd < 0)
 	{
 		std::cerr << RED << "Error: getFile: " << std::strerror(errno) << RESET
@@ -144,4 +144,15 @@ bool	testAccess(std::string path, int test)
 			break ;
 	}
 	return (true);
+}
+
+int	openFileUpload(std::string path)
+{
+	int	fd = -1;
+
+	fd = open(path.data(), O_WRONLY | O_CREAT | O_TRUNC | O_NONBLOCK, 0644);
+	if (fd < 0)
+		std::cout << RED << "Open fd upload: " << strerror(errno) << RESET
+			<< std::endl;
+	return (fd);
 }
