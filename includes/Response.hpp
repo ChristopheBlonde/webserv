@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:16:02 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/25 15:20:45 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/26 12:29:14 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,12 @@
 # include <sys/socket.h>
 # include <poll.h>
 
+struct	Upload
+{
+	char	*start;
+	size_t	size;
+	size_t	offset;
+};
 
 class Response
 {

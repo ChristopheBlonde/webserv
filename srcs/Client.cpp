@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/24 12:08:01 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/26 09:56:37 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,7 +46,8 @@ Client::Client(int fd, struct sockaddr_in addr) :
 	hints.ai_protocol = IPPROTO_TCP;
 	if (getaddrinfo(ipStrChar, portStr.c_str(), &hints, &res) == 0)
 	{
-		hostName = res->ai_canonname;
+		if (res->ai_canonname)
+			hostName = res->ai_canonname;
 		freeaddrinfo(res);
 	}
 	else

@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:15:20 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/25 17:05:58 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/26 13:18:35 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -345,7 +345,7 @@ void	Response::getStatFile(void)
 			<< RESET << std::endl;
 		return ;
 	}
-	ttime = res.st_mtim.tv_sec;
+	ttime = res.st_mtimespec.tv_sec;
 	tmTime = gmtime(&ttime);
 	strftime(buffer, 1024, "%a, %d %b %Y %T GMT", tmTime);
 	std::cout << CYAN << "Stat: Last-Modified: " << buffer << RESET << std::endl;
@@ -360,16 +360,66 @@ void	Response::getStatFile(void)
 	std::cout << CYAN << "Stat: Size: " << size << RESET << std::endl;
 }
 
+std::string	handleBoundary(std::string &body, std::string &boundary, size_t &step)
+{
+	size_t	start;
+	size_t	end;
+	std::string str = "";
+
+	start = body.find(boundary);
+	std::cout << RED << "Start: " << start << RESET << std::endl;
+	if (start == std::string::npos)
+	{
+		step = 2;
+		return (str);
+	}
+	if (start == 0 && !body.substr(start, boundary.size() + 2)
+			.compare(boundary + "--"))
+	{
+		step = 2;
+		return (str);
+	}
+	switch (step)
+	{
+		case 0:
+				start += (boundary.size() + 2);
+				end = body.find("\r\n\r\n");
+				if (end != std::string::npos)
+				{
+					str = body.substr(start, end - start);
+					std::cout << YELLOW << "Get header Boundary:"
+						<< std::endl << str << RESET << std::endl;
+					body.erase(0, end + 4);
+					step = 1;
+				}
+			break ;
+		case 1:
+			end = body.find(boundary);
+			str = body.substr(0, end - 2);
+			body.erase(0, end);
+			step = 0;
+			std::cout << CYAN << "Boundary Content:" << std::endl
+				<< str << RESET << std::endl;
+			break ;
+		case 2:
+			break ;
+		default:
+			break ;
+	}
+	return (str);
+}
+
 void	Response::uploadFile(std::map<std::string, std::string> const &headers)
 {
 	std::string path = _conf->getUploadDir();
 	std::map<std::string, std::string>::const_iterator head;
 	size_t	index;
 	size_t	end;
+	size_t	step = 0;
 	std::string boundary;
 	std::string	fileName;
+	std::string boundaryHeader;
 
-	std::cout << GREEN << "Body: " << _body << RESET << std::endl;
 	if (testAccess(path, 4))
 	{
 		head = headers.find("Content-Type");
@@ -379,6 +429,14 @@ void	Response::uploadFile(std::map<std::string, std::string> const &headers)
 			if (index != std::string::npos)
 			{
 				boundary = head->second.substr(index + 9);
+				/* while boundary end*/
+				while (step != 2)
+				{
+					std::cout << GREEN << "Body: " << _body << RESET << std::endl;
+					boundaryHeader = handleBoundary(_body, boundary, step);
+
+				}
+
 				index = _body.find("filename=\"");
 				std::cout << GREEN << "Index: " << index << RESET << std::endl;
 				end = _body.find("\"", index + 11);
