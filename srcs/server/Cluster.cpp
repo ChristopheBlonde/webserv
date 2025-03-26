@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/24 08:20:49 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/26 13:29:18 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,6 +38,13 @@ Cluster::Cluster(const std::string &filename)
 
 Cluster::~Cluster()
 {
+	destroyClients();
+	deleteFds();
+	for (std::map<int, Client>::iterator it = clients.begin();
+		it != clients.end(); ++it)
+		clientCloseList.push_back(it->first);
+	destroyClients();
+	deleteFds();
 }
 
 Server			*Cluster::addServer()
@@ -128,7 +135,7 @@ void	Cluster::addClients()
 		pfd.events = POLLIN | POLLOUT;
 		fds.push_back(pfd);
 		clients.insert(std::make_pair(pfd.fd,
-					Client(pfd.fd, addr)));
+					Client(pfd.fd, addr, this)));
 		clients[pfd.fd].init();
 		clientFdToServFd[pfd.fd] = it->first;
 	}
@@ -151,6 +158,29 @@ void	Cluster::destroyClients()
 	clientCloseList.clear();
 }
 
+void	Cluster::addFd(PollFd pfd)
+{
+	fds.push_back(pfd);
+}
+
+void	Cluster::removeFd(int fd)
+{
+	fdRemoveList.push_back(fd);
+}
+
+void	Cluster::deleteFds()
+{
+	for (std::vector<int>::iterator it = fdRemoveList.begin();
+		it < fdRemoveList.end(); ++it)
+		fds.erase(std::find(fds.begin(), fds.end(), PollFd(*it)));
+	fdRemoveList.clear();
+}
+
+short	Cluster::getRevents(int fd)
+{
+	return getPollFd(fd).revents;
+}
+
 void	Cluster::run()
 {
 
@@ -162,64 +192,10 @@ void	Cluster::run()
 		if (getPollFd(it->first).revents & POLLERR)
 			closeClient(it->first);
 		else if (getPollFd(it->first).revents & POLLIN)
-			it->second.handleRequest(*this);
+			it->second.handleRequest();
 		else if (getPollFd(it->first).revents & POLLOUT)
-			it->second.handleResponse(0);//TODO
+			it->second.handleResponse();
 	}
-	//XXX
-	for(size_t i = 0; i < fds.size(); i++)
-	{
-		//std::cout << it->first << "\n";
-		PollFd pfd = getPollFd(fds[i].fd);
-
-		if (pfd.revents & POLLERR)
-		{//?
-		}
-		//XXX il faut check poll in ici de preference
-		
-		std::map<int, Response *>::iterator  res;
-		std::map<int, Response *>::iterator  file;
-		res = ress.find(pfd.fd);
-		file = files.find(pfd.fd);
-		if (res != ress.end())
-		{
-			if (!res->second->handleInOut(pfd))
-			{
-				std::cout << "dans delete" << std::endl;
-				delete res->second;
-				ress.erase(res);
-				//_fds.erase(_fds.begin() + i--);
-			}
-		}
-		else if (file != files.end())
-		{
-			if (!file->second->handleInOut(pfd))
-			{
-				close (file->first);
-				files.erase(file);
-			fds.erase(fds.begin() + i--);
-			}
-		}
-		handleFiles();
-
-	}
-	//XXX
 	destroyClients();
-}
-
-void	Cluster::handleFiles(void)//XXX (or not idk)
-{
-	PollFd	res;
-
-	for (std::map<int, Response *>::iterator it = ress.begin();
-			it != ress.end(); it++)
-	{
-		res.fd = it->second->getFileFd();
-		if (res.fd < 0 || (files.find(res.fd) != files.end()))
-			continue ;
-		res.events = POLLIN;
-		res.revents = 0;
-		fds.push_back(res);
-		files.insert(std::make_pair(res.fd, it->second));
-	}
+	deleteFds();
 }

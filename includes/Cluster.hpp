@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/21 01:35:33 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/25 20:45:01 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,14 +33,12 @@ class Cluster
 	std::map<int, Client>			clients;
 	std::map<int, int>			clientFdToServFd;
 	std::vector<int>			clientCloseList;
-	public:
-	std::map<int, Response *>		ress;//
-	std::map<int, Response *>		files;//
-	private:
+	std::vector<int>			fdRemoveList;
+
 	PollFd	&getPollFd(int fd);
 	void	destroyClients();
 	void	addClients();
-	void	handleFiles(void);//
+	void	deleteFds();
 
 	public:
 	static const std::string	defaultRoot;
@@ -54,7 +52,10 @@ class Cluster
 	void			startServers();
 	Server			&getServer(int fd, const std::string &host);
 	Route			&getRoute(Route &r, const std::string &path);
+	short			getRevents(int fd);
 	void			closeClient(int fd);
+	void			addFd(PollFd pfd);
+	void			removeFd(int fd);
 	void			run();
 };
 

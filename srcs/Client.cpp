@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/26 09:56:37 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/26 13:27:08 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,27 +15,31 @@
 
 Client::Client() :
 	on(false),
+	c(NULL),
 	fd(-1),
-	ip(-1ULL),
+	ip(-1),
 	port(-1),
-	hostName("")
+	hostName(""),
+	currFile(-1)
 {
 	resetRequest();
 }
 
-Client::Client(int fd, struct sockaddr_in addr) :
+Client::Client(int fd, struct sockaddr_in addr, Cluster *c) :
 	on(false),
+	c(c),
 	fd(fd),
 	ip(addr.sin_addr.s_addr),
 	port(addr.sin_port),
-	hostName("")
+	hostName(""),
+	currFile(-1)
 {
 	char                    ipStrChar[INET_ADDRSTRLEN];
         std::stringstream       ss;
 	struct addrinfo		hints;
 	struct addrinfo		*res = 0;
 
-        inet_ntop(AF_INET, &addr, ipStrChar, sizeof(ipStrChar));
+        inet_ntop(AF_INET, &addr.sin_addr, ipStrChar, sizeof(ipStrChar));
         ipStr = ipStrChar;
         ss << ntohs(port);
         portStr = ss.str();
@@ -59,13 +63,6 @@ Client::Client(int fd, struct sockaddr_in addr) :
 	getsockopt(fd, SOL_SOCKET, SO_RCVBUF, &opt, &optLen);
 	bufferSize = opt;
 	resetRequest();
-}
-
-Client::~Client()
-{
-	if (!on)
-		return;
-	close(fd);
 }
 
 uint64_t	Client::getIp()
@@ -113,7 +110,7 @@ void	Client::resetRequest()
 	chunkMode = CHUNKLEN;
 }
 
-int	Client::getTransferType(Cluster &c)
+int	Client::getTransferType()
 {
 	size_t	transferHeader = currRequest.find("transfer-encoding:");
 
@@ -131,7 +128,7 @@ int	Client::getTransferType(Cluster &c)
 		return UNDEFINED;
 	if (currRequest.find("content-length:", transferHeader + 1) != std::string::npos)
 	{
-		c.closeClient(fd);
+		c->closeClient(fd);
 		readSize = 1;
 		return LENGTH;
 	}
@@ -147,21 +144,21 @@ int	Client::getTransferType(Cluster &c)
 		++num;
 	if (num[0] != '\r' || num[1] != '\n')
 	{
-		c.closeClient(fd);
+		c->closeClient(fd);
 		readSize = 1;
 		return LENGTH;
 	}
 	return LENGTH;
 }
 
-void	Client::handleRequestHeaders(Cluster &c)
+void	Client::handleRequestHeaders()
 {
 	ssize_t	readByte;
 
 	readByte = recv(fd, buffer, 1, 0);
 	if (readByte <= 0)
 	{
-		c.closeClient(fd);
+		c->closeClient(fd);
 		return ;
 	}
 	else
@@ -176,11 +173,11 @@ void	Client::handleRequestHeaders(Cluster &c)
 	if (currRequest.size() < 4
 		|| currRequest.compare(currRequest.size() - 4, 4, "\r\n\r\n") != 0)
 		return ;
-	transferType = getTransferType(c);
+	transferType = getTransferType();
 	mode = BODY;
 }
 
-bool	Client::handleRequestBodyChunked(Cluster &c)
+bool	Client::handleRequestBodyChunked()
 {
 	ssize_t	readByte;
 
@@ -190,7 +187,7 @@ bool	Client::handleRequestBodyChunked(Cluster &c)
 		readByte = recv(fd, buffer, readSize, 0);
 	if (readByte <= 0)
 	{
-		c.closeClient(fd);
+		c->closeClient(fd);
 		return false;
 	}
 	else
@@ -201,7 +198,7 @@ bool	Client::handleRequestBodyChunked(Cluster &c)
 	case CHUNKLENEND:
 		if (*buffer != '\n')
 		{
-			c.closeClient(fd);
+			c->closeClient(fd);
 			return false;
 		}
 		readSize = 0;
@@ -215,7 +212,7 @@ bool	Client::handleRequestBodyChunked(Cluster &c)
 				break;
 			if (readSize > MAXLENHEADER)
 			{
-				c.closeClient(fd);
+				c->closeClient(fd);
 				return false;
 			}
 		}
@@ -253,7 +250,7 @@ bool	Client::handleRequestBodyChunked(Cluster &c)
 		{
 			if (currRequest != "\r\n")
 			{
-				c.closeClient(fd);
+				c->closeClient(fd);
 				return false;
 			}
 			chunkMode = CHUNKLEN;
@@ -272,7 +269,7 @@ bool	Client::handleRequestBodyChunked(Cluster &c)
 	return false;
 }
 
-bool	Client::handleRequestBodyLength(Cluster &c)
+bool	Client::handleRequestBodyLength()
 {
 	ssize_t	readByte;
 
@@ -282,7 +279,7 @@ bool	Client::handleRequestBodyLength(Cluster &c)
 		readByte = recv(fd, buffer, readSize, 0);
 	if (readByte <= 0)
 	{
-		c.closeClient(fd);
+		c->closeClient(fd);
 		return false;
 	}
 	buffer[readByte] = '\0';
@@ -293,32 +290,83 @@ bool	Client::handleRequestBodyLength(Cluster &c)
 	return false;
 }
 
-void	Client::handleRequest(Cluster &c)
+void	Client::handleRequest()
 {
 	if (mode == HEADERS)
 	{
-		handleRequestHeaders(c);
+		handleRequestHeaders();
 		if (!(mode == BODY && transferType == UNDEFINED))
 			return;
 	}
 	if ((mode == BODY && transferType == UNDEFINED)
-		|| (mode == BODY && transferType == CHUNKED && handleRequestBodyChunked(c))
-		|| (mode == BODY && transferType == LENGTH && handleRequestBodyLength(c)))
+		|| (mode == BODY && transferType == CHUNKED && handleRequestBodyChunked())
+		|| (mode == BODY && transferType == LENGTH && handleRequestBodyLength()))
 	{
-		//XXX
+		//TODO remove pointer maybe
 //		std::cout << CYAN << requests[fd.fd] << std::endl << RESET;
 		Requests req(currRequestRaw, *this);
 		req.setConf(c.getRoute(c.getServer(fd, req.getHost()), req.getPath()));
 		Response *res = new Response(req);
 		res->setSocket(fd);
+		responses.push(res);
 //		std::cout << GREEN << "new Request create with Socket: "
 //			<< res->getSocket() << RESET << std::endl;
-		c.ress[fd] = res;
 		//XXX
 		resetRequest();
 	}
 }
 
-void	Client::handleResponse(int fd)
+//TODO get the poll checks out of the funcs
+void	Client::handleResponse()
 {
+	if (responses.empty())
+		return;
+	
+	PollFd	pfd(fd);
+
+	pfd.revents = c->getRevents(fd);
+	//POLLOUT is on
+	if (!responses.front()->handleInOut(pfd))
+	{
+		delete responses.front();
+		responses.pop();
+	}
+	else
+	{
+		PollFd		file(responses.front()->getFileFd());
+
+		if (file.fd > 0 && file.fd != currFile)
+		{
+			file.events = POLLIN;
+			c->addFd(file);
+			currFile = file.fd;
+		}
+	}
+	if (currFile != -1)
+	{
+		PollFd		pfd(currFile);
+
+		pfd.revents = c->getRevents(currFile);
+		if (!responses.front()->handleInOut(pfd))
+		{
+			close(currFile);
+			c->removeFd(currFile);
+			currFile = -1;
+		}
+
+	}
+}
+
+Client::~Client()
+{
+	if (!on)
+		return;
+	close(fd);
+	while (!responses.empty())
+	{
+		delete responses.front();
+		responses.pop();
+	}
+	if (currFile != -1)
+		close(currFile);
 }
