@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:15:20 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/26 13:18:35 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/26 15:52:04 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -345,7 +345,11 @@ void	Response::getStatFile(void)
 			<< RESET << std::endl;
 		return ;
 	}
-	ttime = res.st_mtimespec.tv_sec;
+	#ifdef __linux__
+		ttime = res.st_mtim.tv_sec;
+	#else
+		ttime = res.st_mtimespec.tv_sec;
+	#endif
 	tmTime = gmtime(&ttime);
 	strftime(buffer, 1024, "%a, %d %b %Y %T GMT", tmTime);
 	std::cout << CYAN << "Stat: Last-Modified: " << buffer << RESET << std::endl;

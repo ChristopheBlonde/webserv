@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:47:28 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/25 15:02:15 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/26 15:58:05 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@ int	getFile(std::string path)
 {
 	int	fd;
 
-	fd = open(path.c_str(), O_RDONLY);
+	fd = open(path.c_str(), O_RDONLY | O_NONBLOCK);
 	if (fd < 0)
 	{
 		std::cerr << RED << "Error: getFile: " << std::strerror(errno) << RESET
