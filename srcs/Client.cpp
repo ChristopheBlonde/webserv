@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/26 13:32:09 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/26 17:07:21 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,8 +19,7 @@ Client::Client() :
 	fd(-1),
 	ip(-1),
 	port(-1),
-	hostName(""),
-	currFile(-1)
+	hostName("")
 {
 	resetRequest();
 }
@@ -31,8 +30,7 @@ Client::Client(int fd, struct sockaddr_in addr, Cluster *c) :
 	fd(fd),
 	ip(addr.sin_addr.s_addr),
 	port(addr.sin_port),
-	hostName(""),
-	currFile(-1)
+	hostName("")
 {
 	char                    ipStrChar[INET_ADDRSTRLEN];
         std::stringstream       ss;
@@ -330,31 +328,49 @@ void	Client::handleResponse()
 	{
 		delete responses.front();
 		responses.pop();
+		removeFds();
+		for (std::vector<int>::iterator it = responseFds.begin();
+			it < responseFds.end(); ++it)
+			responseFdRemoveList.push_back(*it);
+		removeFds();
+		return ;
 	}
 	else
 	{
 		PollFd		file(responses.front()->getFileFd());
 
-		if (file.fd > 0 && file.fd != currFile)
+		if (file.fd > 0 && std::find(responseFds.begin(), responseFds.end(), file.fd)
+									== responseFds.end())
 		{
 			file.events = POLLIN;
 			c->addFd(file);
-			currFile = file.fd;
+			responseFds.push_back(file.fd);
+			std::cerr << file.fd << " add\n";
 		}
 	}
-	if (currFile != -1)
+	for (std::vector<int>::iterator it = responseFds.begin(); it < responseFds.end(); ++it)
 	{
-		PollFd		pfd(currFile);
+		PollFd		pfd(*it);
 
-		pfd.revents = c->getRevents(currFile);
+		pfd.revents = c->getRevents(*it);
 		if (!responses.front()->handleInOut(pfd))
-		{
-			close(currFile);
-			c->removeFd(currFile);
-			currFile = -1;
-		}
+			responseFdRemoveList.push_back(*it);
 
 	}
+	removeFds();
+}
+
+void	Client::removeFds()
+{
+	for (std::vector<int>::iterator it = responseFdRemoveList.begin();
+		it < responseFdRemoveList.end(); ++it)
+	{
+		std::cerr << *it << " close \n";
+		close(*it);
+		responseFds.erase(std::find(responseFds.begin(), responseFds.end(), *it));
+		c->removeFd(*it);
+	}
+	responseFdRemoveList.clear();
 }
 
 Client::~Client()
@@ -367,6 +383,8 @@ Client::~Client()
 		delete responses.front();
 		responses.pop();
 	}
-	if (currFile != -1)
-		close(currFile);
+	removeFds();
+	for (std::vector<int>::iterator it = responseFds.begin(); it < responseFds.end(); ++it)
+		responseFdRemoveList.push_back(*it);
+	removeFds();
 }

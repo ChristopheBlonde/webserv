@@ -6,13 +6,14 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/25 22:19:59 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/26 16:39:48 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef CLIENT_HPP
 # define CLIENT_HPP
 
+#include <vector>
 #include <queue>
 #include <map>
 #include <iostream>
@@ -78,7 +79,8 @@ class Client
 	int		getTransferType();
 	
 	std::queue<Response *>		responses;
-	int				currFile;
+	std::vector<int>		responseFds;
+	std::vector<int>		responseFdRemoveList;
 
 	public:
 	Client();
@@ -91,6 +93,7 @@ class Client
 	std::string	getHostName();
 	size_t		getBufferSize();
 	void		init();
+	void		removeFds();
 	void		handleRequest();
 	void		handleResponse();
 };
