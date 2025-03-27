@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/20 11:59:15 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/21 17:13:51 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/26 15:50:10 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,11 +32,17 @@ int	Server::start()
 		socketFd = socketIdMap[socketId];
 		return socketFd;
 	}
-	socketFd = socket(AF_INET, SOCK_STREAM /*| SOCK_NONBLOCK*/, 0);
+	#ifdef __linux__
+		socketFd = socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0);
+	#else
+		socketFd = socket(AF_INET, SOCK_STREAM, 0);
+	#endif
 	socketIdMap[socketId] = socketFd;
 	if (socketFd == -1)
 		throw (ServerStartException("cannot create socket"));
-	fcntl(socketFd, F_SETFL, O_NONBLOCK);
+	#ifndef __linux__
+		fcntl(socketFd, F_SETFL, O_NONBLOCK);
+	#endif
 	sin.sin_addr.s_addr = ip;
 	sin.sin_family = AF_INET;
 	sin.sin_port = port;

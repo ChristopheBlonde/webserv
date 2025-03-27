@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:47:28 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/26 16:22:18 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/27 08:49:11 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -152,7 +152,7 @@ int	openFileUpload(std::string path)
 
 	fd = open(path.data(), O_WRONLY | O_CREAT | O_TRUNC | O_NONBLOCK, 0644);
 	if (fd < 0)
-		std::cout << RED << "Open fd upload: " << strerror(errno) << RESET
-			<< std::endl;
+		std::cerr << RED << "Error: Open fd upload: "
+			<< strerror(errno) << RESET << std::endl;
 	return (fd);
 }
