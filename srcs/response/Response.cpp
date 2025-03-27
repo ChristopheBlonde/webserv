@@ -6,18 +6,14 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:15:20 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/27 08:46:44 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/27 13:45:48 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <Response.hpp>
+#include <Client.hpp>
 
-Response::Response(void)
-{
-	return ;
-}
-
-Response::Response(Requests const &req)
+Response::Response(Requests const &req, Client  &client) : _client(client)
 {
 	std::map<std::string, std::string> const &headers = req.getHeaders();
 
@@ -50,7 +46,7 @@ Response::Response(Requests const &req)
 	return ;
 }
 
-Response::Response(Response const &src)
+Response::Response(Response const &src) : _client(src._client)
 {
 	*this = src;
 	return ;
@@ -257,8 +253,8 @@ void	Response::createResponseHeader(void)
 	std::map<std::string,std::string>::iterator it;
 
 	/* Create first line */
-	_response = _protocol
-		+ to_string(_status)
+	_response = _protocol + " "
+		+ to_string(_status) + " "
 		+ getResponseTypeStr(_status)
 		+ "\r\n";
 	/* Create headers */
@@ -304,6 +300,8 @@ bool	Response::handleInOut(struct pollfd &fd)
 			return (false);
 	if (fd.revents & POLLOUT)
 	{
+		if(!handleFileUpload(fd.fd))
+			return (false);
 		if (!_headerSent && _headerReady)
 		{
 			if (!_response.empty())
@@ -316,9 +314,10 @@ bool	Response::handleInOut(struct pollfd &fd)
 			else
 				_headerSent = true;
 		}
-		if (!_buffer.empty() && _headerSent)
+if (!_buffer.empty() && _headerSent)
 		{
-			sentByte = send(fd.fd, _buffer.data(), _buffer.size() < FILE_BUFFER_SIZE
+			sentByte = send(fd.fd, _buffer.data(),
+					_buffer.size() < FILE_BUFFER_SIZE
 					? _buffer.size() : FILE_BUFFER_SIZE, 0);
 			if (sentByte > 0)
 				_buffer.erase(_buffer.begin(), _buffer.begin() + sentByte);
@@ -467,8 +466,8 @@ void	Response::uploadFile(std::map<std::string, std::string> const &headers)
 				/* while boundary end*/
 				while (step != 2)
 				{
-					std::cout << GREEN << "Body: " << _body.data() + currStart
-						<< RESET << std::endl;
+					//std::cout << GREEN << "Body: " << _body.data() + currStart
+						//<< RESET << std::endl;
 					boundaryHeader = handleBoundary(boundary, step, currStart,
 							fileName);
 					if (!boundaryHeader.empty())
@@ -481,6 +480,7 @@ void	Response::uploadFile(std::map<std::string, std::string> const &headers)
 					std::cout << GREEN << "File Name: " << tmp.fileName
 						<< std::endl << "File size: "
 						<< tmp.size << RESET << std::endl;
+					addFdToCluster(it->first, POLLOUT);
 				}
 				return ;
 			}
@@ -488,6 +488,44 @@ void	Response::uploadFile(std::map<std::string, std::string> const &headers)
 	}
 	createError(400);
 	return ;
+}
+
+void	Response::addFdToCluster(int fd, short event)
+{
+	PollFd	pfd;
+
+	pfd.fd = fd;
+	pfd.events = event;
+	pfd.revents = 0;
+
+	_client.addResponseFd(pfd);
+}
+
+bool	Response::handleFileUpload(int fd)
+{	
+	int			sent;
+	int			chunkSize;
+	std::map<int, FileData>::iterator it = _filesUpload.find(fd);
+
+	if (it == _filesUpload.end())
+		return (true);
+	FileData	&file = it->second;
+	chunkSize = file.size < FILE_BUFFER_SIZE ? file.size : FILE_BUFFER_SIZE;
+	sent = write(fd, file.start + file.offset, chunkSize);
+	if (sent <= 0)
+		return (true);
+	file.offset += sent;
+	file.size -= sent;
+	if (file.size == 0)
+	{
+		std::cout << GREEN << "File: " << file.fileName
+			<< " upload successfully !" << RESET << std::endl;
+		_filesUpload.erase(it);
+		if (_filesUpload.empty())
+			createResponseHeader();
+		return (false);
+	}
+	return (true);
 }
 
 std::string	Response::getResponse(void) const

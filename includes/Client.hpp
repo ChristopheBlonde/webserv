@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/26 16:39:48 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/27 12:29:15 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,6 +96,7 @@ class Client
 	void		removeFds();
 	void		handleRequest();
 	void		handleResponse();
+	void		addResponseFd(PollFd);
 };
 
 #endif // CLIENT_HPP

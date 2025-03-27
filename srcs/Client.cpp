@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/26 17:07:21 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/27 12:32:22 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -304,7 +304,7 @@ void	Client::handleRequest()
 //		std::cout << CYAN << requests[fd.fd] << std::endl << RESET;
 		Requests req(currRequestRaw, *this);
 		req.setConf(c->getRoute(c->getServer(fd, req.getHost()), req.getPath()));
-		Response *res = new Response(req);
+		Response *res = new Response(req, *this);
 		res->setSocket(fd);
 		responses.push(res);
 //		std::cout << GREEN << "new Request create with Socket: "
@@ -387,4 +387,11 @@ Client::~Client()
 	for (std::vector<int>::iterator it = responseFds.begin(); it < responseFds.end(); ++it)
 		responseFdRemoveList.push_back(*it);
 	removeFds();
+}
+
+void		Client::addResponseFd(PollFd pfd)
+{
+	c->addFd(pfd);
+	responseFds.push_back(pfd.fd);
+	std::cerr << "add " << pfd.fd << std::endl;
 }

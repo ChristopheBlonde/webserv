@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:16:02 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/26 16:02:15 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/27 13:24:10 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@
 # include <vector>
 # include <sys/socket.h>
 # include <poll.h>
+# include <PollFd.hpp>
 
 struct	FileData
 {
@@ -32,11 +33,14 @@ struct	FileData
 	size_t		offset;
 };
 
+class Client;
+
 class Response
 {
 	private:
 		int									_status;
 		Route								*_conf;
+		Client								&_client;
 		int									_socket;
 		std::string							_protocol;
 		std::string							_body;
@@ -56,7 +60,6 @@ class Response
 		bool								_headerSent;
 		bool								_headerReady;
 		int									_sizeSend;
-		Response(void);
 		void	handleFile(Requests const &req);
 		void	isReferer(std::map<std::string, std::string> const &headers);
 		void	checkConnection(std::map<std::string,
@@ -68,8 +71,10 @@ class Response
 		void	uploadFile(std::map<std::string, std::string> const &headers);
 		std::string	handleBoundary(std::string &boundary,
 				size_t &step, size_t &currStart, std::string &filename);
+		void	addFdToCluster(int fd, short event);
+		bool	handleFileUpload(int fd);
 	public:
-		Response(Requests const &req);
+		Response(Requests const &req,Client &client);
 		Response(Response const &src);
 		~Response(void);
 		Response &operator=(Response const &rhs);

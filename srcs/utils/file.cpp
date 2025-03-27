@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:47:28 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/27 08:49:11 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/27 11:36:21 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,6 +96,10 @@ void	initMimeTypes(std::map<std::string, std::string> &mime_types)
     mime_types["gz"] = "application/gzip";
     mime_types["tar"] = "application/x-tar";
     mime_types["bz2"] = "application/x-bzip2";
+    mime_types["php"] = "application/x-httpd-php";
+    mime_types["sh"] = "application/x-sh";
+    mime_types["py"] = "application/x-python-code";
+    mime_types["bla"] = "application/42-cgi";
 }
 
 void initResponseHeaders(std::map<std::string, std::string> &headers)

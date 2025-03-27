@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 10:46:49 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/24 14:43:08 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/27 13:42:52 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,8 @@
 #include <Client.hpp>
 
 Requests::Requests(std::string str, Client &client)
-	: _client(client)
+	: _type(UNKNOWN),
+	  _client(client)
 {
 	initMimeTypes(_mimeTypes);
 	this->parse(str);
@@ -55,7 +56,7 @@ static void initMethod(std::string str, t_rqType &type)
 	std::string key[3] = {"GET","POST","DELETE"};
 	t_rqType	types[3] = {GET, POST, DELETE};
 
-	type = UNKNOW;
+	type = UNKNOWN;
 	for (size_t i = 0; i < 3; i++)
 	{
 		if (str == key[i])
@@ -101,7 +102,10 @@ void	Requests::handlePath(void)
 				tmp = _mimeTypes[std::string(_fileName.substr(j + 1))];
 			if (tmp != "")
 			{
-				_path = _path.substr(0, index - 1);
+				if (index > 1)
+					_path = _path.substr(0, index - 1);
+				if (_path.empty())
+					_path = "/";
 				break ;
 			}
 			else
@@ -162,7 +166,7 @@ static void	initHeaders(std::string str,
 
 void	Requests::parse(std::string str)
 {
-	std::cout << CYAN << "Request: " << str << RESET << std::endl;
+	//std::cout << CYAN << "Request: " << str << RESET << std::endl;
 	std::stringstream	ss(str);
 	std::string			word;
 	std::string			line;
@@ -173,13 +177,13 @@ void	Requests::parse(std::string str)
 	ssLine >> word >> _path >> _protocol;
 	if (_protocol.compare("HTTP/1.0") && _protocol.compare("HTTP/1.1"))
 	{
-		std::cout << RED << "Error: Protocol: unknow" << RESET << std::endl;
+		std::cerr << RED << "Error: Protocol: unknow" << RESET << std::endl;
 		return ;
 	}
 	initMethod(word, _type);
-	if (_type == UNKNOW)
+	if (_type == UNKNOWN)
 	{
-		std::cout << RED << "Unknow method or not implement yet."
+		std::cerr << RED << "Unknow method or not implement yet."
 			<< RESET << std::endl;
 		return ;
 	}
