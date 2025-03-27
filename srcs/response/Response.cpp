@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:15:20 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/27 17:52:41 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/27 18:41:01 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -185,10 +185,12 @@ void	Response::handleFile(Requests const &req)
 		_fileFd = openDir(_path, _fileName, _conf->getIndex());
 		getStatFile(_path + "/" + _fileName);
 		if (_fileFd < 0)
+		{
 			createError(404);
+			return ;
+		}
 		/* add fd to poll*/
-		std::cout << RED << "FD OPEN BY OPEN DIR: " << _fileFd
-			<< RESET << std::endl;
+		addFdToCluster(_fileFd, POLLIN);
 	}
 }
 

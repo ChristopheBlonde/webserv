@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/27 16:42:21 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/27 18:43:40 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -338,15 +338,13 @@ void	Client::handleResponse()
 	}
 	else
 	{
-		PollFd		file(responses.front()->getFileFd());
+		int	fd = responses.front()->getFileFd();
 
-		if (file.fd > 0 && std::find(responseFds.begin(), responseFds.end(), file.fd)
-									== responseFds.end())
+		if (fd > 0 && std::find(responseFds.begin(),
+					responseFds.end(), fd) == responseFds.end())
 		{
-			file.events = POLLIN;
-			c->addFd(file);
-			responseFds.push_back(file.fd);
-			std::cerr << file.fd << " add\n";
+			responseFds.push_back(fd);
+			std::cerr << fd << " add\n";
 		}
 	}
 	for (std::vector<int>::iterator it = responseFds.begin(); it < responseFds.end(); ++it)
