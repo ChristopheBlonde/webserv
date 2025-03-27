@@ -6,7 +6,7 @@
 /*   By: cblonde <cblonde@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/03 07:54:18 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/21 01:51:20 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/27 22:25:19 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 #include <AutoIndex.hpp>
@@ -57,7 +57,8 @@ std::string	AutoIndex::generate(char const *dirPath, std::string const &host,
 
 	workDir = opendir(page._dirPath);
 	if (!workDir)
-		throw	std::runtime_error("unable to open dir " + std::string(dirPath));
+		return "";
+		//throw	std::runtime_error("unable to open dir " + std::string(dirPath));
 	result = "<!DOCTYPE html>\n\t<html lang='en'>\n\t\t\
 			  <head>\n\t\t\t\
 			  <meta charset=\"UTF-8\"/>\n\t\t\t\
