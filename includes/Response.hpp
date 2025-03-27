@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:16:02 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/27 13:24:10 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/27 17:41:50 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@
 # include <AutoIndex.hpp>
 # include <ErrorPages.hpp>
 # include <Cgi.hpp>
+# include <Server.hpp>
 # include <map>
 # include <string>
 # include <vector>
@@ -41,6 +42,7 @@ class Response
 		int									_status;
 		Route								*_conf;
 		Client								&_client;
+		Server								&_server;
 		int									_socket;
 		std::string							_protocol;
 		std::string							_body;
@@ -67,14 +69,14 @@ class Response
 		bool	checkMethod(std::string method);
 		bool	checkContentLen(std::map<std::string,
 				std::string> const &headers);
-		void	getStatFile(void);
+		void	getStatFile(std::string path);
 		void	uploadFile(std::map<std::string, std::string> const &headers);
 		std::string	handleBoundary(std::string &boundary,
 				size_t &step, size_t &currStart, std::string &filename);
 		void	addFdToCluster(int fd, short event);
 		bool	handleFileUpload(int fd);
 	public:
-		Response(Requests const &req,Client &client);
+		Response(Requests const &req,Client &client, Server &server);
 		Response(Response const &src);
 		~Response(void);
 		Response &operator=(Response const &rhs);
@@ -85,9 +87,9 @@ class Response
 		int				getSocket(void) const;
 		void			setResponse(std::string str);
 		void			setSocket(int const socket);
-		void	createError(int stat);
-		void	createResponseHeader(void);
-		bool	handleInOut(struct pollfd &fd);
+		void			createError(int stat);
+		void			createResponseHeader(void);
+		bool			handleInOut(struct pollfd &fd);
 };
 
 #endif

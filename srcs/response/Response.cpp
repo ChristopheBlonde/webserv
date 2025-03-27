@@ -6,14 +6,16 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:15:20 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/27 13:45:48 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/27 17:52:41 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <Response.hpp>
 #include <Client.hpp>
 
-Response::Response(Requests const &req, Client  &client) : _client(client)
+Response::Response(Requests const &req, Client  &client, Server &server)
+	: _client(client),
+	_server(server)
 {
 	std::map<std::string, std::string> const &headers = req.getHeaders();
 
@@ -33,9 +35,6 @@ Response::Response(Requests const &req, Client  &client) : _client(client)
 	this->_status = 200;
 	initMimeTypes(_mimeTypes);
 	initResponseHeaders(_headers);
-	
-	/* check headers request */
-
 	checkConnection(headers);
 	if (!checkMethod(req.getType()))
 		return ;
@@ -46,7 +45,9 @@ Response::Response(Requests const &req, Client  &client) : _client(client)
 	return ;
 }
 
-Response::Response(Response const &src) : _client(src._client)
+Response::Response(Response const &src)
+	: _client(src._client),
+	_server(src._server)
 {
 	*this = src;
 	return ;
@@ -79,9 +80,14 @@ void	Response::checkConnection(std::map<std::string,
 {
 	std::map<std::string, std::string>::const_iterator it;
 
-	it = headers.find("Connection");
-	if (it != headers.end())
-		_headers["Connection"] += it->second;
+	if (_autoIndex)
+		_headers["Connection"] += "close";
+	else
+	{
+		it = headers.find("Connection");
+		if (it != headers.end())
+			_headers["Connection"] += it->second;
+	}
 }
 
 
@@ -111,7 +117,7 @@ bool	Response::checkContentLen(std::map<std::string,
 	if (it != headers.end())
 	{
 		contentLen = strtol(it->second.data(), NULL, 10);
-		if (12500000 < contentLen)
+		if (_server.getMaxSize() < static_cast<size_t>(contentLen))
 		{
 			createError(413);
 			return (false);
@@ -141,7 +147,7 @@ void	Response::isReferer(std::map<std::string, std::string> const &headers)
 
 	if (*(routePath.begin() + routePath.size() - 1) == '/')
 		routePath = routePath.substr(0, routePath.size() - 1);
-	if (!referer.empty())
+	if (!referer.empty() && _path != routePath)
 		_path = routePath + _path;
 	else
 		_path = routePath;
@@ -177,11 +183,9 @@ void	Response::handleFile(Requests const &req)
 	{
 		/* no cgi */
 		_fileFd = openDir(_path, _fileName, _conf->getIndex());
-		getStatFile();
-		if (_fileFd == -1)
+		getStatFile(_path + "/" + _fileName);
+		if (_fileFd < 0)
 			createError(404);
-		else if (_fileFd == -2)
-			createError(400);
 		/* add fd to poll*/
 		std::cout << RED << "FD OPEN BY OPEN DIR: " << _fileFd
 			<< RESET << std::endl;
@@ -224,27 +228,39 @@ it from fulfilling the request";
 
 void	Response::createError(int stat)
 {
-	std::string			content;
-	std::string 		result;
+	std::string	content;
+	int			fd;
 
-	result = _protocol + " " + to_string(stat) + " ";
 	if (!_autoIndex)
+	{
+		content = _server.getErrorPage(stat);
+		if (!content.empty() && _status != 500)
+		{
+			std::cout << YELLOW << "custom error:" << content
+				<< RESET << std::endl;
+			fd = getFile(content);
+			if (fd == -1)
+			{
+				createError(500);
+				return ;
+			}
+			addFdToCluster(fd, POLLIN);
+			getStatFile(content);
+			_fileFd = fd;
+			_status = stat;
+			return ;
+		}
 		content = ERROR_PAGE(getResponseTypeStr(stat), getContentError(stat),
 				to_string(stat));
+	}
 	else
+	{
+		_status = 200;
 		content = AutoIndex::generate(_path.data(), _host, _port);
-	result += getResponseTypeStr(stat) + "\r\n";
-	result += "Content-Type: text/html; charset=UTF-8\r\nContent-Length: "
-		+ to_string(content.size()) + "\r\n"
-		+ (_autoIndex
-				? "Connection: close\r\n"
-				: _headers["Connection"] + "\r\n")
-		+ "Server: webserv 1.0\n"
-		+"\r\n";
-	result += content;
-	_resSize = result.size();
-	_response = result;
-	_headerReady = true;
+	}
+	_buffer.insert(_buffer.begin(), content.begin(), content.end());
+	_status = stat;
+	createResponseHeader();
 	return ;
 }
 
@@ -252,15 +268,12 @@ void	Response::createResponseHeader(void)
 {
 	std::map<std::string,std::string>::iterator it;
 
-	/* Create first line */
 	_response = _protocol + " "
 		+ to_string(_status) + " "
 		+ getResponseTypeStr(_status)
 		+ "\r\n";
-	/* Create headers */
-
 	_headers["Content-Length"] += to_string(_buffer.size());
-	_headers["Content-Type"] += !_cgi
+	_headers["Content-Type"] += !_cgi && !_autoIndex
 		? _mimeTypes[getFileType(_fileName)]
 		: "text/html; charset=UFT-8";
 	/* join all */
@@ -328,7 +341,7 @@ if (!_buffer.empty() && _headerSent)
 	return (true);
 }
 
-void	Response::getStatFile(void)
+void	Response::getStatFile(std::string path)
 {
 	struct stat res;
 	int			status;
@@ -337,10 +350,10 @@ void	Response::getStatFile(void)
 	char		buffer[1024];
 	size_t		size;
 
-	status = stat(std::string(_path + "/" + _fileName).c_str(), &res);
+	status = stat(path.c_str(), &res);
 	if (status)
 	{
-		std::cout << RED << "Error: stat: " << strerror(errno)
+		std::cerr << RED << "Error: stat: " << strerror(errno)
 			<< RESET << std::endl;
 		return ;
 	}
@@ -376,6 +389,7 @@ std::string	Response::handleBoundary(std::string &boundary,
 	start = _body.find(boundary, currStart);
 	if (start == std::string::npos)
 	{
+		std::cout << "la merde\n";
 		step = 2;
 		return (str);
 	}
@@ -456,6 +470,7 @@ void	Response::uploadFile(std::map<std::string, std::string> const &headers)
 
 	if (testAccess(path, 4))
 	{
+		std::cout << "body size: " << _body.size() << std::endl;
 		head = headers.find("Content-Type");
 		if (head != headers.end())
 		{
@@ -473,17 +488,21 @@ void	Response::uploadFile(std::map<std::string, std::string> const &headers)
 					if (!boundaryHeader.empty())
 						fileName = getBoundaryFileName(boundaryHeader);
 				}
-				std::map<int, FileData>::iterator it;
-				for (it = _filesUpload.begin(); it != _filesUpload.end(); it++)
-				{
-					FileData tmp = it->second;
-					std::cout << GREEN << "File Name: " << tmp.fileName
-						<< std::endl << "File size: "
-						<< tmp.size << RESET << std::endl;
-					addFdToCluster(it->first, POLLOUT);
-				}
-				return ;
 			}
+		}
+		if (_filesUpload.empty())
+		{
+			createError(500);
+			return ;
+		}
+		std::map<int, FileData>::iterator it;
+		for (it = _filesUpload.begin(); it != _filesUpload.end(); it++)
+		{
+			FileData tmp = it->second;
+			std::cout << GREEN << "File Name: " << tmp.fileName
+				<< std::endl << "File size: "
+				<< tmp.size << RESET << std::endl;
+			addFdToCluster(it->first, POLLOUT);
 		}
 	}
 	createError(400);

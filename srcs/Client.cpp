@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/27 12:32:22 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/27 16:42:21 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -304,7 +304,8 @@ void	Client::handleRequest()
 //		std::cout << CYAN << requests[fd.fd] << std::endl << RESET;
 		Requests req(currRequestRaw, *this);
 		req.setConf(c->getRoute(c->getServer(fd, req.getHost()), req.getPath()));
-		Response *res = new Response(req, *this);
+		Response *res = new Response(req, *this,
+				c->getServer(fd, req.getHost()));
 		res->setSocket(fd);
 		responses.push(res);
 //		std::cout << GREEN << "new Request create with Socket: "
