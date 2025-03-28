@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:15:20 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/28 14:46:00 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/28 15:35:35 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -519,7 +519,10 @@ void	Response::uploadFile(std::map<std::string, std::string> const &headers)
 				<< std::endl << "File size: "
 				<< tmp.size << RESET << std::endl;
 			addFdToCluster(it->first, POLLOUT);
-			if (std::next(it) == _filesUpload.end())
+			
+			std::map<int, FileData>::iterator it2 = it;
+			++it2;
+			if (it2 == _filesUpload.end())
 				return ;
 		}
 	}
