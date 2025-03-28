@@ -26,6 +26,7 @@ SRC = main.cpp \
 	$(REQ_DIR)Requests.cpp \
 	$(UTILS_DIR)string.cpp \
 	$(RES_DIR)Response.cpp \
+	$(RES_DIR)ResponseUpload.cpp \
 	$(UTILS_DIR)file.cpp \
 	$(AUTO_DIR)AutoIndex.cpp\
 	$(CGI_DIR)Cgi.cpp
