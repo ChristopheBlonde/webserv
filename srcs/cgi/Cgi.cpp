@@ -6,7 +6,7 @@
 /*   By: cblonde <cblonde@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/06 07:14:01 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/28 16:04:46 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/28 18:27:46 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -157,13 +157,6 @@ int	Cgi::execScript(void)
 	try
 	{
 		_env = createEnvArr();
-	//	size_t i = 0;
-	//	while (_env[i])
-	//	{
-	//		std::cout << GREEN << "_envArr: [" << i << "] :" << _env[i]
-	//			<< std::endl << RESET;
-	//		i++;
-	//	}
 	}
 	catch (std::bad_alloc &e)
 	{
@@ -184,30 +177,26 @@ int	Cgi::execScript(void)
 		char const *argv[3] = {_cgiPath.empty()
 			? _scriptPath.data()
 				: _cgiPath.data(), _scriptPath.data(), NULL};
-		dup2(_parentToChild[1], 0);
-		dup2(_childToParent[0], 1);
-		close(_parentToChild[0]);
-		close(_childToParent[1]);
-		execve(argv[0], (char *const *)(argv), _env);
-		std::cerr << RED << "Error: Cgi: " << strerror(errno)
-			<< RESET << std::endl;
-	}
-	else
-	{
 		dup2(_parentToChild[0], 0);
 		dup2(_childToParent[1], 1);
 		close(_parentToChild[1]);
 		close(_childToParent[0]);
+		execve(argv[0], (char *const *)(argv), _env);
+		std::cerr << RED << "Error: Execve: Cgi: " << strerror(errno)
+			<< RESET << std::endl;
+		exit(500);
 	}
+	close(_parentToChild[0]);
+	close(_childToParent[1]);
 	return (200);
 }
 
 int	&Cgi::getChildFd(void)
 {
-	return (_childToParent[1]);
+	return (_childToParent[0]);
 }
 
 int	&Cgi::getParentFd(void)
 {
-	return (_parentToChild[0]);
+	return (_parentToChild[1]);
 }
