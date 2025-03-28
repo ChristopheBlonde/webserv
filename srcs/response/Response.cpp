@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:15:20 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/28 17:27:16 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/28 18:42:20 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -309,7 +309,9 @@ bool	Response::handleInOut(struct pollfd &fd)
 //	std::cout << GREEN << "In handleInOut: fd: " << fd.fd
 //		<< " envent: " << fd.events << " revent: " << fd.revents
 //		<< RESET << std::endl;
-	if (fd.fd == _cgiFd[0] || fd.fd == _cgiFd[1])
+	if (fd.fd == _cgiFd[0] && (fd.revents & POLLIN))
+		return (handleFdCgi(fd.fd));
+	if (fd.fd == _cgiFd[1] && (fd.revents & POLLOUT))
 		return (handleFdCgi(fd.fd));
 	if (fd.revents & POLLIN)
 	{
@@ -415,10 +417,17 @@ bool	Response::handleFdCgi(int fd)
 		readBytes = read(fd, buffer, FILE_BUFFER_SIZE - 1);
 		if (readBytes <= 0)
 		{
+			close(fd);
+			if (_cgiFd[1] > 0)
+			{
+				close(_cgiFd[1]);
+				_cgiFd[1] = -1;
+			}
 			_cgiFd[0] = -1;
 			createResponseHeader();
 			return (false);
 		}
+		buffer[readBytes] = '\0';
 		_buffer.insert(_buffer.end(), buffer, buffer + readBytes);
 	}
 	else
@@ -428,6 +437,7 @@ bool	Response::handleFdCgi(int fd)
 		if (sentBytes <= 0)
 		{
 			_cgiFd[1] = -1;
+			close(fd);
 			return (false);
 		}
 		_body.erase(0, sentBytes);
