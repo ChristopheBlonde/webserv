@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:15:20 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/27 18:41:01 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/28 14:46:00 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,8 @@ Response::Response(Requests const &req, Client  &client, Server &server)
 	this->_headerReady = false;
 	this->_sizeSend = 0;
 	this->_fileFd = -1;
+	this->_cgiFd[0] = -1;
+	this->_cgiFd[1] = -1;
 	this->_protocol = req.getProtocol();
 	this->_host = req.getHost();
 	this->_path = req.getPath();
@@ -112,12 +114,15 @@ bool	Response::checkContentLen(std::map<std::string,
 {
 	std::map<std::string, std::string>::const_iterator it;
 	long	contentLen;
+	size_t	maxSize = _server.getMaxSize();
 
+	if (maxSize == 0)
+		return (true);
 	it = headers.find("Content-Length");
 	if (it != headers.end())
 	{
 		contentLen = strtol(it->second.data(), NULL, 10);
-		if (_server.getMaxSize() < static_cast<size_t>(contentLen))
+		if (maxSize < static_cast<size_t>(contentLen))
 		{
 			createError(413);
 			return (false);
@@ -174,10 +179,17 @@ void	Response::handleFile(Requests const &req)
 				return ;
 			}
 		}
-		Cgi cgiObj(req);
-		std::string result = cgiObj.execScript();
-		_buffer.insert(_buffer.begin(), result.begin(), result.end());
-		createResponseHeader();
+		Cgi cgiObj(req, _server);
+		int status = cgiObj.execScript();
+		if (status == 200)
+		{
+			_cgiFd[0] = cgiObj.getChildFd();
+			_cgiFd[1] = cgiObj.getParentFd();
+			addFdToCluster(cgiObj.getChildFd(), POLLIN);
+			addFdToCluster(cgiObj.getParentFd(), POLLOUT);
+		}
+		else
+			createError(status);
 	}
 	else
 	{
@@ -297,6 +309,8 @@ bool	Response::handleInOut(struct pollfd &fd)
 //	std::cout << GREEN << "In handleInOut: fd: " << fd.fd
 //		<< " envent: " << fd.events << " revent: " << fd.revents
 //		<< RESET << std::endl;
+	if (fd.fd == _cgiFd[0] || fd.fd == _cgiFd[1])
+		return (handleFdCgi(fd.fd));
 	if (fd.revents & POLLIN)
 	{
 		if (fd.fd == _fileFd)
@@ -311,12 +325,12 @@ bool	Response::handleInOut(struct pollfd &fd)
 			_buffer.insert(_buffer.end(), buffer, buffer + readByte);
 		}
 	}
-		if (_buffer.empty() && fd.fd == -1)
-			return (false);
+	if (_buffer.empty() && fd.fd == -1)
+		return (false);
 	if (fd.revents & POLLOUT)
 	{
-		if(!handleFileUpload(fd.fd))
-			return (false);
+		if (_filesUpload.find(fd.fd) != _filesUpload.end())
+			return (handleFileUpload(fd.fd));
 		if (!_headerSent && _headerReady)
 		{
 			if (!_response.empty())
@@ -329,7 +343,7 @@ bool	Response::handleInOut(struct pollfd &fd)
 			else
 				_headerSent = true;
 		}
-if (!_buffer.empty() && _headerSent)
+		if (!_buffer.empty() && _headerSent)
 		{
 			sentByte = send(fd.fd, _buffer.data(),
 					_buffer.size() < FILE_BUFFER_SIZE
@@ -505,6 +519,8 @@ void	Response::uploadFile(std::map<std::string, std::string> const &headers)
 				<< std::endl << "File size: "
 				<< tmp.size << RESET << std::endl;
 			addFdToCluster(it->first, POLLOUT);
+			if (std::next(it) == _filesUpload.end())
+				return ;
 		}
 	}
 	createError(400);
@@ -545,6 +561,28 @@ bool	Response::handleFileUpload(int fd)
 		if (_filesUpload.empty())
 			createResponseHeader();
 		return (false);
+	}
+	return (true);
+}
+
+bool	Response::handleFdCgi(int fd)
+{
+	int	readWrite;
+	char	buffer[FILE_BUFFER_SIZE];
+
+	if (fd == _cgiFd[0])
+	{
+		readWrite = read(fd, buffer, FILE_BUFFER_SIZE - 1);
+		if (readWrite <= 0)
+		{
+			_cgiFd[0] = -1;
+			return (false);
+		}
+		_buffer.insert(_buffer.end(), buffer, buffer + readWrite);
+	}
+	else
+	{
+		
 	}
 	return (true);
 }

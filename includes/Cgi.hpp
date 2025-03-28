@@ -6,7 +6,7 @@
 /*   By: cblonde <cblonde@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/06 07:05:16 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/25 13:13:30 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/28 11:46:16 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@
 # include <utils.hpp>
 # include <cstdio>
 # include <sys/wait.h>
+# include <Server.hpp>
 
 class Cgi
 {
@@ -26,22 +27,23 @@ class Cgi
 		char								**_env;
 		std::map<std::string,std::string>	_envMap;
 		pid_t								_pid;
-		std::string							_content;
-		int									_contentSize;
 		std::string							_fileType;
 		int									_status;
-		std::string							_body;
 		std::string							_scriptPath;
 		std::string							_cgiPath;
+		int									_parentToChild[2];
+		int									_childToParent[2];
 		Cgi(void);
 		char	**createEnvArr(void);
-		void	initCgi(Requests const &req);
+		void	initCgi(Requests const &req, Server &server);
 	public:
-		Cgi(Requests const &req);
+		Cgi(Requests const &req, Server &server);
 		Cgi(Cgi const &src);
 		~Cgi(void);
 		Cgi	&operator=(Cgi const &rhs);
-		std::string	execScript(void);
+		int	execScript(void);
+		int	&getChildFd(void);
+		int	&getParentFd(void);
 };
 
 #endif

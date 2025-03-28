@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 10:46:49 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/27 14:15:42 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/28 14:12:38 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -166,7 +166,7 @@ static void	initHeaders(std::string str,
 
 void	Requests::parse(std::string str)
 {
-	std::cout << CYAN << "Request: " << str << RESET << std::endl;
+//	std::cout << CYAN << "Request: " << str << RESET << std::endl;
 	std::cout << "request size: " << str.size() << std::endl;
 	std::stringstream	ss(str);
 	std::string			word;
