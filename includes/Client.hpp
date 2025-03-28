@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/27 12:29:15 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/28 13:15:27 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,10 +77,13 @@ class Client
 	bool		handleRequestBodyLength();
 	void		resetRequest();
 	int		getTransferType();
+	void		removeFds();
+	void		addFds();
 	
 	std::queue<Response *>		responses;
 	std::vector<int>		responseFds;
 	std::vector<int>		responseFdRemoveList;
+	std::vector<PollFd>		responseFdAddList;
 
 	public:
 	Client();
@@ -93,7 +96,6 @@ class Client
 	std::string	getHostName();
 	size_t		getBufferSize();
 	void		init();
-	void		removeFds();
 	void		handleRequest();
 	void		handleResponse();
 	void		addResponseFd(PollFd);

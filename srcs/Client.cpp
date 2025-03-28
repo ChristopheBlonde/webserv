@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/27 18:43:40 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/28 13:33:12 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -315,7 +315,6 @@ void	Client::handleRequest()
 	}
 }
 
-//TODO get the poll checks out of the funcs
 void	Client::handleResponse()
 {
 	if (responses.empty())
@@ -336,17 +335,8 @@ void	Client::handleResponse()
 		removeFds();
 		return ;
 	}
-	else
-	{
-		int	fd = responses.front()->getFileFd();
-
-		if (fd > 0 && std::find(responseFds.begin(),
-					responseFds.end(), fd) == responseFds.end())
-		{
-			responseFds.push_back(fd);
-			std::cerr << fd << " add\n";
-		}
-	}
+	removeFds();
+	addFds();
 	for (std::vector<int>::iterator it = responseFds.begin(); it < responseFds.end(); ++it)
 	{
 		PollFd		pfd(*it);
@@ -357,6 +347,7 @@ void	Client::handleResponse()
 
 	}
 	removeFds();
+	addFds();
 }
 
 void	Client::removeFds()
@@ -364,7 +355,6 @@ void	Client::removeFds()
 	for (std::vector<int>::iterator it = responseFdRemoveList.begin();
 		it < responseFdRemoveList.end(); ++it)
 	{
-		std::cerr << *it << " close \n";
 		close(*it);
 		responseFds.erase(std::find(responseFds.begin(), responseFds.end(), *it));
 		c->removeFd(*it);
@@ -388,9 +378,22 @@ Client::~Client()
 	removeFds();
 }
 
-void		Client::addResponseFd(PollFd pfd)
+void	Client::addResponseFd(PollFd pfd)
 {
-	c->addFd(pfd);
-	responseFds.push_back(pfd.fd);
-	std::cerr << "add " << pfd.fd << std::endl;
+	responseFdAddList.push_back(pfd);
+}
+
+void	Client::addFds()
+{
+	for (std::vector<PollFd>::iterator it = responseFdAddList.begin();
+		it < responseFdAddList.end(); ++it)
+	{
+		if (std::find(responseFds.begin(),
+					responseFds.end(), it->fd) == responseFds.end())
+		{
+			c->addFd(*it);
+			responseFds.push_back(it->fd);
+		}
+	}
+	responseFdAddList.clear();
 }
