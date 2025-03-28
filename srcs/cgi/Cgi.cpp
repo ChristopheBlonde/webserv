@@ -6,7 +6,7 @@
 /*   By: cblonde <cblonde@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/06 07:14:01 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/28 11:46:34 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/28 15:49:57 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -168,6 +168,12 @@ int	Cgi::execScript(void)
 		std::cerr << RED << "Error: CGI: " << e.what() << std::endl << RESET;
 		return (500);
 	}
+	if (!testAccess(_scriptPath, 3))
+	{
+		std::cerr << RED << "Error: Access: " << strerror(errno)
+			<< RESET << std::endl;
+		return (500);
+	}
 	_pid = fork();
 	if (_pid == -1)
 		return (500);
@@ -183,7 +189,6 @@ int	Cgi::execScript(void)
 		execve(argv[0], (char *const *)(argv), _env);
 		std::cerr << RED << "Error: Cgi: " << strerror(errno)
 			<< RESET << std::endl;
-		exit(500);
 	}
 	else
 	{
