@@ -6,7 +6,7 @@
 /*   By: cblonde <cblonde@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/06 07:14:01 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/28 15:49:57 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/28 16:04:46 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -108,7 +108,9 @@ void	Cgi::initCgi(Requests const &req, Server &server)
 	tmp = "";
 	for (name = names.begin(); name != names.end(); name++)
 	{
-		if (std::next(name) == names.end())
+		std::set<std::string>::iterator name2 = name;
+
+		if (++name2 == names.end())
 			tmp += *name + ";";
 		else
 			tmp += *name + "; ";
