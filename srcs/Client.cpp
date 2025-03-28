@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/28 13:33:12 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/28 13:43:49 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -355,6 +355,7 @@ void	Client::removeFds()
 	for (std::vector<int>::iterator it = responseFdRemoveList.begin();
 		it < responseFdRemoveList.end(); ++it)
 	{
+		std::cerr << *it << " close\n";
 		close(*it);
 		responseFds.erase(std::find(responseFds.begin(), responseFds.end(), *it));
 		c->removeFd(*it);
@@ -391,6 +392,7 @@ void	Client::addFds()
 		if (std::find(responseFds.begin(),
 					responseFds.end(), it->fd) == responseFds.end())
 		{
+			std::cerr << it->fd << " add\n";
 			c->addFd(*it);
 			responseFds.push_back(it->fd);
 		}

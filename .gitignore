@@ -3,6 +3,7 @@
 *.swp
 obj/
 test/
+test.*
 webserv
 .vscode/
 .DS_Store
