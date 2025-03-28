@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:15:20 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/28 17:25:32 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/28 17:27:16 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -405,22 +405,32 @@ void	Response::addFdToCluster(int fd, short event)
 
 bool	Response::handleFdCgi(int fd)
 {
-	int	readWrite;
+	int	readBytes;
+	int	sentBytes;
+	int	bodySize = _body.size();
 	char	buffer[FILE_BUFFER_SIZE];
 
 	if (fd == _cgiFd[0])
 	{
-		readWrite = read(fd, buffer, FILE_BUFFER_SIZE - 1);
-		if (readWrite <= 0)
+		readBytes = read(fd, buffer, FILE_BUFFER_SIZE - 1);
+		if (readBytes <= 0)
 		{
 			_cgiFd[0] = -1;
+			createResponseHeader();
 			return (false);
 		}
-		_buffer.insert(_buffer.end(), buffer, buffer + readWrite);
+		_buffer.insert(_buffer.end(), buffer, buffer + readBytes);
 	}
 	else
 	{
-		
+		sentBytes = write(fd, _body.data(), bodySize < FILE_BUFFER_SIZE
+				? bodySize : FILE_BUFFER_SIZE);
+		if (sentBytes <= 0)
+		{
+			_cgiFd[1] = -1;
+			return (false);
+		}
+		_body.erase(0, sentBytes);
 	}
 	return (true);
 }
