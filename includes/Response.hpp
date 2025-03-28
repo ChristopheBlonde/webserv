@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:16:02 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/27 17:41:50 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/28 13:36:38 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,6 +59,7 @@ class Response
 		std::map<int, FileData>				_filesUpload;
 		std::vector<unsigned char>			_buffer;
 		int									_fileFd;
+		int									_cgiFd[2];
 		bool								_headerSent;
 		bool								_headerReady;
 		int									_sizeSend;
@@ -75,6 +76,7 @@ class Response
 				size_t &step, size_t &currStart, std::string &filename);
 		void	addFdToCluster(int fd, short event);
 		bool	handleFileUpload(int fd);
+		bool	handleFdCgi(int fd);
 	public:
 		Response(Requests const &req,Client &client, Server &server);
 		Response(Response const &src);

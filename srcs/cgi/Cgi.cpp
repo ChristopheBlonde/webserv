@@ -6,7 +6,7 @@
 /*   By: cblonde <cblonde@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/06 07:14:01 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/24 17:44:28 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/28 11:46:34 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,9 +17,9 @@ Cgi::Cgi(void)
 	return ;
 }
 
-Cgi::Cgi(Requests const &req) : _body(req.getBody())
+Cgi::Cgi(Requests const &req, Server &server)
 {
-	initCgi(req);
+	initCgi(req, server);
 	return ;
 }
 
@@ -52,18 +52,37 @@ Cgi	&Cgi::operator=(Cgi const &rhs)
 {
 	if (this != &rhs)
 	{
+		if (_env) {
+			size_t i = 0;
+			while (_env[i]) {
+				delete[] _env[i];
+				_env[i] = NULL;
+				i++;
+			}
+			delete[] _env;
+			_env = NULL;
+		}
+		_envMap = rhs._envMap;
+		_pid = rhs._pid;
+		_fileType = rhs._fileType;
+		_status = rhs._status;
+		_scriptPath = rhs._scriptPath;
+		_cgiPath = rhs._cgiPath;
 	}
 	return (*this);
 }
 
-void	Cgi::initCgi(Requests const &req)
+void	Cgi::initCgi(Requests const &req, Server &server)
 {
 	Route	&reqConf = req.getConf();
-	std::map<std::string, std::string>::const_iterator head;
 	std::map<std::string, std::string>::iterator cgi;
+	std::map<std::string, std::string>::const_iterator head;
 	std::map<std::string, std::string> reqHeaders(req.getHeaders());
+	std::set<std::string>::iterator name;
+	std::set<std::string>	names;
 	std::string	tmp;
 
+	names = server.getNames();
 	for (head = reqHeaders.begin(); head != reqHeaders.end(); head++)
 	{
 		tmp = "HTTP_" + head->first;
@@ -84,18 +103,32 @@ void	Cgi::initCgi(Requests const &req)
 	_envMap["SERVER_SOFTWARE"] = "webserv/1.0";
 	_envMap["REMOTE_ADDR"] = req.getClientHostName();
 	_envMap["REMOTE_PORT"] = req.getClientPort();
-	_envMap["SERVER_ADDR"] = "";
-	_envMap["SERVER_PORT"] = "";
-	_envMap["SERVER_NAME"] = "";
+	_envMap["SERVER_ADDR"] = server.getIpStr();
+	_envMap["SERVER_PORT"] = server.getPortStr();
+	tmp = "";
+	for (name = names.begin(); name != names.end(); name++)
+	{
+		if (std::next(name) == names.end())
+			tmp += *name + ";";
+		else
+			tmp += *name + "; ";
+	}
+	_envMap["SERVER_NAME"] = tmp;
 	_pid = -1;
-	_contentSize = 0;
-	_content = "";
 	_status = -1;
 	_scriptPath = reqConf.getRoot() + "/" + req.getFileName();
-	_cgiPath = cgi->second;
+	if (cgi != reqConf.getCgi().end())
+		_cgiPath = cgi->second;
+	else
+		_cgiPath = "";
 	_env = NULL;
-	std::cout << RED << "cgi path: " << _cgiPath << " script path: "
-		<< _scriptPath << RESET << std::endl;
+	_parentToChild[0] = -1;
+	_parentToChild[1] = -1;
+	_childToParent[0] = -1;
+	_childToParent[1] = -1;
+	if (pipe(_parentToChild) == -1 || pipe(_childToParent) == -1)
+		std::cerr << RED << "Error: Cgi: " << _cgiPath << strerror(errno)
+			<< RESET << std::endl;
 }
 
 char	**Cgi::createEnvArr(void)
@@ -117,67 +150,57 @@ char	**Cgi::createEnvArr(void)
 	return (_env);
 }
 
-std::string	Cgi::execScript(void)
+int	Cgi::execScript(void)
 {
 	try
 	{
 		_env = createEnvArr();
-		size_t i = 0;
-		while (_env[i])
-		{
-			std::cout << GREEN << "_envArr: [" << i << "] :" << _env[i]
-				<< std::endl << RESET;
-			i++;
-		}
+	//	size_t i = 0;
+	//	while (_env[i])
+	//	{
+	//		std::cout << GREEN << "_envArr: [" << i << "] :" << _env[i]
+	//			<< std::endl << RESET;
+	//		i++;
+	//	}
 	}
 	catch (std::bad_alloc &e)
 	{
 		std::cerr << RED << "Error: CGI: " << e.what() << std::endl << RESET;
-		return (_content);
+		return (500);
 	}
-	FILE	*inFile = tmpfile();
-	FILE	*outFile = tmpfile();
-	int		fdIn = fileno(inFile);
-	int		fdOut = fileno(outFile);
-	char	buffer[1000];
-	int		res = 1;
-
-	write(fdIn, _body.data(), _body.size());
-	fseek(inFile, 0, SEEK_SET);
 	_pid = fork();
 	if (_pid == -1)
-	{
-		_content = "Error: 500";
-		return (_content);
-	}
+		return (500);
 	else if (!_pid)
 	{
-		char const *argv[3] = {_cgiPath.data(), _scriptPath.data(), NULL};
-		dup2(fdIn, 0);
-		dup2(fdOut, 1);
+		char const *argv[3] = {_cgiPath.empty()
+			? _scriptPath.data()
+				: _cgiPath.data(), _scriptPath.data(), NULL};
+		dup2(_parentToChild[1], 0);
+		dup2(_childToParent[0], 1);
+		close(_parentToChild[0]);
+		close(_childToParent[1]);
 		execve(argv[0], (char *const *)(argv), _env);
-		std::cout << RED << "FAIL EXECVE: path: " << _scriptPath
+		std::cerr << RED << "Error: Cgi: " << strerror(errno)
 			<< RESET << std::endl;
+		exit(500);
 	}
 	else
 	{
-		waitpid(-1, &_status, 0);
-		fseek(outFile, 0, SEEK_SET);
-		while (res != 0)
-		{
-			memset(buffer, 0, 1000);
-			res = read(fdOut, buffer, 999);
-			_content += buffer;
-		}
+		dup2(_parentToChild[0], 0);
+		dup2(_childToParent[1], 1);
+		close(_parentToChild[1]);
+		close(_childToParent[0]);
 	}
-	//dup2(0, 0);
-	//dup2(1, 1);
-	fclose(inFile);
-	fclose(outFile);
-	close(fdIn);
-	close(fdOut);
-	if (!_pid)
-		exit(0);
-	std::cout << RED << "RESULT CGI :" << _content << RESET << std::endl;
-	return _content;
+	return (200);
+}
+
+int	&Cgi::getChildFd(void)
+{
+	return (_childToParent[1]);
+}
+
+int	&Cgi::getParentFd(void)
+{
+	return (_parentToChild[0]);
 }
