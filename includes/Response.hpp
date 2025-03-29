@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:16:02 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/28 13:36:38 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/29 08:31:39 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,5 +93,8 @@ class Response
 		void			createResponseHeader(void);
 		bool			handleInOut(struct pollfd &fd);
 };
+
+std::string	getResponseTypeStr(int stat);
+std::string	getContentError(int stat);
 
 #endif

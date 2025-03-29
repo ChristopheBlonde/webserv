@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:47:28 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/27 11:36:21 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/29 08:52:41 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -111,41 +111,40 @@ void initResponseHeaders(std::map<std::string, std::string> &headers)
 	headers["Last-Modified"] = "Last-Modified: ";
 }
 
-bool	testAccess(std::string path, int test)
+bool	testAccess(std::string path, t_access test)
 {
 	int	res;
 	DIR	*dir;
 
+	res = 0;
 	switch (test)
 	{
 		case 0:
 			res = access(path.data(), F_OK);
-			if (res)
-				return (false);
 			break ;
 		case 1:
 			res = access(path.data(), R_OK);
-			if (res)
-				return (false);
 			break ;
 		case 2:
 			res = access(path.data(), W_OK);
-			if (res)
-				return (false);
 			break ;
 		case 3:
 			res = access(path.data(), X_OK);
-			if (res)
-				return (false);
 			break ;
 		case 4:
 			dir = opendir(path.data());
 			if (!dir)
-				return (false);
+				res = -1;
 			closedir(dir);
 			break ;
 		default:
 			break ;
+	}
+	if (res)
+	{
+		std::cerr << "Error: Access: " << strerror(errno)
+			<< RESET << std::endl;
+		return (false);
 	}
 	return (true);
 }

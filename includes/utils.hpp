@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/24 10:26:29 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/26 16:21:31 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/29 08:48:04 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,15 @@
 # include <dirent.h>
 # include <sys/fcntl.h>
 
+typedef enum e_access
+{
+	EXIST,
+	READABLE,
+	WRITEABLE,
+	EXECUTABLE,
+	DIRACCESS
+}	t_access;
+
 void						trim(std::string &str);
 void						toUpper(std::string &str);
 void						toLower(std::string &str);
@@ -45,6 +54,6 @@ void						initResponseHeaders(std::map<std::string,
 std::string					getFileType(std::string path);
 std::string					to_string(long int num);
 void						handleBadPath(std::string &str);
-bool						testAccess(std::string path, int test);
+bool						testAccess(std::string path, t_access test);
 
 #endif

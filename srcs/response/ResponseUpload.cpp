@@ -6,7 +6,7 @@
 /*   By: glaguyon <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/28 17:23:46 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/28 17:25:06 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/29 08:57:46 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -132,7 +132,7 @@ void	Response::uploadFile(std::map<std::string, std::string> const &headers)
 	std::string	fileName = "";
 	std::string boundaryHeader = "";
 
-	if (testAccess(path, 4))
+	if (testAccess(path, DIRACCESS))
 	{
 		std::cout << "body size: " << _body.size() << std::endl;
 		head = headers.find("Content-Type");
