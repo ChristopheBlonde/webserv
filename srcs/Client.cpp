@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/29 16:19:45 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/29 16:31:47 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -233,7 +233,7 @@ bool	Client::handleRequestBodyChunked()
 
 	case CHUNKBODY:
 		readSize -= readByte;
-		currRequestRaw += buffer;
+		currRequestRaw.append(buffer, readByte);
 		if (readSize == 0)
 		{
 			chunkMode = CHUNKBODYEND;
@@ -243,7 +243,7 @@ bool	Client::handleRequestBodyChunked()
 
 	case CHUNKBODYEND:
 		readSize -= readByte;
-		currRequest += buffer;
+		currRequest.append(buffer, readByte);
 		if (readSize == 0)
 		{
 			if (currRequest != "\r\n")
@@ -258,7 +258,7 @@ bool	Client::handleRequestBodyChunked()
 		break;
 	
 	case CHUNKLASTLINE:
-		currRequest += buffer;
+		currRequest.append(buffer, readByte);
 		if (currRequest.size() >= 4
 			&& currRequest.compare(currRequest.size() - 4, 4, "\r\n\r\n") == 0)
 			return true;
