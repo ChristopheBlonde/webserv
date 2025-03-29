@@ -6,7 +6,7 @@
 /*   By: glaguyon <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/28 17:23:46 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/29 08:57:46 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/29 16:01:15 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@ bool	Response::handleFileUpload(int fd)
 
 	if (it == _filesUpload.end())
 		return (true);
+	std::cerr << "handlefileupload\n";
 	FileData	&file = it->second;
 	chunkSize = file.size < FILE_BUFFER_SIZE ? file.size : FILE_BUFFER_SIZE;
 	sent = write(fd, file.start + file.offset, chunkSize);
@@ -49,20 +50,26 @@ std::string	Response::handleBoundary(std::string &boundary,
 	std::string str = "";
 	FileData fileData = {fileName, NULL, 0, 0};
 	std::string path = _conf->getUploadDir();
+	
+	std::cerr << "handleboundary\n";
 
-	start = _body.find(boundary, currStart);
-	if (start == std::string::npos)
+	if (step == 0)
 	{
-		std::cout << "la merde\n";
-		step = 2;
-		return (str);
+		start = _body.find(boundary, currStart);
+		if (start == std::string::npos)
+		{
+			std::cout << "la merde\n";
+			step = 2;
+			return (str);
+		}
+		if (!_body.substr(start, boundary.size() + 2)
+				.compare(boundary + "--"))
+		{
+			step = 2;
+			return (str);
+		}
 	}
-	if (!_body.substr(start, boundary.size() + 2)
-			.compare(boundary + "--"))
-	{
-		step = 2;
-		return (str);
-	}
+	std::cerr << "boundary, step = " << step << "\n";
 	switch (step)
 	{
 		case 0:
@@ -78,6 +85,7 @@ std::string	Response::handleBoundary(std::string &boundary,
 				}
 			break ;
 		case 1:
+			std::cout << "|||\n" << _body << "|||\n";
 			end = _body.find(boundary, currStart);
 			if (end == std::string::npos)
 			{
@@ -87,6 +95,7 @@ std::string	Response::handleBoundary(std::string &boundary,
 			step = 0;
 			if (fileName.empty())
 			{
+				std::cout << "wtf\n";
 				currStart = end;
 				break ;
 			}
@@ -111,9 +120,11 @@ static std::string	getBoundaryFileName(std::string header)
 	size_t		index;
 	size_t		end;
 	std::string	fileName = "";
+	
+	std::cerr << "getboundaryfilename\n";
 
 	index = header.find("filename=\"");
-	end = header.find("\"", index + 11);
+	end = header.find("\"", index + 11);//FIXME " in name ?
 	if (index != std::string::npos && end != std::string::npos)
 		fileName = header.substr(index + 10, end - index - 10);
 	std::cout << YELLOW << "In upload: path:" << "File Name: "
@@ -132,6 +143,7 @@ void	Response::uploadFile(std::map<std::string, std::string> const &headers)
 	std::string	fileName = "";
 	std::string boundaryHeader = "";
 
+	std::cerr << "uploadFile\n";
 	if (testAccess(path, DIRACCESS))
 	{
 		std::cout << "body size: " << _body.size() << std::endl;
@@ -156,6 +168,7 @@ void	Response::uploadFile(std::map<std::string, std::string> const &headers)
 		}
 		if (_filesUpload.empty())
 		{
+			std::cerr << "skibidi\n";
 			createError(500);
 			return ;
 		}

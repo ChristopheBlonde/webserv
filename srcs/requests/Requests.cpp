@@ -173,6 +173,7 @@ void	Requests::parse(std::string str)
 	std::string			line;
 	size_t				index;
 
+	std::cout << "|||\n" << str << "|||\n";
 	getline(ss, line);
 	std::stringstream ssLine(line);
 	ssLine >> word >> _path >> _protocol;

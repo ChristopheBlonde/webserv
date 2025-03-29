@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/28 13:43:49 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/29 16:19:45 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -269,6 +269,7 @@ bool	Client::handleRequestBodyChunked()
 
 bool	Client::handleRequestBodyLength()
 {
+	std::cerr << "wow length " << readSize << "\n";
 	ssize_t	readByte;
 
 	if (readSize > BUFFER_SIZE - 1)
@@ -282,7 +283,7 @@ bool	Client::handleRequestBodyLength()
 	}
 	buffer[readByte] = '\0';
 	readSize -= readByte;
-	currRequestRaw += buffer;
+	currRequestRaw.append(buffer, readByte);
 	if (readSize == 0)
 		return true;
 	return false;
