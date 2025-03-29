@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:16:02 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/29 08:31:39 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/29 09:44:48 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,6 +77,9 @@ class Response
 		void	addFdToCluster(int fd, short event);
 		bool	handleFileUpload(int fd);
 		bool	handleFdCgi(int fd);
+		bool	readPollFdFile(int fd);
+		void	sendHeader(int fd);
+		void	sendBody(int fd);
 	public:
 		Response(Requests const &req,Client &client, Server &server);
 		Response(Response const &src);

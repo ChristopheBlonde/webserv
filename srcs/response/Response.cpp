@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:15:20 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/29 08:56:05 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/29 09:48:03 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,7 +79,6 @@ Response	&Response::operator=(Response const &rhs)
 
 void	Response::handleFile(Requests const &req)
 {
-		/* upload */
 	if ((req.getType() == "POST" || req.getType() == "DELETE")
 			&& !_conf->getUploadDir().empty())
 	{
@@ -87,7 +86,6 @@ void	Response::handleFile(Requests const &req)
 	}
 	else if (_cgi)
 	{
-		/* cgi */
 		std::map<std::string, std::string> cgi(_conf->getCgi());
 		for (std::map<std::string, std::string>::iterator it = cgi.begin();
 				it != cgi.end(); it++)
@@ -112,7 +110,6 @@ void	Response::handleFile(Requests const &req)
 	}
 	else
 	{
-		/* no cgi */
 		_fileFd = openDir(_path, _fileName, _conf->getIndex());
 		getStatFile(_path + "/" + _fileName);
 		if (_fileFd < 0)
@@ -120,7 +117,6 @@ void	Response::handleFile(Requests const &req)
 			createError(404);
 			return ;
 		}
-		/* add fd to poll*/
 		addFdToCluster(_fileFd, POLLIN);
 	}
 }
@@ -135,8 +131,6 @@ void	Response::createError(int stat)
 		content = _server.getErrorPage(stat);
 		if (!content.empty() && _status != 500)
 		{
-			std::cout << YELLOW << "custom error:" << content
-				<< RESET << std::endl;
 			fd = getFile(content);
 			if (fd == -1)
 			{
@@ -175,7 +169,6 @@ void	Response::createResponseHeader(void)
 	_headers["Content-Type"] += !_cgi && !_autoIndex
 		? _mimeTypes[getFileType(_fileName)]
 		: "text/html; charset=UFT-8";
-	/* join all */
 	for (it = _headers.begin(); it != _headers.end(); it++)
 		_response += (it->second + "\r\n");
 	_response += "\r\n";
@@ -187,61 +180,67 @@ void	Response::createResponseHeader(void)
 
 bool	Response::handleInOut(struct pollfd &fd)
 {
-	int				readByte;
-	int				sentByte;
-	unsigned char	buffer[FILE_BUFFER_SIZE];
-
-//	std::cout << GREEN << "In handleInOut: fd: " << fd.fd
-//		<< " envent: " << fd.events << " revent: " << fd.revents
-//		<< RESET << std::endl;
 	if (fd.fd == _cgiFd[0] && (fd.revents & POLLIN))
 		return (handleFdCgi(fd.fd));
 	if (fd.fd == _cgiFd[1] && (fd.revents & POLLOUT))
 		return (handleFdCgi(fd.fd));
-	if (fd.revents & POLLIN)
-	{
-		if (fd.fd == _fileFd)
-		{
-			readByte = read(fd.fd, buffer, FILE_BUFFER_SIZE - 1);
-			if (readByte <= 0)
-			{
-				createResponseHeader();
-				_fileFd = -1;
-				return (false);
-			}
-			_buffer.insert(_buffer.end(), buffer, buffer + readByte);
-		}
-	}
+	if (fd.fd == _fileFd && fd.revents & POLLIN)
+		return (readPollFdFile(fd.fd));
 	if (_buffer.empty() && fd.fd == -1)
 		return (false);
-	if (fd.revents & POLLOUT)
-	{
-		if (_filesUpload.find(fd.fd) != _filesUpload.end())
-			return (handleFileUpload(fd.fd));
-		if (!_headerSent && _headerReady)
-		{
-			if (!_response.empty())
-			{
-				sentByte = send(fd.fd, _response.c_str(),
-						_response.size() < FILE_BUFFER_SIZE
-						? _response.size() : FILE_BUFFER_SIZE, 0);
-				_response.erase(0, sentByte);
-			}
-			else
-				_headerSent = true;
-		}
-		if (!_buffer.empty() && _headerSent)
-		{
-			sentByte = send(fd.fd, _buffer.data(),
-					_buffer.size() < FILE_BUFFER_SIZE
-					? _buffer.size() : FILE_BUFFER_SIZE, 0);
-			if (sentByte > 0)
-				_buffer.erase(_buffer.begin(), _buffer.begin() + sentByte);
-		}
-		if (_buffer.empty() && _headerSent)
-			return (false);
-	}
+	if (fd.revents & POLLOUT
+			&& _filesUpload.find(fd.fd) != _filesUpload.end())
+		return (handleFileUpload(fd.fd));
+	if (fd.revents & POLLOUT
+			&& !_headerSent && _headerReady)
+		sendHeader(fd.fd);
+	if (fd.revents & POLLOUT
+			&& !_buffer.empty() && _headerSent)
+		sendBody(fd.fd);
+	if (_buffer.empty() && _headerSent)
+		return (false);
 	return (true);
+}
+
+bool	Response::readPollFdFile(int fd)
+{
+	int		readBytes;
+	char	buffer[FILE_BUFFER_SIZE];
+
+	readBytes = read(fd, buffer, FILE_BUFFER_SIZE - 1);
+	if (readBytes <= 0)
+	{
+		createResponseHeader();
+		_fileFd = -1;
+		return (false);
+	}
+	_buffer.insert(_buffer.end(), buffer, buffer + readBytes);
+	return (true);
+}
+
+void	Response::sendHeader(int fd)
+{
+	int sentBytes;
+
+	if (!_response.empty())
+	{
+		sentBytes = send(fd, _response.c_str(),
+				_response.size() < FILE_BUFFER_SIZE
+				? _response.size() : FILE_BUFFER_SIZE, 0);
+		_response.erase(0, sentBytes);
+	}
+	else
+			_headerSent = true;
+}
+
+void	Response::sendBody(int fd)
+{
+	int	sentBytes;
+	sentBytes = send(fd, _buffer.data(),
+			_buffer.size() < FILE_BUFFER_SIZE
+			? _buffer.size() : FILE_BUFFER_SIZE, 0);
+	if (sentBytes > 0)
+		_buffer.erase(_buffer.begin(), _buffer.begin() + sentBytes);
 }
 
 void	Response::addFdToCluster(int fd, short event)
