@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/28 13:15:27 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/29 17:02:07 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,7 +62,6 @@ class Client
 	std::string	ipStr;
 	std::string	portStr;
 	std::string	hostName;
-	size_t		bufferSize;
 
 	size_t		readSize;
 	std::string	currRequest;
@@ -94,7 +93,6 @@ class Client
 	uint16_t	getPort();
 	std::string	getPortStr();
 	std::string	getHostName();
-	size_t		getBufferSize();
 	void		init();
 	void		handleRequest();
 	void		handleResponse();
