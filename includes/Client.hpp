@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/29 17:02:07 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/29 17:08:18 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,37 +24,14 @@
 #include <stdint.h>
 #include <netdb.h>
 #include "Response.hpp"
-
-#define BUFFER_SIZE 1024
-#define MAXLENHEADER 1e11
+#include "Receiver.hpp"
 
 class Cluster;
 
-enum e_transfer
-{
-	UNDEFINED,
-	LENGTH,
-	CHUNKED
-};
-
-enum e_mode
-{
-	HEADERS,
-	BODY
-};
-
-enum e_chunkmode
-{
-	CHUNKLEN,
-	CHUNKLENEND,
-	CHUNKBODY,
-	CHUNKBODYEND,
-	CHUNKLASTLINE
-};
-
-class Client
+class Client : public Receiver
 {
 	bool		on;
+
 	Cluster		*c;
 	int		fd;
 	uint32_t	ip;
@@ -63,19 +40,6 @@ class Client
 	std::string	portStr;
 	std::string	hostName;
 
-	size_t		readSize;
-	std::string	currRequest;
-	std::string	currRequestRaw;
-	char		buffer[BUFFER_SIZE];
-	int		transferType;
-	int		mode;
-	int		chunkMode;
-	
-	void		handleRequestHeaders();
-	bool		handleRequestBodyChunked();
-	bool		handleRequestBodyLength();
-	void		resetRequest();
-	int		getTransferType();
 	void		removeFds();
 	void		addFds();
 	

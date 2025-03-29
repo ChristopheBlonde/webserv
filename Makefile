@@ -23,6 +23,7 @@ SRC = main.cpp \
 	$(SERV_DIR)ConfParserWords.cpp \
 	$(SERV_DIR)ConfParserFillBlanks.cpp \
 	Client.cpp \
+	Receiver.cpp \
 	$(REQ_DIR)Requests.cpp \
 	$(UTILS_DIR)string.cpp \
 	$(RES_DIR)Response.cpp \
