@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/29 18:18:01 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/30 20:04:52 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,6 +92,7 @@ void	Receiver::handleRequestHeaders(int fd)
 		return ;
 	transferType = getTransferType();
 	mode = BODY;
+	currRequest = "";
 }
 
 bool	Receiver::handleRequestBodyChunked(int fd)
@@ -124,7 +125,7 @@ bool	Receiver::handleRequestBodyChunked(int fd)
 			if (*it >= '0' && *it <= '9')
 				readSize = readSize * 16 + *it - '0';
 			else if (*it >= 'a' && *it <= 'f')
-				readSize = readSize * 16 + *it - 'a';
+				readSize = readSize * 16 + *it - 'a' + 10;
 			else
 				break;
 			if (readSize > MAXLENHEADER)
@@ -133,6 +134,7 @@ bool	Receiver::handleRequestBodyChunked(int fd)
 		currRequest = "";
 		if (readSize == 0)
 		{
+			currRequest = "\r\n";
 			chunkMode = CHUNKLASTLINE;
 			readSize = 1;
 		}
