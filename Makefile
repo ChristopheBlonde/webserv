@@ -26,6 +26,7 @@ SRC = main.cpp \
 	$(CLIENT_DIR)Client.cpp \
 	$(CLIENT_DIR)Receiver.cpp \
 	$(REQ_DIR)Requests.cpp \
+	$(REQ_DIR)RequestsGetters.cpp \
 	$(UTILS_DIR)string.cpp \
 	$(RES_DIR)Response.cpp \
 	$(RES_DIR)ResponseUpload.cpp \
