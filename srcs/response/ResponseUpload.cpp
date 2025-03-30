@@ -6,7 +6,7 @@
 /*   By: glaguyon <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/28 17:23:46 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/29 16:01:15 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/30 19:28:10 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,6 +83,8 @@ std::string	Response::handleBoundary(std::string &boundary,
 					currStart = end + 4;
 					step = 1;
 				}
+				else
+					step = 2;
 			break ;
 		case 1:
 			std::cout << "|||\n" << _body << "|||\n";
