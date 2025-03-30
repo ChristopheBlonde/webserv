@@ -3,12 +3,13 @@ NAME = webserv
 SRC_DIR = srcs/
 OBJ_DIR = obj/
 HDR_DIR = includes/
-SERV_DIR = server/
+SERV_DIR = cluster/
 REQ_DIR = requests/
 RES_DIR = response/
 UTILS_DIR = utils/
 AUTO_DIR = autoindex/
 CGI_DIR = cgi/
+CLIENT_DIR = client/
 
 COMP = c++
 CPPFLAGS = -Wall -Wextra -std=c++98 -g #-Werror
@@ -22,8 +23,8 @@ SRC = main.cpp \
 	$(SERV_DIR)ConfParser.cpp \
 	$(SERV_DIR)ConfParserWords.cpp \
 	$(SERV_DIR)ConfParserFillBlanks.cpp \
-	Client.cpp \
-	Receiver.cpp \
+	$(CLIENT_DIR)Client.cpp \
+	$(CLIENT_DIR)Receiver.cpp \
 	$(REQ_DIR)Requests.cpp \
 	$(UTILS_DIR)string.cpp \
 	$(RES_DIR)Response.cpp \
