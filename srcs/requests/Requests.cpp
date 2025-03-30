@@ -6,12 +6,12 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 10:46:49 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/30 20:26:57 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/30 22:29:03 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <Requests.hpp>
-#include <Client.hpp>
+#include "Requests.hpp"
+#include "Client.hpp"
 
 Requests::Requests(std::string str, Client &client)
 	: _type(UNKNOWN),
