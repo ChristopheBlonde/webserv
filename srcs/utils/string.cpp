@@ -6,17 +6,96 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 09:55:53 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/31 21:37:42 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/31 23:43:05 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "utils.hpp"
 
-std::string	&urlDecode(std::string &s)
+static inline unsigned char hexCharToValue(unsigned char c)
 {
+	if (c >= '0' && c <= '9')
+		return c - '0';
+	if (c >= 'A' && c <= 'F')
+		return 10 + (c - 'A');
+	if (c >= 'a' && c <= 'f')
+		return 10 + (c - 'a');
+	return 0;
+}
 
-	std::cout << "FIX ME\n";
-	return s;
+static std::string	urlDecode(std::string encoded, bool query)
+{
+	std::string	decoded;
+
+	for (size_t i = 0; i < encoded.length(); ++i)
+	{
+		if (encoded[i] == '+' && query)
+			decoded += ' ';
+		else if (encoded[i] == '%' && i + 2 < encoded.length()
+			&& (query || 
+			(encoded.compare(i, 3, "%2F") && encoded.compare(i, 3, "%2F"))))
+		{
+			const unsigned char h = encoded[i + 1];
+			const unsigned char l = encoded[i + 2];
+
+			if (std::isxdigit(h) && std::isxdigit(l))
+			{
+				const unsigned char byte = 
+					(hexCharToValue(h) << 4) | hexCharToValue(l);
+				decoded += byte;
+				i += 2;
+			}
+			else
+				decoded += encoded[i];
+		}
+		else
+			decoded += encoded[i];
+	}
+	return decoded;
+}
+
+static std::string	urlEncode(std::string decoded, bool query)
+{
+	static const char	hex[] = "0123456789ABCDEF";
+	std::string		encoded;
+
+	for (size_t i = 0; i < decoded.length(); ++i)
+	{
+		const unsigned char	c = decoded[i];
+		
+		if (isalnum(c) || c == '-' || c == '_' || c == '.' || c == '~'
+			|| (c == '/' && !query))
+			encoded += c;
+		else if (c == ' ' && query)
+			encoded += '+';
+		else
+		{
+			encoded += '%';
+			encoded += hex[c >> 4];
+			encoded += hex[c & 0xF];
+		}
+	}
+	return encoded;
+}
+
+std::string	urlEncodeQuery(std::string s)
+{
+	return urlEncode(s, 1);
+}
+
+std::string	urlEncode(std::string s)
+{
+	return urlEncode(s, 0);
+}
+
+std::string	urlDecodeQuery(std::string s)
+{
+	return urlDecode(s, 1);
+}
+
+std::string	urlDecode(std::string s)
+{
+	return urlDecode(s, 0);
 }
 
 //Kebab-Case
@@ -84,7 +163,7 @@ std::string	to_string(long int num)
 	return (tmp.str());
 }
 
-std::string	&handleBadPath(std::string &str)
+std::string	handleBadPath(std::string str)
 {
 	size_t			i = 0;
 

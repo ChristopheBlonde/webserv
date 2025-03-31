@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:15:20 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/31 22:02:20 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/31 23:54:18 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,9 +26,7 @@ Response::Response(Requests const &req, Client  &client, Server &server)
 	this->_fileFd = -1;
 	this->_cgiFd[0] = -1;
 	this->_cgiFd[1] = -1;
-	this->_status = 200;
 	this->_protocol = req.getProtocol();
-	std::cout << "AAAAAAAAAAAAAAAA" << _protocol << "\n";
 	this->_host = req.getHost();
 	this->_path = req.getPath();
 	this->_port = req.getPort();
@@ -38,26 +36,24 @@ Response::Response(Requests const &req, Client  &client, Server &server)
 	this->_autoIndex = _conf->getAutoindex();
 	initMimeTypes(_mimeTypes);
 	initResponseHeaders(_headers);
-	if (req.getError() == 400)//does this work ? idk
+	this->_status = req.getError();
+	if (_status != 200)//400, 301, 308
 	{
-		this->_status = 400;
-		_protocol = "HTTP/1.1";
-		createResponseHeader();
-		return;
-	}
-	if (req.getError() == 301 || req.getError() == 308)//does this work ? idk
-	{
-		_status = 308;//308 post delete; 301 get
-		_headers["Location"] = "Location: " + _path;
-		getStatFile("");
+		if (req.getError() == 301 || req.getError() == 308)
+		{
+			_headers["Location"] = "Location: " + urlEncode(_path);
+			getStatFile("");
+		}
 		createResponseHeader();
 		return;
 	}
 	checkConnection(headers);
-	if (_status == 301 || _status == 302)
+	if (_status == 301 || _status == 302)//308 ?
 	{
-		std::cout << "i301\n";
-		_headers["Location"] = "Location: " + _conf->getRedirection();
+		std::string	redir = _conf->getRedirection();
+		_headers["Location"] = "Location: "
+			+ redir.substr(0, redir.find("://") + 3)
+			+ urlEncode(redir.substr(redir.find("://") + 3));//WIP
 		getStatFile("");
 		createResponseHeader();
 		return ;
@@ -67,11 +63,8 @@ Response::Response(Requests const &req, Client  &client, Server &server)
 	if (!checkContentLen(headers))
 		return ;
 
-	_path = _conf->getRoot() + "/" + _path;
-	handleBadPath(_path);
+	_path = handleBadPath(_conf->getRoot() + "/" + _path);
 	std::cout << "path: " << _path << "\n";
-
-	//check for 400 or 301 (directory, redirection to path)
 
 	handleFile(req);
 	return ;

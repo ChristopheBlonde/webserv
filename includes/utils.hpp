@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/24 10:26:29 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/31 20:11:31 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/31 23:43:38 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,11 @@ typedef enum e_access
 	DIRACCESS
 }	t_access;
 
-std::string						&urlDecode(std::string &s);
+std::string						handleBadPath(std::string str);
+std::string						urlEncode(std::string s);
+std::string						urlEncodeQuery(std::string s);
+std::string						urlDecode(std::string s);
+std::string						urlDecodeQuery(std::string s);
 std::string						&trim(std::string &str);
 std::string						&toUpper(std::string &str);
 std::string						&toLower(std::string &str);
@@ -54,7 +58,6 @@ void						initResponseHeaders(std::map<std::string,
 		std::string> &headers);
 std::string					getFileType(std::string path);
 std::string					to_string(long int num);
-std::string					&handleBadPath(std::string &str);
 bool						testAccess(std::string path, t_access test);
 
 #endif

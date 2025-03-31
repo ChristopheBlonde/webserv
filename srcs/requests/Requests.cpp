@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 10:46:49 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/31 21:52:42 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/31 23:44:57 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@
 Requests::Requests(std::string &str, Client &client, Cluster *c, int fd)
 	: _client(client)
 {
-	error = 0;
+	error = 200;
 	initMimeTypes(_mimeTypes);
 	this->parse(str, c, fd);
 	return ;
@@ -70,18 +70,16 @@ void	Requests::handlePath(void)
 {
 	size_t		index;
 
-	_requestUri = _path;
-	handleBadPath(urlDecode(_requestUri));
+	_requestUri = handleBadPath(urlDecode(_path));
 	index = _path.find("?");
 	if (index != std::string::npos)
 	{
-		_query = _path.substr(index + 1);
-		urlDecode(_query);
+		_query = urlDecodeQuery(_path.substr(index + 1));
 		_path = _path.substr(0, index);
 	}
 	else
 		_query = "";
-	handleBadPath(urlDecode(_path));
+	_path = handleBadPath(urlDecode(_path));
 	_documentUri = _path;
 }
 
@@ -94,8 +92,13 @@ void	Requests::handleFile(void)
 		return;
 	if (testAccess(_conf->getRoot() + _path, DIRACCESS))
 	{
-		if (!error)
-			error = 301;
+		if (error == 200)
+		{
+			if (_type == GET)
+				error = 301;
+			else
+				error = 308;
+		}
 		_path += "/";
 		return;
 	}
