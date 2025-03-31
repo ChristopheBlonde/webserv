@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:47:28 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/31 08:21:54 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/31 12:59:41 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,6 +57,7 @@ int	openDir(std::string path, std::string &file, std::vector<std::string> &files
 		}
 		else if (!file.empty() && !std::string(dirp->d_name).compare(file))
 		{
+			std::cout << CYAN << "dir search: " << path + "/" + file << RESET << std::endl;
 			fd = getFile(path + "/" + file);
 			closedir(dir);
 			return (fd);

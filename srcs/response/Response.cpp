@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:15:20 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/31 11:39:05 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/31 12:39:04 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -121,12 +121,12 @@ void	Response::handleFile(Requests const &req)
 	else
 	{
 		_fileFd = openDir(_path, _fileName, _conf->getIndex());
-		getStatFile(_path + "/" + _fileName);
 		if (_fileFd < 0)
 		{
 			createError(404);
 			return ;
 		}
+		getStatFile(_path + "/" + _fileName);
 		addFdToCluster(_fileFd, POLLIN);
 	}
 }

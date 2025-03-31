@@ -6,7 +6,7 @@
 /*   By: cblonde <cblonde@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/29 08:25:35 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/31 11:14:56 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/31 14:08:29 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,7 +83,7 @@ void	Response::isReferer(std::map<std::string, std::string> const &headers)
 		handleBadPath(referer);
 	}
 	std::string routePath = _conf->getName();
-	std::cout << RED << "pathRoute: " << routePath << RESET <<std::endl;
+//	std::cout << RED << "Referer: " << referer << "pathRoute: " << routePath << RESET <<std::endl;
 	if (routePath == _path || routePath == referer)
 		routePath = _conf->getRoot();
 	else
