@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:15:20 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/31 12:39:04 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/31 15:30:59 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,7 +49,10 @@ Response::Response(Requests const &req, Client  &client, Server &server)
 		return ;
 	if (!checkContentLen(headers))
 		return ;
-	isReferer(headers);
+
+	_path = _conf->getRoot() + "/" + _path.substr(_conf->getName().size());
+	handleBadPath(_path);
+
 	handleFile(req);
 	return ;
 }
@@ -180,9 +183,16 @@ void	Response::createResponseHeader(void)
 		+ "\r\n";
 	_headers["Content-Length"] += to_string(_buffer.size());
 	if (_status != 301 && _status != 302)
-		_headers["Content-Type"] += !_cgi && !_autoIndex
+	{
+		std::cout << "salut: " << _mimeTypes[getFileType(_fileName)] << "\n";
+		std::cout << getFileType(_fileName) << "\n";
+		std::cout << "header: \"" << _headers["Content-Type"] << "\"\n";
+		_headers["Content-Type"] += (!_cgi || !_autoIndex || (
+							_autoIndex && _fileName.empty()))
 			? _mimeTypes[getFileType(_fileName)]
 			: "text/html; charset=UFT-8";
+		std::cout << "header: \"" << _headers["Content-Type"] << "\"\n";
+	}
 	else
 		_headers.erase("Content-Type");
 	for (it = _headers.begin(); it != _headers.end(); it++)

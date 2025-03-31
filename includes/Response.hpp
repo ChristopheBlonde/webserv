@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:16:02 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/31 09:58:10 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/31 15:31:48 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,7 +65,6 @@ class Response
 		bool								_headerReady;
 		int									_sizeSend;
 		void	handleFile(Requests const &req);
-		void	isReferer(std::map<std::string, std::string> const &headers);
 		void	checkConnection(std::map<std::string,
 				std::string> const &headers);
 		bool	checkMethod(std::string method);

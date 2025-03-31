@@ -6,7 +6,7 @@
 /*   By: cblonde <cblonde@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/29 08:25:35 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/31 14:08:29 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/31 15:31:28 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,33 +68,6 @@ bool	Response::checkContentLen(std::map<std::string,
 		}
 	}
 	return (true);
-}
-
-void	Response::isReferer(std::map<std::string, std::string> const &headers)
-{
-	std::map<std::string, std::string>::const_iterator it;
-
-	it = headers.find("Referer");
-	std::string referer = it != headers.end() ? it->second : "";
-	if (!referer.empty())
-	{
-		size_t index = referer.find(to_string(_port));
-		referer = referer.substr(index + to_string(_port).size());
-		handleBadPath(referer);
-	}
-	std::string routePath = _conf->getName();
-//	std::cout << RED << "Referer: " << referer << "pathRoute: " << routePath << RESET <<std::endl;
-	if (routePath == _path || routePath == referer)
-		routePath = _conf->getRoot();
-	else
-		routePath = _path;
-
-	if (*(routePath.begin() + routePath.size() - 1) == '/')
-		routePath = routePath.substr(0, routePath.size() - 1);
-	if (!referer.empty() && _path != routePath)
-		_path = routePath + _path;
-	else
-		_path = routePath;
 }
 
 void	Response::getStatFile(std::string path)

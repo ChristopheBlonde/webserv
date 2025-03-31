@@ -6,14 +6,14 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/25 19:15:46 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/31 14:55:53 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Conf.hpp"
 
 Conf::Conf() :
-	Route("default server route"),
+	Route(""),
 	ip(0),
 	port(htons(8080)),
 	ipStr("0.0.0.0"),
