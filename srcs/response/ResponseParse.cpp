@@ -6,7 +6,7 @@
 /*   By: cblonde <cblonde@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/29 08:25:35 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/29 08:35:07 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/31 11:14:56 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,8 +17,12 @@ void	Response::checkConnection(std::map<std::string,
 {
 	std::map<std::string, std::string>::const_iterator it;
 
-	if (_autoIndex)
+	if (_autoIndex || !_conf->getRedirection().empty())
+	{
 		_headers["Connection"] += "close";
+		if (!_conf->getRedirection().empty())
+			_status = 302;
+	}
 	else
 	{
 		it = headers.find("Connection");
@@ -102,6 +106,16 @@ void	Response::getStatFile(std::string path)
 	char		buffer[1024];
 	size_t		size;
 
+	ttime = time(NULL);
+	tmTime = gmtime(&ttime);
+	strftime(buffer, 1024, "%a, %d %b %Y %T GMT", tmTime);
+	std::cout << CYAN << "Stat: Date: " << buffer << RESET << std::endl;
+	_headers["Date"] += buffer;
+	if (path.empty())
+	{
+		_headers.erase("Last-Modified");
+		return ;
+	}
 	status = stat(path.c_str(), &res);
 	if (status)
 	{
@@ -118,11 +132,6 @@ void	Response::getStatFile(std::string path)
 	strftime(buffer, 1024, "%a, %d %b %Y %T GMT", tmTime);
 	std::cout << CYAN << "Stat: Last-Modified: " << buffer << RESET << std::endl;
 	_headers["Last-Modified"] += buffer;
-	ttime = time(NULL);
-	tmTime = gmtime(&ttime);
-	strftime(buffer, 1024, "%a, %d %b %Y %T GMT", tmTime);
-	std::cout << CYAN << "Stat: Date: " << buffer << RESET << std::endl;
-	_headers["Date"] += buffer;
 	size = res.st_size;
 	_buffer.reserve(size * sizeof(unsigned char));
 	std::cout << CYAN << "Stat: Size: " << size << RESET << std::endl;
@@ -133,6 +142,8 @@ std::string	getResponseTypeStr(int stat)
 	std::map<int,std::string> names;
 
 	names[200] = "OK";
+	names[301] = "Moved Permanently";
+	names[302] = "Found";
 	names[400] = "Bad Request";
 	names[403] = "Forbidden";
 	names[404] = "Not Found";

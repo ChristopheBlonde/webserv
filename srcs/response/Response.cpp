@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:15:20 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/31 09:56:29 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/31 11:39:05 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,6 +38,13 @@ Response::Response(Requests const &req, Client  &client, Server &server)
 	initMimeTypes(_mimeTypes);
 	initResponseHeaders(_headers);
 	checkConnection(headers);
+	if (_status == 301 || _status == 302)
+	{
+		_headers["Location"] = "Location: " + _conf->getRedirection();
+		getStatFile("");
+		createResponseHeader();
+		return ;
+	}
 	if (!checkMethod(req.getType()))
 		return ;
 	if (!checkContentLen(headers))
@@ -148,6 +155,9 @@ void	Response::createError(int stat)
 		}
 		content = ERROR_PAGE(getResponseTypeStr(stat), getContentError(stat),
 				to_string(stat));
+		getStatFile("");
+		_headers["Content-Type"] += "text/html; charset=UFT-8";
+		_headers.erase("Last-Modified");
 	}
 	else
 	{
@@ -169,9 +179,12 @@ void	Response::createResponseHeader(void)
 		+ getResponseTypeStr(_status)
 		+ "\r\n";
 	_headers["Content-Length"] += to_string(_buffer.size());
-	_headers["Content-Type"] += !_cgi && !_autoIndex
-		? _mimeTypes[getFileType(_fileName)]
-		: "text/html; charset=UFT-8";
+	if (_status != 301 && _status != 302)
+		_headers["Content-Type"] += !_cgi && !_autoIndex
+			? _mimeTypes[getFileType(_fileName)]
+			: "text/html; charset=UFT-8";
+	else
+		_headers.erase("Content-Type");
 	for (it = _headers.begin(); it != _headers.end(); it++)
 		_response += (it->second + "\r\n");
 	_response += "\r\n";
