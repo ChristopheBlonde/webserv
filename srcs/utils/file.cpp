@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:47:28 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/31 12:59:41 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/31 20:58:04 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -115,28 +115,25 @@ void initResponseHeaders(std::map<std::string, std::string> &headers)
 bool	testAccess(std::string path, t_access test)
 {
 	int	res;
-	DIR	*dir;
 
 	res = 0;
 	switch (test)
 	{
-		case 0:
+		case EXIST:
 			res = access(path.data(), F_OK);
 			break ;
-		case 1:
+		case READABLE:
 			res = access(path.data(), R_OK);
 			break ;
-		case 2:
+		case WRITEABLE:
 			res = access(path.data(), W_OK);
 			break ;
-		case 3:
+		case EXECUTABLE:
 			res = access(path.data(), X_OK);
 			break ;
-		case 4:
-			dir = opendir(path.data());
-			if (!dir)
-				res = -1;
-			closedir(dir);
+		case DIRACCESS:
+			struct stat	statbuf;
+			res = !(stat(path.data(), &statbuf) == 0 && S_ISDIR(statbuf.st_mode));
 			break ;
 		default:
 			break ;

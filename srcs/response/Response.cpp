@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:15:20 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/31 19:16:42 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/31 21:04:43 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,6 +48,7 @@ Response::Response(Requests const &req, Client  &client, Server &server)
 	checkConnection(headers);
 	if (_status == 301 || _status == 302)
 	{
+		std::cout << "i301\n";
 		_headers["Location"] = "Location: " + _conf->getRedirection();
 		getStatFile("");
 		createResponseHeader();
@@ -58,8 +59,11 @@ Response::Response(Requests const &req, Client  &client, Server &server)
 	if (!checkContentLen(headers))
 		return ;
 
-	_path = _conf->getRoot() + "/" + _path.substr(_conf->getName().size());//no
+	_path = _conf->getRoot() + "/" + _path;
 	handleBadPath(_path);
+	std::cout << "path: " << _path << "\n";
+
+	//check for 400 or 301 (directory, redirection to path)
 
 	handleFile(req);
 	return ;
@@ -132,6 +136,7 @@ void	Response::handleFile(Requests const &req)
 	}
 	else
 	{
+		std::cout << "here\n";
 		_fileFd = openDir(_path, _fileName, _conf->getIndex());
 		if (_fileFd < 0)
 		{

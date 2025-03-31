@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 10:24:52 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/31 18:41:41 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/31 20:36:29 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@
 # include "Route.hpp"
 
 class Client;
+class Cluster;
 
 typedef enum	e_request_type
 {
@@ -50,16 +51,15 @@ class Requests
 		std::vector<unsigned char> 			_buffer;
 
 
-		void	parse(std::string str);
+		void	parse(std::string str, Cluster *c, int fd);
 		void	handlePath(void);
+		void	handleFile(void);
 		void	handleHost(void);
 	public:
-		Requests(std::string str, Client  &client);
+		Requests(std::string &str, Client  &client, Cluster *c, int fd);
 		Requests(Requests const &src);
 		~Requests(void);
 		Requests	&operator=(Requests const &rhs);
-		void								checkConf(void);
-		void								setConf(Route &conf);
 		std::string							getProtocol(void) const;
 		std::string							getPath(void) const;
 		std::map<std::string,std::string> const	&getHeaders(void) const;

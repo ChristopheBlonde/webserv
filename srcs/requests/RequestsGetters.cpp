@@ -6,17 +6,12 @@
 /*   By: glaguyon <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/30 20:21:52 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/31 18:42:13 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/31 20:33:03 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Requests.hpp"
 #include "Client.hpp"
-
-void	Requests::setConf(Route &conf)
-{
-	_conf = &conf;
-}
 
 std::string	Requests::getProtocol(void) const
 {

@@ -6,19 +6,20 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 10:46:49 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/31 19:36:44 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/31 21:06:13 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Requests.hpp"
+#include "Cluster.hpp"
 #include "Client.hpp"
 
-Requests::Requests(std::string str, Client &client)
+Requests::Requests(std::string &str, Client &client, Cluster *c, int fd)
 	: _client(client)
 {
 	error = 0;
 	initMimeTypes(_mimeTypes);
-	this->parse(str);
+	this->parse(str, c, fd);
 	return ;
 }
 
@@ -68,8 +69,6 @@ static void initMethod(std::string str, t_rqType &type)
 void	Requests::handlePath(void)
 {
 	size_t		index;
-	size_t		j;
-	std::string	tmp;
 
 	_requestUri = _path;
 	urlDecode(handleBadPath(_requestUri));
@@ -84,41 +83,29 @@ void	Requests::handlePath(void)
 		_query = "";
 	urlDecode(handleBadPath(_path));
 	_documentUri = _path;
-	index = 0;
+}
 
-	while (index != std::string::npos && _path.size() > 1)//XXX
+void	Requests::handleFile(void)
+{
+	size_t		index;
+
+	std::cout << _path << " aledaled\n";
+	index = _path.find_last_of("/");
+	if (index == _path.size() - 1)
+		return;
+	if (testAccess(_conf->getRoot() + _path, DIRACCESS))
 	{
-		std::cout << "huh\n";
-		index = _path.find("/", index);
-		index++;
-		j = _path.find("/", index);
-		if (j != std::string::npos)
-		{
-			_fileName = _path.substr(index, j - index);
-			_pathInfo = _path.substr(j + 1);
-		}
-		else
-			_fileName = _path.substr(index);
-		if (_fileName.empty())
-			break ;
-		j = _fileName.find_last_of(".");
-		if (j != std::string::npos)
-			tmp = _mimeTypes[std::string(_fileName.substr(j + 1))];
-		if (tmp != "")
-		{
-			if (index > 1)
-				_path = _path.substr(0, index - 1);
-			if (_path.empty())
-				_path = "/";
-			break ;
-		}
-		else
-		{
-			_fileName = "";
-			_pathInfo = "";
-		}
+		std::cout << "?????\n";
+		if (!error)
+			error = 301;
+		_path += "/";
+		return;
 	}
-	std::cout << RED << "Path: " << _path << " file: " << _fileName
+	_fileName = _path.substr(index + 1);
+	_pathInfo = _path.substr(1, index);
+	_path = _path.substr(0, index + 1);
+
+	std::cout << YELLOW << "Path: " << _path << " file: " << _fileName
 		<< " pathInfo: " << _pathInfo << RESET << std::endl;
 }
 
@@ -168,7 +155,7 @@ static void	initHeaders(std::string str,
 	}
 }
 
-void	Requests::parse(std::string str)
+void	Requests::parse(std::string str, Cluster *c, int fd)
 {
 	std::stringstream	ss(str);
 	std::string			word;
@@ -193,7 +180,6 @@ void	Requests::parse(std::string str)
 			<< RESET << std::endl;
 		error = 400;
 	}
-	handlePath();
 	while (getline(ss, line))
 	{
 		trim(line);
@@ -201,8 +187,10 @@ void	Requests::parse(std::string str)
 			break ;
 		initHeaders(line, _headers);
 	}
-
 	handleHost();
+	handlePath();
+	_conf = &c->getRoute(c->getServer(fd, _host), _path);
+	handleFile();
 	index = str.find("\r\n\r\n");
 	if (index != std::string::npos)
 	{

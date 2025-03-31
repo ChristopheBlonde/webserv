@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 09:55:53 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/31 18:43:18 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/31 20:08:33 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -108,8 +108,5 @@ std::string	&handleBadPath(std::string &str)
 	if ((str.size() >= 2 && str.compare(str.size() - 2, 2, "/.") == 0)
 		|| (str.size() >= 3 && str.compare(str.size() - 3, 3, "/..") == 0))
 		str.erase(str.find_last_of("/") + 1, str.size() - str.find_last_of("/") - 1);
-	//rm trailing /
-	if (*str.rbegin() == '/' && str.size() > 1)
-		str.erase(str.size() - 1, 1);
 	return str;
 }

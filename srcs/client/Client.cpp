@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/29 17:26:11 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/31 20:30:59 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,8 +94,7 @@ void	Client::handleRequest()
 	{
 		if (!receiveRequest(fd))
 			return;
-		Requests req(currRequestRaw, *this);
-		req.setConf(c->getRoute(c->getServer(fd, req.getHost()), req.getPath()));
+		Requests req(currRequestRaw, *this, c, fd);
 		Response *res = new Response(req, *this,
 				c->getServer(fd, req.getHost()));
 		res->setSocket(fd);
@@ -148,7 +147,6 @@ void	Client::removeFds()
 	for (std::vector<int>::iterator it = responseFdRemoveList.begin();
 		it < responseFdRemoveList.end(); ++it)
 	{
-		std::cerr << *it << " close\n";
 		close(*it);
 		responseFds.erase(std::find(responseFds.begin(), responseFds.end(), *it));
 		c->removeFd(*it);
@@ -185,7 +183,6 @@ void	Client::addFds()
 		if (std::find(responseFds.begin(),
 					responseFds.end(), it->fd) == responseFds.end())
 		{
-			std::cerr << it->fd << " add\n";
 			c->addFd(*it);
 			responseFds.push_back(it->fd);
 		}
