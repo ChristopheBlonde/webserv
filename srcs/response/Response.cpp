@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:15:20 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/31 21:04:43 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/31 22:02:20 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,13 +28,6 @@ Response::Response(Requests const &req, Client  &client, Server &server)
 	this->_cgiFd[1] = -1;
 	this->_status = 200;
 	this->_protocol = req.getProtocol();
-	if (_protocol.empty())
-	{
-		this->_status = 400;
-		_protocol = "HTTP/1.1";
-		createResponseHeader();
-		return;
-	}
 	std::cout << "AAAAAAAAAAAAAAAA" << _protocol << "\n";
 	this->_host = req.getHost();
 	this->_path = req.getPath();
@@ -45,6 +38,21 @@ Response::Response(Requests const &req, Client  &client, Server &server)
 	this->_autoIndex = _conf->getAutoindex();
 	initMimeTypes(_mimeTypes);
 	initResponseHeaders(_headers);
+	if (req.getError() == 400)//does this work ? idk
+	{
+		this->_status = 400;
+		_protocol = "HTTP/1.1";
+		createResponseHeader();
+		return;
+	}
+	if (req.getError() == 301 || req.getError() == 308)//does this work ? idk
+	{
+		_status = 308;//308 post delete; 301 get
+		_headers["Location"] = "Location: " + _path;
+		getStatFile("");
+		createResponseHeader();
+		return;
+	}
 	checkConnection(headers);
 	if (_status == 301 || _status == 302)
 	{

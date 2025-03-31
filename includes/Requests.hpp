@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 10:24:52 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/31 20:36:29 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/31 21:13:11 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,7 +77,7 @@ class Requests
 		std::string							getClientHostName(void) const;
 		std::string							getClientIpStr(void) const;
 		std::string							getClientPort(void) const;
-		int								getError();
+		int								getError() const;
 };
 
 #endif

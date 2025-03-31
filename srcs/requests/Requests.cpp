@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 10:46:49 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/31 21:06:13 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/31 21:52:42 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,7 +71,7 @@ void	Requests::handlePath(void)
 	size_t		index;
 
 	_requestUri = _path;
-	urlDecode(handleBadPath(_requestUri));
+	handleBadPath(urlDecode(_requestUri));
 	index = _path.find("?");
 	if (index != std::string::npos)
 	{
@@ -81,7 +81,7 @@ void	Requests::handlePath(void)
 	}
 	else
 		_query = "";
-	urlDecode(handleBadPath(_path));
+	handleBadPath(urlDecode(_path));
 	_documentUri = _path;
 }
 
@@ -89,13 +89,11 @@ void	Requests::handleFile(void)
 {
 	size_t		index;
 
-	std::cout << _path << " aledaled\n";
 	index = _path.find_last_of("/");
 	if (index == _path.size() - 1)
 		return;
 	if (testAccess(_conf->getRoot() + _path, DIRACCESS))
 	{
-		std::cout << "?????\n";
 		if (!error)
 			error = 301;
 		_path += "/";
@@ -104,9 +102,6 @@ void	Requests::handleFile(void)
 	_fileName = _path.substr(index + 1);
 	_pathInfo = _path.substr(1, index);
 	_path = _path.substr(0, index + 1);
-
-	std::cout << YELLOW << "Path: " << _path << " file: " << _fileName
-		<< " pathInfo: " << _pathInfo << RESET << std::endl;
 }
 
 void	Requests::handleHost(void)
@@ -157,29 +152,23 @@ static void	initHeaders(std::string str,
 
 void	Requests::parse(std::string str, Cluster *c, int fd)
 {
+	std::cout << CYAN << "raw request: |||" << RESET << str << CYAN << "|||\n" << RESET;
 	std::stringstream	ss(str);
 	std::string			word;
 	std::string			line;
 	size_t				index;
-
-	std::cout << CYAN << "received request:\n|||\n" << str << RESET << "|||\n";
-	std::cout << "request size: " << str.size() << std::endl;
 
 	getline(ss, line);
 	std::stringstream ssLine(line);
 	ssLine >> word >> _path >> _protocol;
 	if (_protocol.compare("HTTP/1.0") && _protocol.compare("HTTP/1.1"))
 	{
-		std::cerr << RED << "Error: Protocol: unknow" << RESET << std::endl;
 		error = 400;
+		_protocol = "HTTP/1.1";
 	}
 	initMethod(word, _type);
 	if (_type == UNKNOWN)
-	{
-		std::cerr << RED << "Unknow method or not implement yet."
-			<< RESET << std::endl;
 		error = 400;
-	}
 	while (getline(ss, line))
 	{
 		trim(line);
