@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:16:02 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/29 09:44:48 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/31 09:58:10 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,7 @@
 # include <sys/socket.h>
 # include <poll.h>
 # include <PollFd.hpp>
+# include <cstdio>
 
 struct	FileData
 {
@@ -80,17 +81,15 @@ class Response
 		bool	readPollFdFile(int fd);
 		void	sendHeader(int fd);
 		void	sendBody(int fd);
+		void	deleteFile(void);
 	public:
 		Response(Requests const &req,Client &client, Server &server);
 		Response(Response const &src);
 		~Response(void);
 		Response &operator=(Response const &rhs);
 
-		std::string		getResponse(void) const;
-		size_t			getResSize(void) const;
 		int				getFileFd(void) const;
 		int				getSocket(void) const;
-		void			setResponse(std::string str);
 		void			setSocket(int const socket);
 		void			createError(int stat);
 		void			createResponseHeader(void);

@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:15:20 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/29 09:48:03 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/31 09:56:29 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,7 +82,10 @@ void	Response::handleFile(Requests const &req)
 	if ((req.getType() == "POST" || req.getType() == "DELETE")
 			&& !_conf->getUploadDir().empty())
 	{
-		uploadFile(req.getHeaders());
+		if (req.getType() == "POST")
+			uploadFile(req.getHeaders());
+		else
+			deleteFile();
 	}
 	else if (_cgi)
 	{
@@ -294,14 +297,25 @@ bool	Response::handleFdCgi(int fd)
 	return (true);
 }
 
-std::string	Response::getResponse(void) const
+void	Response::deleteFile(void)
 {
-	return (_response);
-}
+	std::string	path = _conf->getUploadDir();
 
-size_t	Response::getResSize(void) const
-{
-	return (_resSize);
+	if (!testAccess(path, DIRACCESS)
+			|| !testAccess(path + "/" + _fileName, EXIST))
+		createError(404);
+	else
+	{
+		path = path + "/" + _fileName;
+		getStatFile(path);
+		if (!std::remove(path.data()))
+		{
+			_status = 204;
+			createResponseHeader();
+		}
+		else
+			createError(500);
+	}
 }
 
 int	Response::getFileFd(void) const
@@ -312,11 +326,6 @@ int	Response::getFileFd(void) const
 int	Response::getSocket(void) const
 {
 	return (_socket);
-}
-
-void	Response::setResponse(std::string str)
-{
-	_response = str;
 }
 
 void	Response::setSocket(int const socket)

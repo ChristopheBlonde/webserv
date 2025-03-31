@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:47:28 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/29 08:52:41 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/31 08:21:54 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -142,7 +142,7 @@ bool	testAccess(std::string path, t_access test)
 	}
 	if (res)
 	{
-		std::cerr << "Error: Access: " << strerror(errno)
+		std::cerr << RED << "Error: Access: " << strerror(errno)
 			<< RESET << std::endl;
 		return (false);
 	}
