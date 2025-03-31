@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/24 10:26:29 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/29 08:48:04 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/31 18:39:00 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,11 +37,12 @@ typedef enum e_access
 	DIRACCESS
 }	t_access;
 
-void						trim(std::string &str);
-void						toUpper(std::string &str);
-void						toLower(std::string &str);
-void						capitalize(std::string &str);
-void						formatHeader(std::string &str);
+std::string						&urlDecode(std::string &s);
+std::string						&trim(std::string &str);
+std::string						&toUpper(std::string &str);
+std::string						&toLower(std::string &str);
+std::string						&capitalize(std::string &str);
+std::string						&formatHeader(std::string &str);
 std::vector<std::string>	split(std::string str, char sep);
 int							getFile(std::string path);
 int							openFileUpload(std::string path);
@@ -53,7 +54,7 @@ void						initResponseHeaders(std::map<std::string,
 		std::string> &headers);
 std::string					getFileType(std::string path);
 std::string					to_string(long int num);
-void						handleBadPath(std::string &str);
+std::string					&handleBadPath(std::string &str);
 bool						testAccess(std::string path, t_access test);
 
 #endif

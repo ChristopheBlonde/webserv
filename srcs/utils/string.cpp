@@ -6,14 +6,20 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 09:55:53 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/30 22:27:30 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/31 18:43:18 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "utils.hpp"
 
+std::string	&urlDecode(std::string &s)
+{
+	std::cout << "FIX ME\n";
+	return s;
+}
+
 //Kebab-Case
-void	formatHeader(std::string &str)
+std::string	&formatHeader(std::string &str)
 {
 	bool	dash = true;
 
@@ -25,9 +31,10 @@ void	formatHeader(std::string &str)
 			*it = std::toupper(*it);
 		dash = *it == '-';
 	}
+	return str;
 }
 
-void	trim(std::string &str)
+std::string	&trim(std::string &str)
 {
 	size_t	start = str.find_first_not_of(" \t");
 	size_t	end = str.find_last_not_of(" \t");
@@ -36,23 +43,25 @@ void	trim(std::string &str)
 		str = "";
 	else
 		str = str.substr(start, end - start + 1);
+	return str;
 }
 
-void	toUpper(std::string &str)
+std::string	&toUpper(std::string &str)
 {
 	std::transform(str.begin(), str.end(), str.begin(), ::toupper);
-	return ;
+	return str;
 }
 
-void	toLower(std::string &str)
+std::string	&toLower(std::string &str)
 {
 	std::transform(str.begin(), str.end(), str.begin(), ::tolower);
-	return ;
+	return str;
 }
 
-void	capitalize(std::string &str)
+std::string	&capitalize(std::string &str)
 {
 	str[0] = std::toupper(str[0]);
+	return str;
 }
 
 std::vector<std::string>	split(std::string str, char sep)
@@ -74,11 +83,10 @@ std::string	to_string(long int num)
 	return (tmp.str());
 }
 
-void	handleBadPath(std::string &str)
+std::string	&handleBadPath(std::string &str)
 {
 	size_t			i = 0;
 
-	std::cout << GREEN << "..before: " << str << RESET << std::endl;
 	while (i < str.size())
 	{
 		if (str[i] == '/')
@@ -103,5 +111,5 @@ void	handleBadPath(std::string &str)
 	//rm trailing /
 	if (*str.rbegin() == '/' && str.size() > 1)
 		str.erase(str.size() - 1, 1);
-	std::cout << GREEN << "..after: " << str << RESET << std::endl;
+	return str;
 }

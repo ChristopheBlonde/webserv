@@ -6,7 +6,7 @@
 /*   By: cblonde <cblonde@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/03 07:54:18 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/27 22:25:19 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/31 16:00:24 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 #include <AutoIndex.hpp>
@@ -45,10 +45,12 @@ AutoIndex	&AutoIndex::operator=(AutoIndex const &rhs)
 	}
 	return (*this);
 }
+#include <iostream>
 
 std::string	AutoIndex::generate(char const *dirPath, std::string const &host,
 		int port)
 {
+	std::cout << "autoindex\n";
 	AutoIndex page(dirPath, host, port);
 	std::string result;
 	DIR	*workDir;

@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 10:46:49 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/31 12:47:04 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/03/31 19:36:44 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,9 +14,9 @@
 #include "Client.hpp"
 
 Requests::Requests(std::string str, Client &client)
-	: _type(UNKNOWN),
-	  _client(client)
+	: _client(client)
 {
+	error = 0;
 	initMimeTypes(_mimeTypes);
 	this->parse(str);
 	return ;
@@ -71,50 +71,54 @@ void	Requests::handlePath(void)
 	size_t		j;
 	std::string	tmp;
 
-	handleBadPath(_path);
 	_requestUri = _path;
+	urlDecode(handleBadPath(_requestUri));
 	index = _path.find("?");
 	if (index != std::string::npos)
 	{
 		_query = _path.substr(index + 1);
+		urlDecode(_query);
 		_path = _path.substr(0, index);
 	}
 	else
 		_query = "";
+	urlDecode(handleBadPath(_path));
 	_documentUri = _path;
 	index = 0;
-	while (index != std::string::npos && _path.size() > 1)
+
+	while (index != std::string::npos && _path.size() > 1)//XXX
 	{
-			index = _path.find("/", index);
-			index++;
-			j = _path.find("/", index);
-			if (j != std::string::npos)
-			{
-				_fileName = _path.substr(index, j - index);
-				_pathInfo = _path.substr(j + 1);
-			}
-			else
-				_fileName = _path.substr(index);
-			if (_fileName.empty())
-				break ;
-			j = _fileName.find_last_of(".");
-			if (j != std::string::npos)
-				tmp = _mimeTypes[std::string(_fileName.substr(j + 1))];
-			if (tmp != "")
-			{
-				if (index > 1)
-					_path = _path.substr(0, index - 1);
-				if (_path.empty())
-					_path = "/";
-				break ;
-			}
-			else
-			{
-				_fileName = "";
-				_pathInfo = "";
-			}
+		std::cout << "huh\n";
+		index = _path.find("/", index);
+		index++;
+		j = _path.find("/", index);
+		if (j != std::string::npos)
+		{
+			_fileName = _path.substr(index, j - index);
+			_pathInfo = _path.substr(j + 1);
+		}
+		else
+			_fileName = _path.substr(index);
+		if (_fileName.empty())
+			break ;
+		j = _fileName.find_last_of(".");
+		if (j != std::string::npos)
+			tmp = _mimeTypes[std::string(_fileName.substr(j + 1))];
+		if (tmp != "")
+		{
+			if (index > 1)
+				_path = _path.substr(0, index - 1);
+			if (_path.empty())
+				_path = "/";
+			break ;
+		}
+		else
+		{
+			_fileName = "";
+			_pathInfo = "";
+		}
 	}
-	std::cout << CYAN << "Path: " << _path << " file: " << _fileName
+	std::cout << RED << "Path: " << _path << " file: " << _fileName
 		<< " pathInfo: " << _pathInfo << RESET << std::endl;
 }
 
@@ -166,28 +170,28 @@ static void	initHeaders(std::string str,
 
 void	Requests::parse(std::string str)
 {
-//	std::cout << CYAN << "Request: " << str << RESET << std::endl;
-	std::cout << "request size: " << str.size() << std::endl;
 	std::stringstream	ss(str);
 	std::string			word;
 	std::string			line;
 	size_t				index;
 
-//	std::cout << "received request:\n|||\n" << str << "|||\n";
+	std::cout << CYAN << "received request:\n|||\n" << str << RESET << "|||\n";
+	std::cout << "request size: " << str.size() << std::endl;
+
 	getline(ss, line);
 	std::stringstream ssLine(line);
 	ssLine >> word >> _path >> _protocol;
 	if (_protocol.compare("HTTP/1.0") && _protocol.compare("HTTP/1.1"))
 	{
 		std::cerr << RED << "Error: Protocol: unknow" << RESET << std::endl;
-		return ;
+		error = 400;
 	}
 	initMethod(word, _type);
 	if (_type == UNKNOWN)
 	{
 		std::cerr << RED << "Unknow method or not implement yet."
 			<< RESET << std::endl;
-		return ;
+		error = 400;
 	}
 	handlePath();
 	while (getline(ss, line))
@@ -201,6 +205,9 @@ void	Requests::parse(std::string str)
 	handleHost();
 	index = str.find("\r\n\r\n");
 	if (index != std::string::npos)
-		_body = str.substr(index +4);
+	{
+		str.erase(0, index + 4);
+		_body = str;
+	}
 	return ;
 }

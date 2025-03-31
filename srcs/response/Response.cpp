@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:15:20 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/31 15:30:59 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/31 19:16:42 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,16 @@ Response::Response(Requests const &req, Client  &client, Server &server)
 	this->_fileFd = -1;
 	this->_cgiFd[0] = -1;
 	this->_cgiFd[1] = -1;
+	this->_status = 200;
 	this->_protocol = req.getProtocol();
+	if (_protocol.empty())
+	{
+		this->_status = 400;
+		_protocol = "HTTP/1.1";
+		createResponseHeader();
+		return;
+	}
+	std::cout << "AAAAAAAAAAAAAAAA" << _protocol << "\n";
 	this->_host = req.getHost();
 	this->_path = req.getPath();
 	this->_port = req.getPort();
@@ -34,7 +43,6 @@ Response::Response(Requests const &req, Client  &client, Server &server)
 	this->_conf = &req.getConf();
 	this->_cgi = _conf->getCgi().empty() ? false : true;
 	this->_autoIndex = _conf->getAutoindex();
-	this->_status = 200;
 	initMimeTypes(_mimeTypes);
 	initResponseHeaders(_headers);
 	checkConnection(headers);
@@ -50,7 +58,7 @@ Response::Response(Requests const &req, Client  &client, Server &server)
 	if (!checkContentLen(headers))
 		return ;
 
-	_path = _conf->getRoot() + "/" + _path.substr(_conf->getName().size());
+	_path = _conf->getRoot() + "/" + _path.substr(_conf->getName().size());//no
 	handleBadPath(_path);
 
 	handleFile(req);
@@ -105,6 +113,7 @@ void	Response::handleFile(Requests const &req)
 		{
 			if (!testAccess(it->second, EXIST) || !testAccess(it->second, EXECUTABLE))
 			{
+				std::cout << "a\n";
 				createError(400);
 				return ;
 			}
@@ -139,8 +148,10 @@ void	Response::createError(int stat)
 	std::string	content;
 	int			fd;
 
+	std::cout << "je susi erreur\n";
 	if (!_autoIndex)
 	{
+		std::cout << "non\n";
 		content = _server.getErrorPage(stat);
 		if (!content.empty() && _status != 500)
 		{
@@ -161,14 +172,15 @@ void	Response::createError(int stat)
 		getStatFile("");
 		_headers["Content-Type"] += "text/html; charset=UFT-8";
 		_headers.erase("Last-Modified");
+		_status = stat;
 	}
 	else
 	{
+		std::cout << "oui\n";
 		_status = 200;
 		content = AutoIndex::generate(_path.data(), _host, _port);
 	}
 	_buffer.insert(_buffer.begin(), content.begin(), content.end());
-	_status = stat;
 	createResponseHeader();
 	return ;
 }
@@ -200,7 +212,7 @@ void	Response::createResponseHeader(void)
 	_response += "\r\n";
 
 	_headerReady = true;
-	std::cout << CYAN << "Header ready" << RESET << std::endl;
+	std::cout << CYAN << "Header ready" << _response << RESET << std::endl;
 	return ;
 }
 

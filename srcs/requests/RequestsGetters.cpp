@@ -6,7 +6,7 @@
 /*   By: glaguyon <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/30 20:21:52 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/30 20:25:58 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/31 18:42:13 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -121,4 +121,9 @@ std::string Requests::getContentType(void) const
 			contentType = it->second;
 	}
 	return (contentType);
+}
+
+int	Requests::getError()
+{
+	return error;
 }

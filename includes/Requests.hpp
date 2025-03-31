@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 10:24:52 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/30 20:24:01 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/03/31 18:41:41 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,7 @@ typedef enum	e_request_type
 class Requests
 {
 	private:
+		int								error;
 		std::map<std::string,std::string>	_headers;
 		std::string							_requestUri;
 		std::string							_documentUri;
@@ -76,6 +77,7 @@ class Requests
 		std::string							getClientHostName(void) const;
 		std::string							getClientIpStr(void) const;
 		std::string							getClientPort(void) const;
+		int								getError();
 };
 
 #endif
