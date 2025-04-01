@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 10:46:49 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/01 13:10:39 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/04/01 15:41:56 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,7 +66,7 @@ static void initMethod(std::string str, t_rqType &type)
 	return ;
 }
 
-void	Requests::handlePath(void)
+/*void	Requests::handlePath(void)
 {
 	size_t		index;
 
@@ -108,6 +108,61 @@ void	Requests::handleFile(void)
 	_fileName = _path.substr(index + 1);
 	_pathInfo = _path.substr(1, index);
 	_path = _path.substr(0, index + 1);
+}*/
+void	Requests::handlePath(void)
+{
+	size_t		index;
+	size_t		j;
+	std::string	tmp;
+
+	handleBadPath(_path);
+	_requestUri = _path;
+	index = _path.find("?");
+	if (index != std::string::npos)
+	{
+		_query = _path.substr(index + 1);
+		_path = _path.substr(0, index);
+	}
+	else
+		_query = "";
+	_documentUri = _path;
+	index = 0;
+	while (index != std::string::npos && _path.size() > 1)
+	{
+			index = _path.find("/", index);
+			index++;
+			j = _path.find("/", index);
+			if (j != std::string::npos)
+			{
+				_fileName = _path.substr(index, j - index);
+				_pathInfo = _path.substr(j + 1);
+			}
+			else
+				_fileName = _path.substr(index);
+			if (_fileName.empty())
+			{
+				_pathInfo = "";
+				break ;
+			}
+			j = _fileName.find_last_of(".");
+			if (j != std::string::npos)
+				tmp = _mimeTypes[std::string(_fileName.substr(j + 1))];
+			if (tmp != "")
+			{
+				if (index > 1)
+					_path = _path.substr(0, index - 1);
+				if (_path.empty())
+					_path = "/";
+				break ;
+			}
+			else
+			{
+				_fileName = "";
+				_pathInfo = "";
+			}
+	}
+	std::cout << CYAN << "Path: " << _path << " file: " << _fileName
+		<< " pathInfo: " << _pathInfo << RESET << std::endl;
 }
 
 void	Requests::handleHost(void)
@@ -186,7 +241,7 @@ void	Requests::parse(std::string str, Cluster *c, int fd)
 	handleHost();
 	handlePath();
 	_conf = &c->getRoute(c->getServer(fd, _host), _path);
-	handleFile();
+	//handleFile();
 	index = str.find("\r\n\r\n");
 	if (index != std::string::npos)
 	{
