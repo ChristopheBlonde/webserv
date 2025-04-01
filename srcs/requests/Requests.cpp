@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 10:46:49 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/01 22:57:38 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/01 23:29:54 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -209,6 +209,8 @@ void	Requests::parse(std::string str, Cluster *c, int fd)
 
 	if (!testAccess(alias.second, DIRACCESS))
 	{
+		std::cout << alias.second << "\n";
+		std::cout << "AAAAAAAAAAAAA\n";
 		error = 404;
 		return;
 	}

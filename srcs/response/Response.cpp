@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:15:20 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/01 22:23:05 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/01 23:32:56 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -163,11 +163,11 @@ void	Response::handleFile(Requests const &req)
 		_fileFd = openDir(_path, _fileName, _conf->getIndex());
 		if (_fileFd < 0)
 		{
-			//if (_fileName == "")
-			//{
-			//	createError(200);
-			//	return;
-			//}
+			if (_fileName == "")
+			{
+				createError(200);
+				return;
+			}
 			_status = 404;//hotfix
 			std::cout << "404\n";
 			std::cout << RED << "Error NORMAL fd" << RESET << std::endl;

@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/04/01 22:02:45 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/01 23:53:37 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,7 @@ class Route
 	protected:
 	std::string				name;
 	std::set<std::string>			acceptedMethods;
+	std::string				root;
 	std::pair<std::string, std::string>	alias;
 	std::vector<std::string>		indexFiles;
 	bool					autoindex, autoindexAssigned;
@@ -43,6 +44,7 @@ class Route
 	std::pair<std::string, std::string>	getAlias();
 	void					setAlias(const std::string &n,
 							const std::string &s);
+	std::string				getRoot();
 	void					setRoot(const std::string &s);
 	std::set<std::string>			&getAcceptedMethods();
 	void					addMethod(const std::string &s);

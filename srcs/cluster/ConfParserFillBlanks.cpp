@@ -6,7 +6,7 @@
 /*   By: glaguyon <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/11 18:47:40 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/04/01 22:01:04 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/02 00:08:34 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,8 +22,8 @@ void	ConfParser::fillBlanksLevel(Route &prev, std::vector<Route> &routes)
 	{
 		if (it->getAcceptedMethods().size() == 0)
 			it->getAcceptedMethods() = prev.getAcceptedMethods();
-		if (it->getAlias().second == "")
-			it->setAlias(prev.getAlias().first, prev.getAlias().second);
+		if (it->getRoot() == "")
+			it->setRoot(prev.getRoot());
 		if (it->getIndex().size() == 0)
 			it->getIndex() = prev.getIndex();
 		if (it->isAutoindexAssigned() == false)
@@ -37,6 +37,8 @@ void	ConfParser::fillBlanksLevel(Route &prev, std::vector<Route> &routes)
 	}
 	for (std::vector<Route>::iterator it = routes.begin(); it < routes.end(); ++it)
 		fillBlanksLevel(*it, it->getRoutes());
+	if (prev.getAlias().second != "")
+		prev.setRoot("");
 }
 
 void	ConfParser::fillBlanks()
@@ -47,10 +49,10 @@ void	ConfParser::fillBlanks()
 	{
 		std::vector<Route>	&routes = it->getRoutes();
 
-		if (it->getAlias().second == "")
+		if (it->getRoot() == "")
 			it->setRoot(Cluster::defaultRoot);
 		if (it->isAutoindexAssigned() == false)
-			it->setAutoindex(true);
+			it->setAutoindex(false);
 		if (it->getAcceptedMethods().size() == 0)
 			it->addMethod("GET");
 		fillBlanksLevel(*it, routes);
