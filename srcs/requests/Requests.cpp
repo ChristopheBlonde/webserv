@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 10:46:49 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/01 22:31:55 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/01 22:57:38 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -135,11 +135,12 @@ static void	initHeaders(std::string str,
 void	Requests::handleFile(std::string start, std::string alias)
 {
 	size_t		lastSlash = 0;
-	size_t		slash = _path.find("/", 1);
+	size_t		slash;
 
-	//alias is valid
-	//match is to a dir so _path should start with a / after the substr
+	//XXX use referer
 	_path = _path.substr(start.size());
+	slash = _path.find("/", 1);
+	std::cout << lastSlash << " " << _path.size() - 1 << "\n";
 	while (slash != std::string::npos)
 	{
 		if (testAccess(alias + _path.substr(0, slash), DIRACCESS))
@@ -154,9 +155,11 @@ void	Requests::handleFile(std::string start, std::string alias)
 		_path = alias + _path;
 		return;
 	}
-	if ((lastSlash != _path.size() - 1)//no
+	if ((lastSlash < _path.size() - 1)//no //used to be !=
 		&& testAccess(alias + _path, DIRACCESS))
 	{
+		std::cout << lastSlash << " " << _path.size() - 1 << "\n";
+		std::cout << RED << "AAAAA " << alias + _path << "\n";
 		if (error == 200)
 			error = (_type == GET) ? 301 : 308;
 		_path = start + _path + "/";

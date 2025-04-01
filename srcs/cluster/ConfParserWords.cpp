@@ -6,7 +6,7 @@
 /*   By: glaguyon <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/04 18:27:52 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/04/01 22:04:17 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/01 23:01:22 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -196,7 +196,7 @@ void	ConfParser::parseWordAlias(const std::string &s)
 {
 	if (routes.empty())
 		throw KeywordWrongLevelException();
-	if (getWordCountLocation("root") > 1 || getWordCountLocation("alias") > 1)
+	if (getWordCountLocation("root") + getWordCountLocation("alias") > 1)
 		throw DuplicateKeywordException("duplicate root or alias found");
 	if (!s[0])
 		return;
@@ -212,8 +212,8 @@ void	ConfParser::parseWordRoot(const std::string &s)
 {
 	if (routes.empty() && !server)
 		throw KeywordWrongLevelException();
-	if (wordCountServer["root"] > 1 || getWordCountLocation("root") > 1
-		|| getWordCountLocation("alias") > 1)
+	if (wordCountServer["root"] > 1
+		|| getWordCountLocation("root") + getWordCountLocation("alias") > 1)
 		throw DuplicateKeywordException("duplicate root or alias found");
 	if (!s[0])
 		return;
