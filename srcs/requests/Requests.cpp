@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 10:46:49 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/01 05:18:38 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/01 14:59:03 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,11 +90,14 @@ void	Requests::handleFile(void)
 {
 	size_t		index;
 
+	std::cout << "wow " << _path << "\n";
 	index = _path.find_last_of("/");
 	if (index == _path.size() - 1)
 		return;
+	std::cout << "wow " << _conf->getRoot() + _path << "\n";
 	if (testAccess(_conf->getRoot() + _path, DIRACCESS))
 	{
+		std::cout << "yes\n";
 		if (error == 200)
 		{
 			if (_type == GET)
@@ -108,6 +111,10 @@ void	Requests::handleFile(void)
 	_fileName = _path.substr(index + 1);
 	_pathInfo = _path.substr(1, index);
 	_path = _path.substr(0, index + 1);
+	std::cout << "wow " << _path << "\n";
+	std::cout << "wow " << _pathInfo << "\n";
+	std::cout << "wow " << _fileName << "\n";
+
 }
 
 void	Requests::handleHost(void)

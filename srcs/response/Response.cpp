@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:15:20 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/01 05:22:44 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/01 15:10:51 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,13 +59,16 @@ Response::Response(Requests const &req, Client  &client, Server &server)
 		createResponseHeader();
 		return ;
 	}
-	if (!checkMethod(req.getType()))
-		return ;
-	if (!checkContentLen(headers))
-		return ;
-
 	_path = handleBadPath(_conf->getRoot() + "/" + _path);
 	std::cout << "path: " << _path << "\n";
+	std::cout << "???1\n";
+	if (!checkMethod(req.getType()))
+		return ;
+	std::cout << "???2\n";
+	if (!checkContentLen(headers))
+		return ;
+	std::cout << "???3\n";
+
 
 	handleFile(req);
 	return ;
@@ -142,6 +145,8 @@ void	Response::handleFile(Requests const &req)
 		_fileFd = openDir(_path, _fileName, _conf->getIndex());
 		if (_fileFd < 0)
 		{
+			_status = 404;//hotfix
+			std::cout << "404\n";
 			createError(404);
 			return ;
 		}
@@ -156,7 +161,8 @@ void	Response::createError(int stat)
 	int			fd;
 
 	std::cout << "je susi erreur\n";
-	if (!_autoIndex)
+	std::cout << "status " << _status << "\n";
+	if (!_autoIndex || _status != 200)//XXX crappy hotfix
 	{
 		std::cout << "non\n";
 		content = _server.getErrorPage(stat);

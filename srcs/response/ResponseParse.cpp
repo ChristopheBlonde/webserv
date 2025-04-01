@@ -6,7 +6,7 @@
 /*   By: cblonde <cblonde@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/29 08:25:35 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/31 15:31:28 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/01 15:09:02 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,6 +42,7 @@ bool	Response::checkMethod(std::string method)
 	it = methods.find(method);
 	if (it == methods.end())
 	{
+		_status = 405;//hotfix
 		createError(405);
 		return (false);
 	}
@@ -60,9 +61,11 @@ bool	Response::checkContentLen(std::map<std::string,
 	it = headers.find("Content-Length");
 	if (it != headers.end())
 	{
+		std::cout << "checking len\n";
 		contentLen = strtol(it->second.data(), NULL, 10);
 		if (maxSize < static_cast<size_t>(contentLen))
 		{
+			std::cout << "bad len ??\n";
 			createError(413);
 			return (false);
 		}
