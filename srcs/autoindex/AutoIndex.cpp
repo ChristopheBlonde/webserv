@@ -6,7 +6,7 @@
 /*   By: cblonde <cblonde@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/03 07:54:18 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/31 16:00:24 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/02 00:53:23 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 #include <AutoIndex.hpp>
@@ -47,10 +47,11 @@ AutoIndex	&AutoIndex::operator=(AutoIndex const &rhs)
 }
 #include <iostream>
 
-std::string	AutoIndex::generate(char const *dirPath, std::string const &host,
+std::string	AutoIndex::generate(std::string toremove, std::string alias, char const *dirPath, std::string const &host,
 		int port)
 {
 	std::cout << "autoindex\n";
+	std::cout << "dirpath: " << dirPath << "\n";
 	AutoIndex page(dirPath, host, port);
 	std::string result;
 	DIR	*workDir;
@@ -59,7 +60,7 @@ std::string	AutoIndex::generate(char const *dirPath, std::string const &host,
 
 	workDir = opendir(page._dirPath);
 	if (!workDir)
-		return "";
+		return "";//throw ints or something
 		//throw	std::runtime_error("unable to open dir " + std::string(dirPath));
 	result = "<!DOCTYPE html>\n\t<html lang='en'>\n\t\t\
 			  <head>\n\t\t\t\
@@ -70,7 +71,7 @@ initial-scale=1.0\"/>\n\t\t\t\
 			  </head>\n\t\t\
 			  <body>\n\t\t\t";
 	while ((current = readdir(workDir)) != NULL)
-		result += page.getLink(path, current->d_name);
+		result += page.getLink(alias + path.substr(toremove.size()), current->d_name);
 	result += "\t\t</body>\n\t</html>";
 	closedir(workDir);
 	return (result);
@@ -110,5 +111,5 @@ std::string	AutoIndex::getLink(std::string path, std::string d_name)
 		<< path << (path.find_last_of("/") != path.size() - 1 ? "/" : "" )
 		<< protected_d_name << "'>" << protected_d_name
 		<< "</a><br/>\n\t\t\t";
-	return (str.str());
+	return (str.str());//display name html encoded, href url encoded
 }

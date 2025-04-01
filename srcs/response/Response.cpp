@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:15:20 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/01 23:32:56 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/02 00:54:25 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -163,7 +163,7 @@ void	Response::handleFile(Requests const &req)
 		_fileFd = openDir(_path, _fileName, _conf->getIndex());
 		if (_fileFd < 0)
 		{
-			if (_fileName == "")
+			if (_fileName == "" && _autoIndex)
 			{
 				createError(200);
 				return;
@@ -216,7 +216,12 @@ void	Response::createError(int stat)
 		//_status = 200;
 		//try
 		//{
-			content = AutoIndex::generate(_path.data(), _host, _port);
+		if (_conf->getRoot() == "")
+			content = AutoIndex::generate(_conf->getAlias().second,
+			_conf->getAlias().first, _path.data(), _host, _port);
+		else
+			content = AutoIndex::generate(
+			_conf->getRoot(), "", _path.data(), _host, _port);
 		//}
 		//catch (int code)//may work
 		//{

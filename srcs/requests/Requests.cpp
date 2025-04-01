@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 10:46:49 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/01 23:29:54 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/02 00:19:16 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -137,10 +137,8 @@ void	Requests::handleFile(std::string start, std::string alias)
 	size_t		lastSlash = 0;
 	size_t		slash;
 
-	//XXX use referer
 	_path = _path.substr(start.size());
 	slash = _path.find("/", 1);
-	std::cout << lastSlash << " " << _path.size() - 1 << "\n";
 	while (slash != std::string::npos)
 	{
 		if (testAccess(alias + _path.substr(0, slash), DIRACCESS))
@@ -151,27 +149,21 @@ void	Requests::handleFile(std::string start, std::string alias)
 		}
 		_fileName = _path.substr(lastSlash + 1, slash - lastSlash - 1);
 		_pathInfo = _path.substr(slash);
-		_path = _path.substr(0, lastSlash + 1);
-		_path = alias + _path;
+		_path = alias + _path.substr(0, lastSlash + 1);
 		return;
 	}
-	if ((lastSlash < _path.size() - 1)//no //used to be !=
+	if ((lastSlash < _path.size() - 1)
 		&& testAccess(alias + _path, DIRACCESS))
 	{
-		std::cout << lastSlash << " " << _path.size() - 1 << "\n";
-		std::cout << RED << "AAAAA " << alias + _path << "\n";
 		if (error == 200)
 			error = (_type == GET) ? 301 : 308;
 		_path = start + _path + "/";
 		if (!_query.empty())
 			_path += "?" + _query;
-		//_path += "/";//set path to og path + / + query (use requesturi ?)
 		return;
 	}
 	_fileName = _path.substr(lastSlash + 1);
-	_path = _path.substr(0, lastSlash + 1);
-	_path = alias + _path;
-	//path = alias + / + path
+	_path = alias + _path.substr(0, lastSlash + 1);
 }
 
 void	Requests::parse(std::string str, Cluster *c, int fd)
@@ -206,15 +198,16 @@ void	Requests::parse(std::string str, Cluster *c, int fd)
 	_conf = &c->getRoute(c->getServer(fd, _host), _path);
 
 	std::pair<std::string, std::string>	alias = _conf->getAlias();
+	std::string				start = alias.second;
 
-	if (!testAccess(alias.second, DIRACCESS))
+	if (start == "")
+		start = _conf->getRoot();
+	if (!testAccess(start, DIRACCESS))
 	{
-		std::cout << alias.second << "\n";
-		std::cout << "AAAAAAAAAAAAA\n";
 		error = 404;
 		return;
 	}
-	handleFile(alias.first, alias.second);
+	handleFile(alias.first, start);
 	index = str.find("\r\n\r\n");
 	if (index != std::string::npos)
 	{
