@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 10:46:49 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/01 19:27:40 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/01 21:28:39 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,7 +68,7 @@ static void initMethod(std::string str, t_rqType &type)
 
 void	Requests::handleFile(void)
 {
-	std::string	root = _conf->getRoot();
+	std::string	root = "";//_conf->getRoot();
 	size_t		lastSlash = 0;
 	size_t		slash = _path.find("/", 1);
 
@@ -194,7 +194,15 @@ void	Requests::parse(std::string str, Cluster *c, int fd)
 	handleHost();
 	handlePath();
 	_conf = &c->getRoute(c->getServer(fd, _host), _path);
+
+
+	std::cout << "path: " << _path << "\n";
 	handleFile();
+
+	std::cout << _conf->getName() << "|||" << _path << "|||" << _conf->getRoot() << "\n";
+	_path = _conf->getRoot() + _path.substr(_conf->getName().size());
+	std::cout << "PATH: " << _path << "\n";
+
 	index = str.find("\r\n\r\n");
 	if (index != std::string::npos)
 	{

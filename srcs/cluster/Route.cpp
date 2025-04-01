@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/24 08:21:24 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/04/01 22:03:06 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,14 +34,21 @@ std::string	Route::getName()
 	return name;
 }
 
-void	Route::setRoot(const std::string &s)
+std::pair<std::string, std::string>	Route::getAlias()
 {
-	root = s;
+	return alias;
 }
 
-std::string	Route::getRoot()
+void	Route::setRoot(const std::string &s)
 {
-	return root;
+	alias.first = "";
+	alias.second = s;
+}
+
+void	Route::setAlias(const std::string &n, const std::string &s)
+{
+	alias.first = n;
+	alias.second = s;
 }
 
 std::set<std::string>	&Route::getAcceptedMethods()

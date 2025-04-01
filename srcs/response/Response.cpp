@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:15:20 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/01 21:07:20 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/01 21:12:11 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,7 +61,7 @@ Response::Response(Requests const &req, Client  &client, Server &server)
 		createResponseHeader();
 		return ;
 	}
-	_path = handleBadPath(_conf->getRoot() + "/" + _path);
+	//_path = handleBadPath(_conf->getRoot() + "/" + _path);
 	std::cout << "path: " << _path << "\n";
 	std::cout << "???1\n";
 	if (!checkMethod(req.getType()))

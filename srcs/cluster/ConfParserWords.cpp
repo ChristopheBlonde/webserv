@@ -6,7 +6,7 @@
 /*   By: glaguyon <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/04 18:27:52 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/16 15:09:20 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/01 22:04:17 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -192,12 +192,29 @@ void	ConfParser::parseWordClientMaxBodySize(const std::string &s)
 	good = true;
 }
 
+void	ConfParser::parseWordAlias(const std::string &s)
+{
+	if (routes.empty())
+		throw KeywordWrongLevelException();
+	if (getWordCountLocation("root") > 1 || getWordCountLocation("alias") > 1)
+		throw DuplicateKeywordException("duplicate root or alias found");
+	if (!s[0])
+		return;
+	if (argc > 0)
+		throw TooManyArgumentsException();
+	routes.top()->setAlias(routes.top()->getName(), s);
+	++argc;
+	argv.push_back(s);
+	good = true;
+}
+
 void	ConfParser::parseWordRoot(const std::string &s)
 {
 	if (routes.empty() && !server)
 		throw KeywordWrongLevelException();
-	if (wordCountServer["root"] > 1 || getWordCountLocation("root") > 1)
-		throw DuplicateKeywordException("duplicate root found");
+	if (wordCountServer["root"] > 1 || getWordCountLocation("root") > 1
+		|| getWordCountLocation("alias") > 1)
+		throw DuplicateKeywordException("duplicate root or alias found");
 	if (!s[0])
 		return;
 	if (argc > 0)

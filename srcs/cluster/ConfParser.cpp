@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/12 15:38:13 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/01 21:55:47 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,6 +64,7 @@ ConfParser::ConfParser(Cluster &cluster, const std::string &filename) :
 	wordFunc["error_page"] = &ConfParser::parseWordErrorPage;
 	wordFunc["client_max_body_size"] = &ConfParser::parseWordClientMaxBodySize;
 	wordFunc["root"] = &ConfParser::parseWordRoot;
+	wordFunc["alias"] = &ConfParser::parseWordAlias;
 	wordFunc["methods"] = &ConfParser::parseWordMethods;
 	wordFunc["index"] = &ConfParser::parseWordIndex;
 	wordFunc["autoindex"] = &ConfParser::parseWordAutoindex;

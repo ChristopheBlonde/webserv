@@ -6,7 +6,7 @@
 /*   By: glaguyon <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/11 18:47:40 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/12 15:37:05 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/01 22:01:04 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,8 +22,8 @@ void	ConfParser::fillBlanksLevel(Route &prev, std::vector<Route> &routes)
 	{
 		if (it->getAcceptedMethods().size() == 0)
 			it->getAcceptedMethods() = prev.getAcceptedMethods();
-		if (it->getRoot() == "")
-			it->setRoot(prev.getRoot());
+		if (it->getAlias().second == "")
+			it->setAlias(prev.getAlias().first, prev.getAlias().second);
 		if (it->getIndex().size() == 0)
 			it->getIndex() = prev.getIndex();
 		if (it->isAutoindexAssigned() == false)
@@ -47,7 +47,7 @@ void	ConfParser::fillBlanks()
 	{
 		std::vector<Route>	&routes = it->getRoutes();
 
-		if (it->getRoot() == "")
+		if (it->getAlias().second == "")
 			it->setRoot(Cluster::defaultRoot);
 		if (it->isAutoindexAssigned() == false)
 			it->setAutoindex(true);

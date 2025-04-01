@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/20 17:55:36 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/01 21:54:36 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,6 +85,7 @@ class ConfParser
 	void	parseWordErrorPage(const std::string &s);
 	void	parseWordClientMaxBodySize(const std::string &s);
 	void	parseWordRoot(const std::string &s);
+	void	parseWordAlias(const std::string &s);
 	void	parseWordMethods(const std::string &s);
 	void	parseWordIndex(const std::string &s);
 	void	parseWordAutoindex(const std::string &s);
