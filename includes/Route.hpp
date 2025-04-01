@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/04/01 23:53:37 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/02 00:59:39 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,6 +46,8 @@ class Route
 							const std::string &s);
 	std::string				getRoot();
 	void					setRoot(const std::string &s);
+	std::string				getAliasedPart();
+	std::string				getMount();
 	std::set<std::string>			&getAcceptedMethods();
 	void					addMethod(const std::string &s);
 	std::vector<std::string>		&getIndex();

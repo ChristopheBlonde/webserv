@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/04/01 23:55:15 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/02 00:59:06 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,6 +53,18 @@ void	Route::setAlias(const std::string &n, const std::string &s)
 std::pair<std::string, std::string>	Route::getAlias()
 {
 	return alias;
+}
+
+std::string	Route::getMount()
+{
+	if (root != "")
+		return root;
+	return alias.second;
+}
+
+std::string	Route::getAliasedPart()
+{
+	return alias.first;
 }
 
 std::set<std::string>	&Route::getAcceptedMethods()
