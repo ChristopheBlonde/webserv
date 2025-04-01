@@ -54,8 +54,8 @@ Requests	&Requests::operator=(Requests const &rhs)
 
 static void initMethod(std::string str, t_rqType &type)
 {
-	std::string key[5] = {"GET", "HEAD", "POST", "PUT", "DELETE"};
-	t_rqType	types[5] = {GET, HEAD, POST, PUT, DELETE};
+	std::string key[3] = {"GET", "POST", "DELETE"};
+	t_rqType	types[3] = {GET, POST, DELETE};
 
 	type = UNKNOWN;
 	for (size_t i = 0; i < 3; i++)

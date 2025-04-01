@@ -23,9 +23,7 @@ class Cluster;
 typedef enum	e_request_type
 {
 	GET,
-	HEAD,
 	POST,
-	PUT,
 	DELETE,
 	UNKNOWN
 } t_rqType;

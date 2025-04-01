@@ -90,8 +90,8 @@ std::string Requests::getClientPort(void) const
 
 std::string	Requests::getType(void) const
 {
-	std::string key[5] = {"GET","HEAD", "POST", "PUT","DELETE"};
-	t_rqType	types[5] = {GET, HEAD, POST, PUT, DELETE};
+	std::string key[3] = {"GET", "POST", "DELETE"};
+	t_rqType	types[3] = {GET, POST, DELETE};
 	for (size_t i = 0; i < 3; i++)
 	{
 		if (_type == types[i])
