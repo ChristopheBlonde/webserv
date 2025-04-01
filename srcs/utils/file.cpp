@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:47:28 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/31 22:03:19 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/01 13:32:44 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,8 @@ int	openDir(std::string path, std::string &file, std::vector<std::string> &files
 	struct	dirent *dirp;
 	int		fd = -1;
 	std::vector<std::string>::iterator it;
-
+	std::cout << CYAN << "openDir: path: " << path << " file: "
+		<< file << RESET << std::endl;
 	dir = opendir(path.c_str());
 	if (!dir)
 	{
@@ -44,8 +45,10 @@ int	openDir(std::string path, std::string &file, std::vector<std::string> &files
 	{
 		if (file.empty())
 		{
+			std::cout << RED << "merde pas de file" << RESET << std::endl;
 			for (it = files.begin(); it != files.end(); it++)
 			{
+				std::cout << YELLOW << "file: " << *it << RESET << std::endl;
 				if (!std::string(dirp->d_name).compare(*it))
 				{
 					file = *it;
@@ -133,7 +136,8 @@ bool	testAccess(std::string path, t_access test)
 			break ;
 		case DIRACCESS:
 			struct stat	statbuf;
-			res = !(stat(path.data(), &statbuf) == 0 && S_ISDIR(statbuf.st_mode));
+			res = !(stat(path.data(), &statbuf) == 0
+					&& S_ISDIR(statbuf.st_mode));
 			break ;
 		default:
 			break ;

@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 10:46:49 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/01 05:18:38 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/01 13:10:39 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,8 +54,8 @@ Requests	&Requests::operator=(Requests const &rhs)
 
 static void initMethod(std::string str, t_rqType &type)
 {
-	std::string key[3] = {"GET","POST","DELETE"};
-	t_rqType	types[3] = {GET, POST, DELETE};
+	std::string key[5] = {"GET", "HEAD", "POST", "PUT", "DELETE"};
+	t_rqType	types[5] = {GET, HEAD, POST, PUT, DELETE};
 
 	type = UNKNOWN;
 	for (size_t i = 0; i < 3; i++)
@@ -158,7 +158,8 @@ static void	initHeaders(std::string str,
 
 void	Requests::parse(std::string str, Cluster *c, int fd)
 {
-	std::cout << CYAN << "raw request: |||" << RESET << str << CYAN << "|||\n" << RESET;
+	std::cout << CYAN << "raw request: |||" << RESET << std::endl
+		<< str << CYAN << "|||" << RESET << std::endl;
 	std::stringstream	ss(str);
 	std::string			word;
 	std::string			line;

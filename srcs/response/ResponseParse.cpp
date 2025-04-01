@@ -6,7 +6,7 @@
 /*   By: cblonde <cblonde@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/29 08:25:35 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/31 15:31:28 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/01 11:12:48 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,6 +42,7 @@ bool	Response::checkMethod(std::string method)
 	it = methods.find(method);
 	if (it == methods.end())
 	{
+		std::cout << YELLOW << "Error: Methods: " << RESET << std::endl;
 		createError(405);
 		return (false);
 	}

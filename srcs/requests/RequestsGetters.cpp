@@ -6,7 +6,7 @@
 /*   By: glaguyon <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/30 20:21:52 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/31 21:14:11 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/01 12:29:57 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,8 +90,8 @@ std::string Requests::getClientPort(void) const
 
 std::string	Requests::getType(void) const
 {
-	std::string key[3] = {"GET","POST","DELETE"};
-	t_rqType	types[3] = {GET, POST, DELETE};
+	std::string key[5] = {"GET","HEAD", "POST", "PUT","DELETE"};
+	t_rqType	types[5] = {GET, HEAD, POST, PUT, DELETE};
 	for (size_t i = 0; i < 3; i++)
 	{
 		if (_type == types[i])
