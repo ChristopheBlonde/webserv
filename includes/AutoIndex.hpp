@@ -6,17 +6,18 @@
 /*   By: cblonde <cblonde@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/03 07:39:04 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/02 00:50:24 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/02 01:06:36 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef AUTOINDEX_HPP
 # define AUTOINDEX_HPP
 
-# include <webserv.hpp>
 # include <string>
 # include <sstream>
 # include <dirent.h>
+# include "webserv.hpp"
+# include "utils.hpp"
 
 class AutoIndex
 {

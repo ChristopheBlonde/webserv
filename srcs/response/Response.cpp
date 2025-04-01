@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:15:20 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/02 00:54:25 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/02 01:05:20 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -216,12 +216,8 @@ void	Response::createError(int stat)
 		//_status = 200;
 		//try
 		//{
-		if (_conf->getRoot() == "")
-			content = AutoIndex::generate(_conf->getAlias().second,
-			_conf->getAlias().first, _path.data(), _host, _port);
-		else
-			content = AutoIndex::generate(
-			_conf->getRoot(), "", _path.data(), _host, _port);
+		content = AutoIndex::generate(_conf->getMount(),
+		_conf->getAliasedPart(), _path.data(), _host, _port);
 		//}
 		//catch (int code)//may work
 		//{

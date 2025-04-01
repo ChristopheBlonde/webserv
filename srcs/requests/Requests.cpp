@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 10:46:49 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/02 00:19:16 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/02 01:01:55 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -197,17 +197,14 @@ void	Requests::parse(std::string str, Cluster *c, int fd)
 	handlePath();
 	_conf = &c->getRoute(c->getServer(fd, _host), _path);
 
-	std::pair<std::string, std::string>	alias = _conf->getAlias();
-	std::string				start = alias.second;
+	std::string	mount = _conf->getMount();
 
-	if (start == "")
-		start = _conf->getRoot();
-	if (!testAccess(start, DIRACCESS))
+	if (!testAccess(mount, DIRACCESS))
 	{
 		error = 404;
 		return;
 	}
-	handleFile(alias.first, start);
+	handleFile(_conf->getAliasedPart(), mount);
 	index = str.find("\r\n\r\n");
 	if (index != std::string::npos)
 	{

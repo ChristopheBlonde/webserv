@@ -6,10 +6,11 @@
 /*   By: cblonde <cblonde@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/03 07:54:18 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/02 00:53:23 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/02 01:08:05 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-#include <AutoIndex.hpp>
+
+#include "AutoIndex.hpp"
 
 AutoIndex::AutoIndex(void)
 {
@@ -109,7 +110,7 @@ std::string	AutoIndex::getLink(std::string path, std::string d_name)
 	str << "<a href='"
 		<< "http://" << _host + ":" << _port
 		<< path << (path.find_last_of("/") != path.size() - 1 ? "/" : "" )
-		<< protected_d_name << "'>" << protected_d_name
+		<< urlEncode(d_name) << "'>" << protected_d_name
 		<< "</a><br/>\n\t\t\t";
-	return (str.str());//display name html encoded, href url encoded
+	return (str.str());
 }
