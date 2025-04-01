@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 10:24:52 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/01 17:29:51 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/01 22:18:48 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,7 +53,7 @@ class Requests
 
 		void	parse(std::string str, Cluster *c, int fd);
 		void	handlePath(void);
-		void	handleFile(void);
+		void	handleFile(std::string n, std::string alias);
 		void	handleHost(void);
 	public:
 		Requests(std::string &str, Client  &client, Cluster *c, int fd);

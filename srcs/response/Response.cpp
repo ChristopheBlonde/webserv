@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:15:20 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/01 21:12:11 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/01 22:23:05 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,7 @@ Response::Response(Requests const &req, Client  &client, Server &server)
 	initResponseHeaders(_headers);
 	this->_status = req.getError();
 	std::cout << YELLOW << "Status in request: " << _status << RESET << std::endl;
-	if (_status != 200)//400, 301, 308
+	if (_status != 200)//400, 404, 301, 308
 	{
 		if (req.getError() == 301 || req.getError() == 308)
 		{
@@ -54,7 +54,7 @@ Response::Response(Requests const &req, Client  &client, Server &server)
 	{
 		std::string	redir = _conf->getRedirection();
 		_headers["Location"] = "Location: "
-			+ redir.substr(0, redir.find("://") + 3)
+			+ redir.substr(0, redir.find("://") + 3)//return query too
 			+ urlEncode(redir.substr(redir.find("://") + 3));//WIP
 		//FIXME encode only uri and query
 		getStatFile("");

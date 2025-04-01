@@ -6,7 +6,7 @@
 /*   By: cblonde <cblonde@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/06 07:14:01 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/29 09:00:49 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/04/01 22:32:53 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -118,7 +118,7 @@ void	Cgi::initCgi(Requests const &req, Server &server)
 	_envMap["SERVER_NAME"] = tmp;
 	_pid = -1;
 	_status = -1;
-	_scriptPath = reqConf.getRoot() + "/" + req.getFileName();
+	_scriptPath = reqConf.getAlias().second + "/" + req.getFileName();//might be broken sorry
 	if (cgi != reqConf.getCgi().end())
 		_cgiPath = cgi->second;
 	else

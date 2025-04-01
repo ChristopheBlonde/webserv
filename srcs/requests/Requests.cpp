@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 10:46:49 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/01 21:28:39 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/01 22:31:55 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,38 +64,6 @@ static void initMethod(std::string str, t_rqType &type)
 			type = types[i];
 	}
 	return ;
-}
-
-void	Requests::handleFile(void)
-{
-	std::string	root = "";//_conf->getRoot();
-	size_t		lastSlash = 0;
-	size_t		slash = _path.find("/", 1);
-
-	while (slash != std::string::npos)
-	{
-		if (testAccess(root + _path.substr(0, slash), DIRACCESS))
-		{
-			lastSlash = slash;
-			slash = _path.find("/", lastSlash + 1);
-			continue;
-		}
-		_fileName = _path.substr(lastSlash + 1, slash - lastSlash - 1);
-		_pathInfo = _path.substr(slash);
-		_path = _path.substr(0, lastSlash + 1);
-		return;
-	}
-	if ((lastSlash != _path.size() - 1)
-		&& testAccess(root + _path, DIRACCESS))
-	{
-		if (error == 200)
-			error = (_type == GET) ? 301 : 308;
-		_path += "/";
-		return;
-	}
-	_fileName = _path.substr(lastSlash + 1);
-	_path = _path.substr(0, lastSlash + 1);
-
 }
 
 void	Requests::handlePath(void)
@@ -164,6 +132,45 @@ static void	initHeaders(std::string str,
 	}
 }
 
+void	Requests::handleFile(std::string start, std::string alias)
+{
+	size_t		lastSlash = 0;
+	size_t		slash = _path.find("/", 1);
+
+	//alias is valid
+	//match is to a dir so _path should start with a / after the substr
+	_path = _path.substr(start.size());
+	while (slash != std::string::npos)
+	{
+		if (testAccess(alias + _path.substr(0, slash), DIRACCESS))
+		{
+			lastSlash = slash;
+			slash = _path.find("/", lastSlash + 1);
+			continue;
+		}
+		_fileName = _path.substr(lastSlash + 1, slash - lastSlash - 1);
+		_pathInfo = _path.substr(slash);
+		_path = _path.substr(0, lastSlash + 1);
+		_path = alias + _path;
+		return;
+	}
+	if ((lastSlash != _path.size() - 1)//no
+		&& testAccess(alias + _path, DIRACCESS))
+	{
+		if (error == 200)
+			error = (_type == GET) ? 301 : 308;
+		_path = start + _path + "/";
+		if (!_query.empty())
+			_path += "?" + _query;
+		//_path += "/";//set path to og path + / + query (use requesturi ?)
+		return;
+	}
+	_fileName = _path.substr(lastSlash + 1);
+	_path = _path.substr(0, lastSlash + 1);
+	_path = alias + _path;
+	//path = alias + / + path
+}
+
 void	Requests::parse(std::string str, Cluster *c, int fd)
 {
 	std::cout << CYAN << "raw request: |||" << RESET << std::endl
@@ -195,14 +202,14 @@ void	Requests::parse(std::string str, Cluster *c, int fd)
 	handlePath();
 	_conf = &c->getRoute(c->getServer(fd, _host), _path);
 
+	std::pair<std::string, std::string>	alias = _conf->getAlias();
 
-	std::cout << "path: " << _path << "\n";
-	handleFile();
-
-	std::cout << _conf->getName() << "|||" << _path << "|||" << _conf->getRoot() << "\n";
-	_path = _conf->getRoot() + _path.substr(_conf->getName().size());
-	std::cout << "PATH: " << _path << "\n";
-
+	if (!testAccess(alias.second, DIRACCESS))
+	{
+		error = 404;
+		return;
+	}
+	handleFile(alias.first, alias.second);
 	index = str.find("\r\n\r\n");
 	if (index != std::string::npos)
 	{
