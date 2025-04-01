@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 10:46:49 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/31 23:44:57 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/01 05:18:38 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,16 +70,19 @@ void	Requests::handlePath(void)
 {
 	size_t		index;
 
-	_requestUri = handleBadPath(urlDecode(_path));
 	index = _path.find("?");
 	if (index != std::string::npos)
 	{
-		_query = urlDecodeQuery(_path.substr(index + 1));
-		_path = _path.substr(0, index);
+		_query = _path.substr(index + 1);//needs to be decoded after parsing
+		_path = handleBadPath(urlDecode(_path.substr(0, index)));
+		_requestUri = handleBadPath(_path + "?" + _query);
 	}
 	else
+	{
 		_query = "";
-	_path = handleBadPath(urlDecode(_path));
+		_path = handleBadPath(urlDecode(_path));
+		_requestUri = _path;
+	}
 	_documentUri = _path;
 }
 

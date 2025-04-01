@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:15:20 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/31 23:54:18 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/01 05:22:44 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,19 +41,20 @@ Response::Response(Requests const &req, Client  &client, Server &server)
 	{
 		if (req.getError() == 301 || req.getError() == 308)
 		{
-			_headers["Location"] = "Location: " + urlEncode(_path);
+			_headers["Location"] = "Location: " + urlEncode(_path);//add query
 			getStatFile("");
 		}
 		createResponseHeader();
 		return;
 	}
-	checkConnection(headers);
+	checkConnection(headers);//TODO parse query somewhere
 	if (_status == 301 || _status == 302)//308 ?
 	{
 		std::string	redir = _conf->getRedirection();
 		_headers["Location"] = "Location: "
 			+ redir.substr(0, redir.find("://") + 3)
 			+ urlEncode(redir.substr(redir.find("://") + 3));//WIP
+		//FIXME encode only uri and query
 		getStatFile("");
 		createResponseHeader();
 		return ;
