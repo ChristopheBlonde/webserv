@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:15:20 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/01 15:10:51 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/01 16:52:33 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,9 +34,11 @@ Response::Response(Requests const &req, Client  &client, Server &server)
 	this->_conf = &req.getConf();
 	this->_cgi = _conf->getCgi().empty() ? false : true;
 	this->_autoIndex = _conf->getAutoindex();
+	std::cout << RED << "Autoindex: " << _autoIndex << RESET << std::endl;
 	initMimeTypes(_mimeTypes);
 	initResponseHeaders(_headers);
 	this->_status = req.getError();
+	std::cout << YELLOW << "Status in request: " << _status << RESET << std::endl;
 	if (_status != 200)//400, 301, 308
 	{
 		if (req.getError() == 301 || req.getError() == 308)
@@ -104,25 +106,41 @@ Response	&Response::operator=(Response const &rhs)
 	return (*this);
 }
 
+bool	Response::checkExtCgi(void)
+{
+	std::map<std::string, std::string> cgi(_conf->getCgi());
+	std::map<std::string, std::string>::iterator it;
+	std::string ext(getFileType(_fileName));
+
+	if (_fileName.empty())
+		return (false);
+	for (it = cgi.begin(); it != cgi.end(); it++)
+		if (it->first == ext)
+			return (true);
+	return (false);
+}
+
 void	Response::handleFile(Requests const &req)
 {
 	if ((req.getType() == "POST" || req.getType() == "DELETE")
 			&& !_conf->getUploadDir().empty())
 	{
+		std::cout << GREEN << "/* UPLOAD */" << RESET << std::endl;
 		if (req.getType() == "POST")
 			uploadFile(req.getHeaders());
 		else
 			deleteFile();
 	}
-	else if (_cgi)
+	else if (_cgi && checkExtCgi())
 	{
+		std::cout << GREEN << "/* CGI */" << RESET << std::endl;
 		std::map<std::string, std::string> cgi(_conf->getCgi());
 		for (std::map<std::string, std::string>::iterator it = cgi.begin();
 				it != cgi.end(); it++)
 		{
-			if (!testAccess(it->second, EXIST) || !testAccess(it->second, EXECUTABLE))
+			if (!testAccess(it->second, EXIST)
+					|| !testAccess(it->second, EXECUTABLE))
 			{
-				std::cout << "a\n";
 				createError(400);
 				return ;
 			}
@@ -141,12 +159,13 @@ void	Response::handleFile(Requests const &req)
 	}
 	else
 	{
-		std::cout << "here\n";
+		std::cout << GREEN << "/* NORMAL */" << RESET << std::endl;
 		_fileFd = openDir(_path, _fileName, _conf->getIndex());
 		if (_fileFd < 0)
 		{
 			_status = 404;//hotfix
 			std::cout << "404\n";
+			std::cout << RED << "Error NORMAL fd" << RESET << std::endl;
 			createError(404);
 			return ;
 		}
@@ -163,8 +182,8 @@ void	Response::createError(int stat)
 	std::cout << "je susi erreur\n";
 	std::cout << "status " << _status << "\n";
 	if (!_autoIndex || _status != 200)//XXX crappy hotfix
+	//if (!_autoIndex || (_autoIndex && !_fileName.empty()))
 	{
-		std::cout << "non\n";
 		content = _server.getErrorPage(stat);
 		if (!content.empty() && _status != 500)
 		{
@@ -189,7 +208,6 @@ void	Response::createError(int stat)
 	}
 	else
 	{
-		std::cout << "oui\n";
 		_status = 200;
 		content = AutoIndex::generate(_path.data(), _host, _port);
 	}
@@ -225,7 +243,8 @@ void	Response::createResponseHeader(void)
 	_response += "\r\n";
 
 	_headerReady = true;
-	std::cout << CYAN << "Header ready" << _response << RESET << std::endl;
+	std::cout << CYAN << "Header ready" << std::endl << _response
+		<< RESET << std::endl;
 	return ;
 }
 
