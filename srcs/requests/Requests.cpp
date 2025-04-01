@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 10:46:49 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/01 19:14:20 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/01 19:27:40 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -192,17 +192,14 @@ void	Requests::parse(std::string str, Cluster *c, int fd)
 		initHeaders(line, _headers);
 	}
 	handleHost();
-	std::cout << "what\n";
 	handlePath();
 	_conf = &c->getRoute(c->getServer(fd, _host), _path);
 	handleFile();
 	index = str.find("\r\n\r\n");
-	std::cout << "what\n";
 	if (index != std::string::npos)
 	{
 		str.erase(0, index + 4);
 		_body = str;
 	}
-	std::cout << "what\n";
 	return ;
 }

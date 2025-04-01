@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:15:20 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/01 16:52:33 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/01 21:07:20 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -163,6 +163,11 @@ void	Response::handleFile(Requests const &req)
 		_fileFd = openDir(_path, _fileName, _conf->getIndex());
 		if (_fileFd < 0)
 		{
+			//if (_fileName == "")
+			//{
+			//	createError(200);
+			//	return;
+			//}
 			_status = 404;//hotfix
 			std::cout << "404\n";
 			std::cout << RED << "Error NORMAL fd" << RESET << std::endl;
@@ -207,9 +212,18 @@ void	Response::createError(int stat)
 		_status = stat;
 	}
 	else
-	{
-		_status = 200;
-		content = AutoIndex::generate(_path.data(), _host, _port);
+	{//TODO : pas de dir: 404, pas d'autoindex + dossier: 403
+		//_status = 200;
+		//try
+		//{
+			content = AutoIndex::generate(_path.data(), _host, _port);
+		//}
+		//catch (int code)//may work
+		//{
+		//	_status = code;
+		//	createError(code);
+		//	return ;
+		//}
 	}
 	_buffer.insert(_buffer.begin(), content.begin(), content.end());
 	createResponseHeader();
