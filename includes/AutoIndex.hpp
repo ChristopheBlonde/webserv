@@ -6,7 +6,7 @@
 /*   By: cblonde <cblonde@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/03 07:39:04 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/02 16:45:02 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/02 19:10:04 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,7 @@ class AutoIndex
 		~AutoIndex(void);
 		AutoIndex &operator=(AutoIndex const &rhs);
 		std::string	getLink(std::string path, std::string d_name);
+		static std::string htmlEncode(std::string s, bool isAttribute);
 	public:
 		static std::string generate(const std::string &mount,
 					const std::string &aliased,

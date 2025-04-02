@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:15:20 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/02 16:37:53 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/02 18:18:18 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -214,17 +214,18 @@ void	Response::createError(int stat)
 	else
 	{//TODO : pas de dir: 404, pas d'autoindex + dossier: 403
 		//_status = 200;
-		//try
-		//{
+		try
+		{
 		content = AutoIndex::generate(_conf->getMount(),
 		_conf->getAliasedPart(), _path, _host);
-		//}
-		//catch (int code)//may work
-		//{
-		//	_status = code;
-		//	createError(code);
-		//	return ;
-		//}
+		}
+		catch (int code)//may work
+		{
+			std::cout << "fuck autoindex exploded\n";
+			_status = code;
+			createError(code);
+			return ;
+		}
 	}
 	_buffer.insert(_buffer.begin(), content.begin(), content.end());
 	createResponseHeader();
