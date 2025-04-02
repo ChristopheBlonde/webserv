@@ -6,18 +6,13 @@
 /*   By: cblonde <cblonde@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/03 07:54:18 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/02 16:26:31 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/02 18:03:41 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "AutoIndex.hpp"
 
-AutoIndex::AutoIndex(void)
-{
-	return ;
-}
-
-AutoIndex::AutoIndex(char const *dirPath, std::string const &host)
+AutoIndex::AutoIndex(const std::string &dirPath, const std::string &host)
 	: _dirPath(dirPath),
 	_host(host)
 {
@@ -46,7 +41,8 @@ AutoIndex	&AutoIndex::operator=(AutoIndex const &rhs)
 }
 #include <iostream>
 
-std::string	AutoIndex::generate(std::string mount, std::string aliased, char const *dirPath, std::string const &host)
+std::string AutoIndex::generate(const std::string &mount, const std::string &aliased,
+	const std::string &dirPath, const std::string &host)
 {
 	std::cout << "autoindex\n";
 	std::cout << "dirpath: " << dirPath << "\n";
@@ -56,7 +52,7 @@ std::string	AutoIndex::generate(std::string mount, std::string aliased, char con
 	struct dirent *current;
 	std::string path(dirPath);
 
-	workDir = opendir(page._dirPath);
+	workDir = opendir(page._dirPath.data());
 	if (!workDir)
 		return "";//throw ints or something
 		//throw	std::runtime_error("unable to open dir " + std::string(dirPath));
@@ -90,37 +86,52 @@ initial-scale=1.0\"/>\n\t\t\t\
 
 std::string	AutoIndex::getLink(std::string path, std::string d_name)
 {
-	std::stringstream	str;
-	std::string		protected_d_name;
+	std::string	htmlSafeName;
+	std::string	attribSafeName;
+	std::string	encodedPath;
 
 	for (std::string::iterator it = d_name.begin(); it < d_name.end(); ++it)
 	{
 		switch (*it)
 		{
 			case '<':
-				protected_d_name += "&lt";
+				htmlSafeName += "&lt";
+				attribSafeName += *it;
 				break;
 			case '>':
-				protected_d_name += "&gt";
+				htmlSafeName += "&gt";
+				attribSafeName += *it;
 				break;
 			case '"':
-				protected_d_name += "&quot";
+				htmlSafeName += "&quot";
+				attribSafeName += "&quot";
 				break;
 			case '\'':
-				protected_d_name += "&#39";
+				htmlSafeName += "&#39";
+				attribSafeName += "&#39";
 				break;
 			case '&':
-				protected_d_name += "&amp";
+				htmlSafeName += "&amp";
+				attribSafeName += "&amp";
 				break;
 			default:
-				protected_d_name += *it;
+				htmlSafeName += *it;
+				attribSafeName += *it;
 				break;
 		}
-	}//FIXME just use host in host header
-	str << "<li><a href='"
-		<< "http://" << _host 
-		<< path << (path.find_last_of("/") != path.size() - 1 ? "/" : "" )
-		<< urlEncode(d_name) << "'>" << protected_d_name
-		<< "</a></li>\n\t\t\t";
-	return (str.str());
+	}
+	if (d_name == ".")
+		d_name = "";
+	else if (d_name == "..")
+	{
+		d_name = "";
+		path = path.substr(0, path.find_last_of("/", path.size() - 2) + 1);
+	}
+	encodedPath = urlEncode(path + d_name);
+	return ("<li>"
+		"<a href='http://" + _host + encodedPath
+			+ "' download='" + attribSafeName + "'>[\u2B07]</a>"
+		"<b>&#160&#160</b>"
+		"<a href='http://" + _host + encodedPath + "'>" + htmlSafeName + "</a>"
+		"</li>\n\t\t\t");
 }
