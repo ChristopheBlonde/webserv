@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:16:02 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/02 15:55:03 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/02 21:19:34 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,6 +64,9 @@ class Response
 		bool								_headerSent;
 		bool								_headerReady;
 		int									_sizeSend;
+		std::string							uploadPath;
+		
+
 		void	handleFile(Requests const &req);
 		void	checkConnection(std::map<std::string,
 				std::string> const &headers);

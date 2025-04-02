@@ -6,12 +6,12 @@
 /*   By: glaguyon <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/28 17:23:46 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/30 19:28:10 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/02 23:24:02 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <Response.hpp>
-#include <Client.hpp>
+#include "Response.hpp"
+#include "Client.hpp"
 
 bool	Response::handleFileUpload(int fd)
 {	
@@ -41,154 +41,92 @@ bool	Response::handleFileUpload(int fd)
 	return (true);
 }
 
-std::string	Response::handleBoundary(std::string &boundary,
-		size_t &step, size_t &currStart, std::string &fileName)
+void	Response::openFiles(std::vector<FileData> vec)
 {
-	size_t	start;
-	size_t	end;
-	int		fd;
-	std::string str = "";
-	FileData fileData = {fileName, NULL, 0, 0};
-	std::string path = _conf->getUploadDir();
-	
-	std::cerr << "handleboundary\n";
+	int	error = 0;
 
-	if (step == 0)
+	for (std::vector<FileData>::iterator it = vec.begin(); it < vec.end(); ++it)
 	{
-		start = _body.find(boundary, currStart);
-		if (start == std::string::npos)
+		int	fd = -1;
+		
+		if (it->fileName.find_first_of("/") != std::string::npos)
+			error = 400;
+		else if (testAccess(uploadPath + it->fileName, EXIST))
+			error = 409;
+		if (error)
+			break;
+		fd = openFileUpload(uploadPath + it->filename);
+		if (fd == -1)
 		{
-			std::cout << "la merde\n";
-			step = 2;
-			return (str);
+			error = 403;
+			break;
 		}
-		if (!_body.substr(start, boundary.size() + 2)
-				.compare(boundary + "--"))
-		{
-			step = 2;
-			return (str);
-		}
+		_filesUpload[fd] = *it;
 	}
-	std::cerr << "boundary, step = " << step << "\n";
-	switch (step)
+	if (error)
 	{
-		case 0:
-				start += (boundary.size() + 2);
-				end = _body.find("\r\n\r\n", start);
-				if (end != std::string::npos)
-				{
-					str = _body.substr(start, end - start);
-					std::cout << YELLOW << "Get header Boundary:"
-						<< std::endl << str << RESET << std::endl;
-					currStart = end + 4;
-					step = 1;
-				}
-				else
-					step = 2;
-			break ;
-		case 1:
-			std::cout << "|||\n" << _body << "|||\n";
-			end = _body.find(boundary, currStart);
-			if (end == std::string::npos)
-			{
-				step = 2;
-				break ;
-			}
-			step = 0;
-			if (fileName.empty())
-			{
-				std::cout << "wtf\n";
-				currStart = end;
-				break ;
-			}
-			fileName = "";
-			fileData.start = _body.data() + currStart;
-			fileData.size = end - currStart - 2;
-			fd = openFileUpload(path + "/" + fileData.fileName);
-			if (fd >= 0)
-				_filesUpload[fd] = fileData;
-			currStart = end;
-			break ;
-		case 2:
-			break ;
-		default:
-			break ;
+		for (it = _filesUpload.begin(); it != _filesUpload.end(); ++it)
+		{
+			close(it->first);
+			std::remove(uploadPath + it->second.fileName);
+		}
+		_filesUpload.clear();
+		throw error;
 	}
-	return (str);
 }
 
-static std::string	getBoundaryFileName(std::string header)
+std::vector<FileData>	Response::splitFiles(std::string boundary)
 {
-	size_t		index;
-	size_t		end;
-	std::string	fileName = "";
+	size_t	pos = 0;
 	
-	std::cerr << "getboundaryfilename\n";
-
-	index = header.find("filename=\"");
-	end = header.find("\"", index + 11);//FIXME " in name ?
-	if (index != std::string::npos && end != std::string::npos)
-		fileName = header.substr(index + 10, end - index - 10);
-	std::cout << YELLOW << "In upload: path:" << "File Name: "
-		<< fileName<< RESET << std::endl;
-	return (fileName);
+	while (pos < _body.size())
+	{
+		//chercher ligne qui commence par -- boundary
+		//si ligne = -- boundary -- c'est la fin, return;
+		//chercher fin des headers
+		//extract le filename dans une map locale de headers
+		//chercher le prochain \r\n-- boundary
+	}
+	throw 400;
 }
 
 void	Response::uploadFile(std::map<std::string, std::string> const &headers)
 {
-	std::map<std::string, std::string>::const_iterator head;
-	std::string path = _conf->getUploadDir();
-	size_t	index;
-	size_t	step = 0;
-	size_t	currStart = 0;
-	std::string boundary = "";
-	std::string	fileName = "";
-	std::string boundaryHeader = "";
+	this->uploadPath = _conf.getMount();
+	if (_conf->getUploadDir()[0] != '/' && uploadPath.back() != '/')
+		uploadPath += '/';
+	uploadPath += _conf->getUploadDir() + _path.substr(_conf->getMount().size());
+	if (!testAccess(uploadPath))
+		return createError(404);
 
-	std::cerr << "uploadFile\n";
-	if (testAccess(path, DIRACCESS))
+	std::string		boundary = headers["Content-Type"];
+	size_t			boundaryPos = boundary.find("boundary=");
+	std::vector<FileData>	fileVec;
+
+	if (boundaryPos == std::string::npos)
+		return createError(400);
+	boundary = boundary.substr(boundaryPos + 9);
+	boundary = boundary.substr(0, boundary.find(";"));
+	try
 	{
-		std::cout << "body size: " << _body.size() << std::endl;
-		head = headers.find("Content-Type");
-		if (head != headers.end())
-		{
-			index = head->second.find("boundary=");
-			if (index != std::string::npos)
-			{
-				boundary = head->second.substr(index + 9);
-				/* while boundary end*/
-				while (step != 2)
-				{
-					//std::cout << GREEN << "Body: " << _body.data() + currStart
-						//<< RESET << std::endl;
-					boundaryHeader = handleBoundary(boundary, step, currStart,
-							fileName);
-					if (!boundaryHeader.empty())
-						fileName = getBoundaryFileName(boundaryHeader);
-				}
-			}
-		}
-		if (_filesUpload.empty())
-		{
-			std::cerr << "skibidi\n";
-			createError(500);
-			return ;
-		}
-		std::map<int, FileData>::iterator it;
-		for (it = _filesUpload.begin(); it != _filesUpload.end(); it++)
-		{
-			FileData tmp = it->second;
-			std::cout << GREEN << "File Name: " << tmp.fileName
-				<< std::endl << "File size: "
-				<< tmp.size << RESET << std::endl;
-			addFdToCluster(it->first, POLLOUT);
-			
-			std::map<int, FileData>::iterator it2 = it;
-			++it2;
-			if (it2 == _filesUpload.end())
-				return ;
-		}
+		fileVec = splitFiles(boundary);
+		if (fileVec.empty())
+			return createError(400);
+		openFiles(fileVec);
 	}
-	createError(400);
-	return ;
+	catch (int code)
+	{
+		return createError(code);
+	}
+
+	std::map<int, FileData>::iterator it;
+
+	for (it = _filesUpload.begin(); it != _filesUpload.end(); it++)
+	{
+		FileData tmp = it->second;
+		std::cout << GREEN << "File Name: " << tmp.fileName
+			<< std::endl << "File size: "
+			<< tmp.size << RESET << std::endl;
+		addFdToCluster(it->first, POLLOUT);
+	}
 }

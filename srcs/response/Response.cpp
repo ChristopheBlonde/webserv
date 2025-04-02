@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:15:20 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/02 18:18:18 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/02 21:21:29 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -122,9 +122,12 @@ bool	Response::checkExtCgi(void)
 
 void	Response::handleFile(Requests const &req)
 {
+	//413 already done
+	//le cgi est cense pouvoir etre appele apres upload mais flemme
 	if ((req.getType() == "POST" || req.getType() == "DELETE")
 			&& !_conf->getUploadDir().empty())
 	{
+		//rejeter ici si pas multipart
 		std::cout << GREEN << "/* UPLOAD */" << RESET << std::endl;
 		if (req.getType() == "POST")
 			uploadFile(req.getHeaders());
