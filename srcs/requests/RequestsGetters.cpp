@@ -6,7 +6,7 @@
 /*   By: glaguyon <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/30 20:21:52 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/04/01 12:29:57 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/04/02 15:47:09 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,11 +46,6 @@ std::string	Requests::getQuery(void) const
 std::string Requests::getFileName(void) const
 {
 	return (_fileName);
-}
-
-int			Requests::getPort(void) const
-{
-	return (_port);
 }
 
 Route	&Requests::getConf(void) const

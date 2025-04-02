@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 10:46:49 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/02 01:01:55 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/02 15:52:20 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,7 +47,6 @@ Requests	&Requests::operator=(Requests const &rhs)
 		this->_body	= rhs._body;
 		this->_mimeTypes = rhs._mimeTypes;
 		this->_fileName = rhs._fileName;
-		this->_port = rhs._port;
 	}
 	return (*this);
 }
@@ -84,24 +83,6 @@ void	Requests::handlePath(void)
 		_requestUri = _path;
 	}
 	_documentUri = _path;
-}
-
-void	Requests::handleHost(void)
-{
-	size_t		index;
-	char const	*tmp;
-	char		*end;
-
-	_host = _headers["Host"];
-	index = _host.find(":");
-	if (index != std::string::npos)
-	{
-		tmp = _host.substr(index + 1).data();
-		_host = _host.substr(0, index);
-		_port = static_cast<int>(strtol(tmp, &end, 10));
-	}
-	else
-		_port = 8080;
 }
 
 static void	initHeaders(std::string str,
@@ -193,9 +174,14 @@ void	Requests::parse(std::string str, Cluster *c, int fd)
 			break ;
 		initHeaders(line, _headers);
 	}
-	handleHost();
+	_host = _headers["Host"];
+	if (_host == "")
+	{
+		error = 400;
+		return;
+	}
 	handlePath();
-	_conf = &c->getRoute(c->getServer(fd, _host), _path);
+	_conf = &c->getRoute(c->getServer(fd, _host.substr(0, _host.find(":"))), _path);
 
 	std::string	mount = _conf->getMount();
 

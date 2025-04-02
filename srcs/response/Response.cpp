@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:15:20 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/02 01:05:20 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/02 15:54:10 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ Response::Response(Requests const &req, Client  &client, Server &server)
 	this->_protocol = req.getProtocol();
 	this->_host = req.getHost();
 	this->_path = req.getPath();
-	this->_port = req.getPort();
+	//this->_port = req.getPort();
 	this->_fileName = req.getFileName();
 	this->_conf = &req.getConf();
 	this->_cgi = _conf->getCgi().empty() ? false : true;
@@ -49,7 +49,7 @@ Response::Response(Requests const &req, Client  &client, Server &server)
 		createResponseHeader();
 		return;
 	}
-	checkConnection(headers);//TODO parse query somewhere
+	checkConnection(headers);//TODO if error = 400 DO NOT USE CONF
 	if (_status == 301 || _status == 302)//308 ?
 	{
 		std::string	redir = _conf->getRedirection();
@@ -97,7 +97,7 @@ Response	&Response::operator=(Response const &rhs)
 		this->_body = rhs._body;
 		this->_path = rhs._path;
 		this->_host = rhs._host;
-		this->_port = rhs._port;
+		//this->_port = rhs._port;
 		this->_headers = rhs._headers;
 		this->_autoIndex = rhs._autoIndex;
 		this->_response = rhs._response;
@@ -217,7 +217,7 @@ void	Response::createError(int stat)
 		//try
 		//{
 		content = AutoIndex::generate(_conf->getMount(),
-		_conf->getAliasedPart(), _path.data(), _host, _port);
+		_conf->getAliasedPart(), _path.data(), _host);
 		//}
 		//catch (int code)//may work
 		//{

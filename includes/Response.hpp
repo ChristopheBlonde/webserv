@@ -6,19 +6,19 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:16:02 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/01 12:18:55 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/04/02 15:55:03 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef RESPONSE_HPP
 # define RESPONSE_HPP
 
-# include <webserv.hpp>
-# include <Requests.hpp>
-# include <AutoIndex.hpp>
-# include <ErrorPages.hpp>
-# include <Cgi.hpp>
-# include <Server.hpp>
+# include "webserv.hpp"
+# include "Requests.hpp"
+# include "AutoIndex.hpp"
+# include "ErrorPages.hpp"
+# include "Cgi.hpp"
+# include "Server.hpp"
 # include <map>
 # include <string>
 # include <vector>
@@ -49,7 +49,7 @@ class Response
 		std::string							_body;
 		std::string							_path;
 		std::string							_host;
-		int									_port;
+		//int									_port;
 		std::string							_fileName;
 		std::map<std::string,std::string>	_headers;
 		bool								_autoIndex;

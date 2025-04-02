@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 10:24:52 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/01 22:18:48 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/02 15:51:52 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,7 +44,6 @@ class Requests
 		std::map<std::string,std::string>	_mimeTypes;
 		std::string							_query;
 		std::string							_fileName;
-		int									_port;
 		Route								*_conf;
 		Client								&_client;
 		/* handle in out */
@@ -54,7 +53,6 @@ class Requests
 		void	parse(std::string str, Cluster *c, int fd);
 		void	handlePath(void);
 		void	handleFile(std::string n, std::string alias);
-		void	handleHost(void);
 	public:
 		Requests(std::string &str, Client  &client, Cluster *c, int fd);
 		Requests(Requests const &src);
@@ -68,7 +66,6 @@ class Requests
 		std::string const					&getBody(void) const;
 		std::string							getQuery(void) const;
 		std::string							getFileName(void) const;
-		int									getPort(void) const;
 		Route								&getConf(void) const;
 		std::string							getRequestUri(void) const;
 		std::string							getDocumentUri(void) const;
