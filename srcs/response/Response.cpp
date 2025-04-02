@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:15:20 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/02 18:18:18 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/03 01:38:50 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,10 +31,7 @@ Response::Response(Requests const &req, Client  &client, Server &server)
 	this->_path = req.getPath();
 	//this->_port = req.getPort();
 	this->_fileName = req.getFileName();
-	this->_conf = &req.getConf();
-	this->_cgi = _conf->getCgi().empty() ? false : true;
-	this->_autoIndex = _conf->getAutoindex();
-	std::cout << RED << "Autoindex: " << _autoIndex << RESET << std::endl;
+	//std::cout << RED << "Autoindex: " << _autoIndex << RESET << std::endl;
 	initMimeTypes(_mimeTypes);
 	initResponseHeaders(_headers);
 	this->_status = req.getError();
@@ -49,6 +46,9 @@ Response::Response(Requests const &req, Client  &client, Server &server)
 		createResponseHeader();
 		return;
 	}
+	this->_conf = &req.getConf();//maybe higher but uses conf so bad
+	this->_cgi = _conf->getCgi().empty() ? false : true;
+	this->_autoIndex = _conf->getAutoindex();
 	checkConnection(headers);//TODO if error = 400 DO NOT USE CONF
 	if (_status == 301 || _status == 302)//308 ?
 	{
@@ -179,6 +179,7 @@ void	Response::handleFile(Requests const &req)
 	}
 }
 
+//TODO must not use headers or conf if error = 400
 void	Response::createError(int stat)
 {
 	std::string	content;
@@ -241,7 +242,7 @@ void	Response::createResponseHeader(void)
 		+ getResponseTypeStr(_status)
 		+ "\r\n";
 	_headers["Content-Length"] += to_string(_buffer.size());
-	if (_status != 301 && _status != 302)
+	if (_status != 301 && _status != 302 && _status != 400)//added 400 hotfix
 	{
 		std::cout << "salut: " << _mimeTypes[getFileType(_fileName)] << "\n";
 		std::cout << getFileType(_fileName) << "\n";
