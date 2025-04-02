@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 10:46:49 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/02 15:52:20 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/03 01:44:42 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,32 +85,23 @@ void	Requests::handlePath(void)
 	_documentUri = _path;
 }
 
-static void	initHeaders(std::string str,
+static int	initHeader(std::string str,
 		std::map<std::string,std::string> &headers)
 {
-	std::string	key;
-	size_t		index;
-	std::string	line;
+	std::string				key;
+	size_t					index;
+	std::pair<std::string, std::string>	pair;
 
-	trim(str);
-	std::stringstream ss(str);
-	while (getline(ss, line))
-	{
-		if (line.empty())
-			return ;
-		std::pair<std::string, std::string> pair;
-		if ((index = line.find(":")) == std::string::npos)
-			pair.first = line.substr(0);
-		else
-		{
-			pair.first = line.substr(0, index);
-			pair.second = line.substr(index + 1, line.size() - index - 2);
-		}
-		formatHeader(pair.first);
-		trim(pair.second);
-		if (!pair.first.empty())
-			headers.insert(pair);
-	}
+	if ((index = str.find(":")) == std::string::npos)
+		return 1;
+	pair.first = str.substr(0, index);
+	pair.second = str.substr(index + 1, str.size() - index - 2);
+	formatHeader(pair.first);
+	trim(pair.second);
+	if (pair.first.empty())
+		return 1;
+	headers.insert(pair);
+	return 0;
 }
 
 void	Requests::handleFile(std::string start, std::string alias)
@@ -159,7 +150,8 @@ void	Requests::parse(std::string str, Cluster *c, int fd)
 	getline(ss, line);
 	std::stringstream ssLine(line);
 	ssLine >> word >> _path >> _protocol;
-	if (_protocol.compare("HTTP/1.0") && _protocol.compare("HTTP/1.1"))
+	if ((_protocol.compare("HTTP/1.0") && _protocol.compare("HTTP/1.1"))
+		|| line[line.size() - 1] != '\r')
 	{
 		error = 400;
 		_protocol = "HTTP/1.1";
@@ -169,10 +161,20 @@ void	Requests::parse(std::string str, Cluster *c, int fd)
 		error = 400;
 	while (getline(ss, line))
 	{
-		trim(line);
+		if (line[line.size() - 1] != '\r')
+		{
+			error = 400;
+			return;
+		}
+		line.erase(line.size() - 1);
 		if (line.empty())
 			break ;
-		initHeaders(line, _headers);
+		trim(line);
+		if (initHeader(line, _headers))
+		{
+			error = 400;
+			return;
+		}
 	}
 	_host = _headers["Host"];
 	if (_host == "")
@@ -187,6 +189,7 @@ void	Requests::parse(std::string str, Cluster *c, int fd)
 
 	if (!testAccess(mount, DIRACCESS))
 	{
+		std::cout << mount <<" wtf\n";
 		error = 404;
 		return;
 	}

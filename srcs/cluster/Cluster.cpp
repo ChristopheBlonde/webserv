@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/04/01 23:42:27 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/03 00:51:43 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,7 +102,9 @@ Route	&Cluster::getRoute(Route &r, const std::string &path)
 		
 		if (routeName.size() > routeLen
 			&& routeName == path.substr(0, routeName.size())
-			&& (path[routeName.size()] == '/' || path[routeName.size()] == '\0'))
+			&& (path[routeName.size()] == '/'
+				|| path[routeName.size()] == '\0'
+				|| routeName[routeName.size() - 1] == '/'))
 		{
 			routeLen = routeName.size();
 			longestRoute = &*it;
