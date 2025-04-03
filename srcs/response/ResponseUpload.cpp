@@ -6,7 +6,7 @@
 /*   By: glaguyon <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/28 17:23:46 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/04/03 05:34:50 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/03 15:09:13 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -197,10 +197,6 @@ std::vector<FileData>	Response::splitFiles(std::string boundary)
 
 void	Response::uploadFile(std::map<std::string, std::string> const &headers)
 {
-	this->uploadPath = _conf->getMount();
-	if (_conf->getUploadDir()[0] != '/' && uploadPath[uploadPath.size() - 1] != '/')
-		uploadPath += '/';
-	uploadPath += _conf->getUploadDir() + "/";
 	if (!testAccess(uploadPath, DIRACCESS))
 		return createError(404);
 

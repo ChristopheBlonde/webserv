@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:15:20 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/03 05:22:57 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/03 15:09:00 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,6 +47,7 @@ Response::Response(Requests const &req, Client  &client, Server &server)
 		return;
 	}
 	this->_conf = &req.getConf();//maybe higher but uses conf so bad
+	this->uploadPath = _conf->getUploadDir() + "/";
 	this->_cgi = _conf->getCgi().empty() ? false : true;
 	this->_autoIndex = _conf->getAutoindex();
 	checkConnection(headers);//TODO if error = 400 DO NOT USE CONF
