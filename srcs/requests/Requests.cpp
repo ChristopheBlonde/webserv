@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 10:46:49 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/03 04:53:52 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/03 15:20:20 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,14 +53,26 @@ Requests	&Requests::operator=(Requests const &rhs)
 
 static void initMethod(std::string str, t_rqType &type)
 {
-	std::string key[3] = {"GET", "POST", "DELETE"};
+	std::string	key[3] = {"GET", "POST", "DELETE"};
+	std::string	unimplemented[6] = {"HEAD", "PUT", "CONNECT", "OPTIONS", "TRACE", "PATCH"};
 	t_rqType	types[3] = {GET, POST, DELETE};
 
 	type = UNKNOWN;
 	for (size_t i = 0; i < 3; i++)
 	{
 		if (str == key[i])
+		{
 			type = types[i];
+			return;
+		}
+	}
+	for (size_t i = 0; i < 6; i++)
+	{
+		if (str == unimplemented[i])
+		{
+			type = UNIMPLEMENTED;
+			return;
+		}
 	}
 	return ;
 }
@@ -159,6 +171,8 @@ void	Requests::parse(std::string str, Cluster *c, int fd)
 	initMethod(word, _type);
 	if (_type == UNKNOWN)
 		error = 400;
+	else if (_type == UNIMPLEMENTED && error != 400)
+		error = 501;
 	while (getline(ss, line))
 	{
 		if (line[line.size() - 1] != '\r')
@@ -187,9 +201,8 @@ void	Requests::parse(std::string str, Cluster *c, int fd)
 
 	std::string	mount = _conf->getMount();
 
-	if (!testAccess(mount, DIRACCESS))
+	if (!testAccess(mount, DIRACCESS) && error == 200)
 	{
-		std::cout << mount <<" wtf\n";
 		error = 404;
 		return;
 	}
