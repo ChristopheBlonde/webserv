@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 10:46:49 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/03 01:44:42 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/03 04:53:52 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,7 +95,7 @@ static int	initHeader(std::string str,
 	if ((index = str.find(":")) == std::string::npos)
 		return 1;
 	pair.first = str.substr(0, index);
-	pair.second = str.substr(index + 1, str.size() - index - 2);
+	pair.second = str.substr(index + 1);
 	formatHeader(pair.first);
 	trim(pair.second);
 	if (pair.first.empty())

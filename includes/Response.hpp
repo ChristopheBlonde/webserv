@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:16:02 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/02 21:19:34 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/03 03:30:07 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,8 +75,8 @@ class Response
 				std::string> const &headers);
 		void	getStatFile(std::string path);
 		void	uploadFile(std::map<std::string, std::string> const &headers);
-		std::string	handleBoundary(std::string &boundary,
-				size_t &step, size_t &currStart, std::string &filename);
+		std::vector<FileData>	splitFiles(std::string boundary);
+		void	openFiles(std::vector<FileData> vec);
 		void	addFdToCluster(int fd, short event);
 		bool	handleFileUpload(int fd);
 		bool	handleFdCgi(int fd);

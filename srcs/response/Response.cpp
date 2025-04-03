@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:15:20 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/03 01:52:44 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/03 05:22:57 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -188,6 +188,7 @@ void	Response::createError(int stat)
 	std::string	content;
 	int			fd;
 
+	_status = stat;//idk
 	std::cout << "je susi erreur\n";
 	std::cout << "status " << _status << "\n";
 	if (!_autoIndex || _status != 200)//XXX crappy hotfix
