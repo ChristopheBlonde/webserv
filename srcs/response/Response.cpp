@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:15:20 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/04 18:08:49 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/04 18:12:06 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@ Response::Response(Requests const &req, Client  &client, Server &server)
 {
 	std::map<std::string, std::string> const &headers = req.getHeaders();
 
+	this->_socket = req.getFd();
 	this->_body = req.getBody();
 	this->_headerSent = false;
 	this->_headerReady = false;
@@ -29,7 +30,6 @@ Response::Response(Requests const &req, Client  &client, Server &server)
 	this->_protocol = req.getProtocol();
 	this->_host = req.getHost();
 	this->_path = req.getPath();
-	//this->_port = req.getPort();
 	this->_fileName = req.getFileName();
 	//std::cout << RED << "Autoindex: " << _autoIndex << RESET << std::endl;
 	initMimeTypes(_mimeTypes);
@@ -404,9 +404,4 @@ void	Response::deleteFile(void)
 	}
 	else
 		createError(500);
-}
-
-void	Response::setSocket(int const socket)
-{
-	_socket = socket;
 }

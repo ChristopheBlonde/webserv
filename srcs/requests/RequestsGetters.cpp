@@ -6,12 +6,17 @@
 /*   By: glaguyon <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/30 20:21:52 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/04/02 15:47:09 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/04 18:13:29 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Requests.hpp"
 #include "Client.hpp"
+
+int	Requests::getFd() const
+{
+	return fd;
+}
 
 std::string	Requests::getProtocol(void) const
 {

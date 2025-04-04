@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:16:02 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/04 18:09:03 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/04 18:12:41 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,7 +90,6 @@ class Response
 		~Response(void);
 		Response &operator=(Response const &rhs);
 
-		void			setSocket(int const socket);
 		void			createError(int stat);
 		void			createResponseHeader(void);
 		bool			handleInOut(struct pollfd &fd);

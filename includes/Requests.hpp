@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 10:24:52 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/02 15:51:52 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/04 18:14:07 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,6 +58,7 @@ class Requests
 		Requests(Requests const &src);
 		~Requests(void);
 		Requests	&operator=(Requests const &rhs);
+		int								getFd() const
 		std::string							getProtocol(void) const;
 		std::string							getPath(void) const;
 		std::map<std::string,std::string> const	&getHeaders(void) const;
