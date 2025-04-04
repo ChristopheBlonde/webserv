@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:15:20 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/03 05:22:57 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/04 17:55:54 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -97,7 +97,6 @@ Response	&Response::operator=(Response const &rhs)
 		this->_body = rhs._body;
 		this->_path = rhs._path;
 		this->_host = rhs._host;
-		//this->_port = rhs._port;
 		this->_headers = rhs._headers;
 		this->_autoIndex = rhs._autoIndex;
 		this->_response = rhs._response;
@@ -122,45 +121,44 @@ bool	Response::checkExtCgi(void)
 
 void	Response::handleFile(Requests const &req)
 {
-	//413 already done
-	//le cgi est cense pouvoir etre appele apres upload mais flemme
-	if ((req.getType() == "POST" || req.getType() == "DELETE")
-			&& !_conf->getUploadDir().empty())
+	if (req.getType() == "DELETE")
+		deleteFile();
+	else if (req.getType() == "POST")
 	{
+		//&& !_conf->getUploadDir().empty() + check multipart
+		//check exact match
 		//rejeter ici si pas multipart
 		std::cout << GREEN << "/* UPLOAD */" << RESET << std::endl;
 		if (req.getType() == "POST")
 			uploadFile(req.getHeaders());
-		else
-			deleteFile();
-	}
-	else if (_cgi && checkExtCgi())
-	{
-		std::cout << GREEN << "/* CGI */" << RESET << std::endl;
-		std::map<std::string, std::string> cgi(_conf->getCgi());
-		for (std::map<std::string, std::string>::iterator it = cgi.begin();
-				it != cgi.end(); it++)
+		else if (_cgi && checkExtCgi())
 		{
-			if (!testAccess(it->second, EXIST)
-					|| !testAccess(it->second, EXECUTABLE))
+			std::cout << GREEN << "/* CGI */" << RESET << std::endl;
+			std::map<std::string, std::string> cgi(_conf->getCgi());
+			for (std::map<std::string, std::string>::iterator it = cgi.begin();
+					it != cgi.end(); it++)
 			{
-				createError(400);
-				return ;
+				if (!testAccess(it->second, EXIST)
+						|| !testAccess(it->second, EXECUTABLE))
+				{
+					createError(400);
+					return ;
+				}
 			}
+			Cgi cgiObj(req, _server);
+			int status = cgiObj.execScript();
+			if (status == 200)
+			{
+				_cgiFd[0] = cgiObj.getChildFd();
+				_cgiFd[1] = cgiObj.getParentFd();
+				addFdToCluster(cgiObj.getChildFd(), POLLIN);
+				addFdToCluster(cgiObj.getParentFd(), POLLOUT);
+			}
+			else
+				createError(status);
 		}
-		Cgi cgiObj(req, _server);
-		int status = cgiObj.execScript();
-		if (status == 200)
-		{
-			_cgiFd[0] = cgiObj.getChildFd();
-			_cgiFd[1] = cgiObj.getParentFd();
-			addFdToCluster(cgiObj.getChildFd(), POLLIN);
-			addFdToCluster(cgiObj.getParentFd(), POLLOUT);
-		}
-		else
-			createError(status);
 	}
-	else
+	else//get
 	{
 		std::cout << GREEN << "/* NORMAL */" << RESET << std::endl;
 		_fileFd = openDir(_path, _fileName, _conf->getIndex());
@@ -387,23 +385,21 @@ bool	Response::handleFdCgi(int fd)
 
 void	Response::deleteFile(void)
 {
-	std::string	path = _conf->getUploadDir();
+	if (_fileName == "")
+		return createError(403);
+	
+	std::string	path = _path + "/" + _fileName;
 
-	if (!testAccess(path, DIRACCESS)
-			|| !testAccess(path + "/" + _fileName, EXIST))
-		createError(404);
-	else
+	if (!testAccess(path, EXIST))
+		return createError(404);
+	getStatFile(path);
+	if (!std::remove(path.data()))
 	{
-		path = path + "/" + _fileName;
-		getStatFile(path);
-		if (!std::remove(path.data()))
-		{
-			_status = 204;
-			createResponseHeader();
-		}
-		else
-			createError(500);
+		_status = 204;
+		createResponseHeader();
 	}
+	else
+		createError(500);
 }
 
 int	Response::getFileFd(void) const
