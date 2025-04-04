@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:15:20 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/04 17:55:54 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/04 18:07:55 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -121,6 +121,10 @@ bool	Response::checkExtCgi(void)
 
 void	Response::handleFile(Requests const &req)
 {
+	//check if upload is multipart, then do it
+	//if upload but not multipart, 415
+	//if cgi match, start the cgi, may fail
+	//handle request normally (post = 400)
 	if (req.getType() == "DELETE")
 		deleteFile();
 	else if (req.getType() == "POST")
@@ -158,7 +162,7 @@ void	Response::handleFile(Requests const &req)
 				createError(status);
 		}
 	}
-	else//get
+	else
 	{
 		std::cout << GREEN << "/* NORMAL */" << RESET << std::endl;
 		_fileFd = openDir(_path, _fileName, _conf->getIndex());
