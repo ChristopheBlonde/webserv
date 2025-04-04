@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:15:20 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/04 18:07:55 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/04 18:08:49 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -404,16 +404,6 @@ void	Response::deleteFile(void)
 	}
 	else
 		createError(500);
-}
-
-int	Response::getFileFd(void) const
-{
-	return (_fileFd);
-}
-
-int	Response::getSocket(void) const
-{
-	return (_socket);
 }
 
 void	Response::setSocket(int const socket)
