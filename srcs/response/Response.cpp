@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:15:20 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/04 18:41:27 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/04 19:42:20 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,48 +31,54 @@ Response::Response(Requests const &req, Client  &client, Server &server)
 	this->_host = req.getHost();
 	this->_path = req.getPath();
 	this->_fileName = req.getFileName();
-	//std::cout << RED << "Autoindex: " << _autoIndex << RESET << std::endl;
+	this->_query = req.getQuery();
+	this->_status = req.getError();
+	this->_conf = &req.getConf();
+	this->uploadPath = "";
+	this->_cgi = false;
+	this->_autoIndex = false;
+	if (_conf != NULL)
+	{
+		this->uploadPath = _conf->getUploadDir() + "/";
+		this->_cgi = _conf->getCgi().empty() ? false : true;
+		this->_autoIndex = _conf->getAutoindex();
+	}
 	initMimeTypes(_mimeTypes);
 	initResponseHeaders(_headers);
-	this->_status = req.getError();
-	std::cout << YELLOW << "Status in request: " << _status << RESET << std::endl;
 	if (_status != 200)//400, 404, 301, 308, 501
 	{
-		if (req.getError() == 301 || req.getError() == 308)
+		if (_status / 100 * 100 == 300)
 		{
-			_headers["Location"] = "Location: " + urlEncode(_path);//add query
+			_headers["Connection"] += "keep-alive";
+			_headers["Location"] = "Location: " + urlEncode(_path);
+			if (_query != "")
+				_headers["Location"] += "?" + _query;
 			getStatFile("");
+			createResponseHeader();
+			return;
 		}
-		createResponseHeader();
+		createError(_status);
 		return;
 	}
-	this->_conf = &req.getConf();//maybe higher but uses conf so bad
-	this->uploadPath = _conf->getUploadDir() + "/";
-	this->_cgi = _conf->getCgi().empty() ? false : true;
-	this->_autoIndex = _conf->getAutoindex();
-	checkConnection(headers);//TODO if error = 400 DO NOT USE CONF
-	if (_status == 301 || _status == 302)//308 ?
+	checkConnection(headers, req.getType());
+	if (_status / 100 * 100 == 300)
 	{
 		std::string	redir = _conf->getRedirection();
+
 		_headers["Location"] = "Location: "
-			+ redir.substr(0, redir.find("://") + 3)//return query too
-			+ urlEncode(redir.substr(redir.find("://") + 3));//WIP
-		//FIXME encode only uri and query
+			+ redir.substr(0, redir.find("://") + 3)
+			+ urlEncode(redir.substr(redir.find("://") + 3,
+				redir.find("?") - redir.find("://") - 3));
+		if (_query != "")
+			_headers["Location"] += "?" + _query;
 		getStatFile("");
 		createResponseHeader();
 		return ;
 	}
-	//_path = handleBadPath(_conf->getRoot() + "/" + _path);
-	std::cout << "path: " << _path << "\n";
-	std::cout << "???1\n";
 	if (!checkMethod(req.getType()))
 		return ;
-	std::cout << "???2\n";
-	if (!checkContentLen(headers))
+	if (!checkContentLen())
 		return ;
-	std::cout << "???3\n";
-
-
 	handleMethod(req);
 }
 
@@ -106,7 +112,7 @@ void	Response::handleMethod(Requests const &req)
 		uploadFile(req.getHeaders());
 		//return si ok
 	}
-	if (_cgi && checkExtCgi())
+	else if (_cgi && checkExtCgi())//remove else
 	{
 		std::cout << GREEN << "/* CGI */" << RESET << std::endl;
 		std::map<std::string, std::string> cgi(_conf->getCgi());
@@ -158,9 +164,9 @@ void	Response::handleMethod(Requests const &req)
 	}
 }
 
-//TODO must not use headers or conf if error = 400
 void	Response::createError(int stat)
 {
+//TODO must not use headers or conf if error = 400
 	std::string	content;
 	int			fd;
 

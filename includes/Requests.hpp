@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 10:24:52 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/04 18:29:07 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/04 19:11:57 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,24 +60,24 @@ class Requests
 		Requests(Requests const &src);
 		~Requests(void);
 		Requests	&operator=(Requests const &rhs);
-		int								getFd() const;
-		std::string							getProtocol(void) const;
-		std::string							getPath(void) const;
+		int				getFd() const;
+		std::string			getProtocol(void) const;
+		std::string			getPath(void) const;
 		std::map<std::string,std::string> const	&getHeaders(void) const;
-		std::string							getHost(void) const;
-		std::string							getType(void) const;
-		std::string const					&getBody(void) const;
-		std::string							getQuery(void) const;
-		std::string							getFileName(void) const;
-		Route								&getConf(void) const;
-		std::string							getRequestUri(void) const;
-		std::string							getDocumentUri(void) const;
-		std::string							getPathInfo(void) const;
-		std::string							getContentType(void) const;
-		std::string							getClientHostName(void) const;
-		std::string							getClientIpStr(void) const;
-		std::string							getClientPort(void) const;
-		int								getError() const;
+		std::string			getHost(void) const;
+		std::string			getType(void) const;
+		std::string const		&getBody(void) const;
+		std::string			getQuery(void) const;
+		std::string			getFileName(void) const;
+		Route				&getConf(void) const;
+		std::string			getRequestUri(void) const;
+		std::string			getDocumentUri(void) const;
+		std::string			getPathInfo(void) const;
+		std::string			getContentType(void) const;
+		std::string			getClientHostName(void) const;
+		std::string			getClientIpStr(void) const;
+		std::string			getClientPort(void) const;
+		int				getError() const;
 };
 
 #endif

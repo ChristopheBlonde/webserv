@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:16:02 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/04 18:41:46 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/04 19:40:31 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,6 +49,7 @@ class Response
 		std::string							_body;
 		std::string							_path;
 		std::string							_host;
+		std::string							_query;
 		std::string							_fileName;
 		std::map<std::string,std::string>	_headers;
 		bool								_autoIndex;
@@ -68,10 +69,9 @@ class Response
 
 		void	handleMethod(Requests const &req);
 		void	checkConnection(std::map<std::string,
-				std::string> const &headers);
+				std::string> const &headers, std::string method);
 		bool	checkMethod(std::string method);
-		bool	checkContentLen(std::map<std::string,
-				std::string> const &headers);
+		bool	checkContentLen();
 		void	getStatFile(std::string path);
 		void	uploadFile(std::map<std::string, std::string> const &headers);
 		std::vector<FileData>	splitFiles(std::string boundary);

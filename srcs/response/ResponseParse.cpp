@@ -6,14 +6,14 @@
 /*   By: cblonde <cblonde@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/29 08:25:35 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/01 16:53:05 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/04 19:40:26 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <Response.hpp>
 
 void	Response::checkConnection(std::map<std::string,
-		std::string> const &headers)
+		std::string> const &headers, std::string method)
 {
 	std::map<std::string, std::string>::const_iterator it;
 
@@ -21,7 +21,12 @@ void	Response::checkConnection(std::map<std::string,
 	{
 		_headers["Connection"] += "close";
 		if (!_conf->getRedirection().empty())
-			_status = 302;
+		{
+			if (method == "GET")
+				_status = 301;
+			else
+				_status = 308;
+		}
 	}
 	else
 	{
@@ -34,42 +39,33 @@ void	Response::checkConnection(std::map<std::string,
 
 bool	Response::checkMethod(std::string method)
 {
-	std::cout << RED << "METHOD: " << method << RESET << std::endl;
-	std::set<std::string> &methods(_conf->getAcceptedMethods());
-	std::set<std::string>::iterator it;
+	std::set<std::string>		&methods(_conf->getAcceptedMethods());
+	std::set<std::string>::iterator	it;
+	std::string			allowed;
+
 	for (it = methods.begin(); it != methods.end(); it++)
-		std::cout << GREEN << "Method in conf: " << *it << RESET <<std::endl;
+		allowed += *it + " ";
+	allowed.erase(allowed.length() - 1);
 	it = methods.find(method);
 	if (it == methods.end())
 	{
-		_status = 405;//hotfix
-		std::cout << YELLOW << "Error: Methods: " << RESET << std::endl;
+		_headers["Allow"] = "Allow: " + allowed;
 		createError(405);
 		return (false);
 	}
 	return (true);
 }
 
-bool	Response::checkContentLen(std::map<std::string,
-		std::string> const &headers)
+bool	Response::checkContentLen()
 {
-	std::map<std::string, std::string>::const_iterator it;
-	long	contentLen;
 	size_t	maxSize = _server.getMaxSize();
 
 	if (maxSize == 0)
 		return (true);
-	it = headers.find("Content-Length");
-	if (it != headers.end())
+	if (maxSize < static_cast<size_t>(_body.size()))
 	{
-		std::cout << "checking len\n";
-		contentLen = strtol(it->second.data(), NULL, 10);
-		if (maxSize < static_cast<size_t>(contentLen))
-		{
-			std::cout << "bad len ??\n";
-			createError(413);
-			return (false);
-		}
+		createError(413);
+		return (false);
 	}
 	return (true);
 }
