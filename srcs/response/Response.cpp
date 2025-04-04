@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:15:20 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/04 18:39:41 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/04 18:41:27 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,37 +73,11 @@ Response::Response(Requests const &req, Client  &client, Server &server)
 	std::cout << "???3\n";
 
 
-	handleFile(req);
-	return ;
-}
-
-Response::Response(Response const &src)
-	: _client(src._client),
-	_server(src._server)
-{
-	*this = src;
-	return ;
+	handleMethod(req);
 }
 
 Response::~Response(void)
 {
-	return ;
-}
-
-Response	&Response::operator=(Response const &rhs)
-{
-	if (this != &rhs)
-	{
-		this->_protocol = rhs._protocol;
-		this->_body = rhs._body;
-		this->_path = rhs._path;
-		this->_host = rhs._host;
-		this->_headers = rhs._headers;
-		this->_autoIndex = rhs._autoIndex;
-		this->_response = rhs._response;
-		this->_resSize = rhs._resSize;
-	}
-	return (*this);
 }
 
 bool	Response::checkExtCgi(void)
@@ -120,7 +94,7 @@ bool	Response::checkExtCgi(void)
 	return (false);
 }
 
-void	Response::handleFile(Requests const &req)
+void	Response::handleMethod(Requests const &req)
 {
 	std::string	method = req.getType();
 	

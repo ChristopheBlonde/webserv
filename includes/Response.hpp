@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:16:02 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/04 18:12:41 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/04 18:41:46 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,7 +66,7 @@ class Response
 		std::string							uploadPath;
 		
 
-		void	handleFile(Requests const &req);
+		void	handleMethod(Requests const &req);
 		void	checkConnection(std::map<std::string,
 				std::string> const &headers);
 		bool	checkMethod(std::string method);
@@ -86,9 +86,7 @@ class Response
 		bool	checkExtCgi(void);
 	public:
 		Response(Requests const &req,Client &client, Server &server);
-		Response(Response const &src);
 		~Response(void);
-		Response &operator=(Response const &rhs);
 
 		void			createError(int stat);
 		void			createResponseHeader(void);
