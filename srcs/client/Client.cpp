@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/31 20:30:59 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/04 18:14:52 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -97,7 +97,6 @@ void	Client::handleRequest()
 		Requests req(currRequestRaw, *this, c, fd);
 		Response *res = new Response(req, *this,
 				c->getServer(fd, req.getHost()));
-		res->setSocket(fd);
 		responses.push(res);
 		resetRequest();
 	}

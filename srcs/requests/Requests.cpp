@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 10:46:49 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/03 04:53:52 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/04 18:16:20 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,12 +14,13 @@
 #include "Cluster.hpp"
 #include "Client.hpp"
 
-Requests::Requests(std::string &str, Client &client, Cluster *c, int fd)
+Requests::Requests(std::string &str, Client &client, Cluster *c, int sockFd)
 	: _client(client)
 {
 	error = 200;
 	initMimeTypes(_mimeTypes);
-	this->parse(str, c, fd);
+	fd = sockFd;
+	this->parse(str, c);
 	return ;
 }
 
@@ -138,7 +139,7 @@ void	Requests::handleFile(std::string start, std::string alias)
 	_path = alias + _path.substr(0, lastSlash + 1);
 }
 
-void	Requests::parse(std::string str, Cluster *c, int fd)
+void	Requests::parse(std::string str, Cluster *c)
 {
 	std::cout << CYAN << "raw request: |||" << RESET << std::endl
 		<< str << CYAN << "|||" << RESET << std::endl;

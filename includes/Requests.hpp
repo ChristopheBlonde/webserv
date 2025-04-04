@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 10:24:52 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/04 18:14:07 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/04 18:16:36 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,7 @@ typedef enum	e_request_type
 class Requests
 {
 	private:
+		int								fd;
 		int								error;
 		std::map<std::string,std::string>	_headers;
 		std::string							_requestUri;
@@ -50,7 +51,7 @@ class Requests
 		std::vector<unsigned char> 			_buffer;
 
 
-		void	parse(std::string str, Cluster *c, int fd);
+		void	parse(std::string str, Cluster *c);
 		void	handlePath(void);
 		void	handleFile(std::string n, std::string alias);
 	public:
@@ -58,7 +59,7 @@ class Requests
 		Requests(Requests const &src);
 		~Requests(void);
 		Requests	&operator=(Requests const &rhs);
-		int								getFd() const
+		int								getFd() const;
 		std::string							getProtocol(void) const;
 		std::string							getPath(void) const;
 		std::map<std::string,std::string> const	&getHeaders(void) const;
