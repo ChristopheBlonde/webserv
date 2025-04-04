@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 10:24:52 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/04 18:16:36 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/04 18:29:07 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,7 @@ typedef enum	e_request_type
 	GET,
 	POST,
 	DELETE,
+	UNIMPLEMENTED,
 	UNKNOWN
 } t_rqType;
 

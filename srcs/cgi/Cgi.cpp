@@ -6,7 +6,7 @@
 /*   By: cblonde <cblonde@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/06 07:14:01 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/02 00:00:33 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/03 15:05:30 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -118,7 +118,7 @@ void	Cgi::initCgi(Requests const &req, Server &server)
 	_envMap["SERVER_NAME"] = tmp;
 	_pid = -1;
 	_status = -1;
-	_scriptPath = reqConf.getRoot() + "/" + req.getFileName();//FIXME root can be empty, alias instead
+	_scriptPath = req.getPath() + "/" + req.getFileName();
 	if (cgi != reqConf.getCgi().end())
 		_cgiPath = cgi->second;
 	else

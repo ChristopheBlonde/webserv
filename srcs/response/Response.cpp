@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:15:20 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/04 18:12:06 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/04 18:29:56 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,7 @@ Response::Response(Requests const &req, Client  &client, Server &server)
 	initResponseHeaders(_headers);
 	this->_status = req.getError();
 	std::cout << YELLOW << "Status in request: " << _status << RESET << std::endl;
-	if (_status != 200)//400, 404, 301, 308
+	if (_status != 200)//400, 404, 301, 308, 501
 	{
 		if (req.getError() == 301 || req.getError() == 308)
 		{
@@ -47,6 +47,7 @@ Response::Response(Requests const &req, Client  &client, Server &server)
 		return;
 	}
 	this->_conf = &req.getConf();//maybe higher but uses conf so bad
+	this->uploadPath = _conf->getUploadDir() + "/";
 	this->_cgi = _conf->getCgi().empty() ? false : true;
 	this->_autoIndex = _conf->getAutoindex();
 	checkConnection(headers);//TODO if error = 400 DO NOT USE CONF

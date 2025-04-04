@@ -6,7 +6,7 @@
 /*   By: glaguyon <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/28 17:23:46 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/04/03 05:21:06 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/03 15:09:13 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,6 @@ bool	Response::handleFileUpload(int fd)
 
 	if (it == _filesUpload.end())
 		return (true);
-	std::cerr << "handlefileupload\n";
 	FileData	&file = it->second;
 	chunkSize = file.size < FILE_BUFFER_SIZE ? file.size : FILE_BUFFER_SIZE;
 	sent = write(fd, file.start + file.offset, chunkSize);
@@ -49,7 +48,6 @@ void	Response::openFiles(std::vector<FileData> vec)
 	{
 		int	fd = -1;
 		
-		std::cout << "opening: " << it->fileName << "\n";
 		if (testAccess(uploadPath + it->fileName, EXIST))
 		{
 			error = 409;
@@ -106,13 +104,11 @@ static std::string	getFilename(std::map<std::string, std::string> &headers)
 
 	if (s == "")
 		return "";
-	std::cout << s << " awow\n";
 	if (s.find("form-data") != 0)
 		return "";
 	delim = s.find_first_not_of(" \t", 9);
 	if (delim == std::string::npos || s[delim] != ';')
 		return "";
-	std::cout << delim << " awow\n";
 	oldDelim = delim;
 	delim = s.find(";", delim + 1);
 	while (delim != std::string::npos)
@@ -120,7 +116,6 @@ static std::string	getFilename(std::map<std::string, std::string> &headers)
 		std::string	word = s.substr(oldDelim + 1, delim - oldDelim - 1);
 		trim(word);
 		
-		std::cout << word << "\n";
 		if (word.compare(0, 9, "filename=") == 0)
 		{
 			if (fname != "" || word[9] != '"')
@@ -128,7 +123,6 @@ static std::string	getFilename(std::map<std::string, std::string> &headers)
 			
 			size_t	end = word.find("\"", 11);
 			
-			std::cout << end << " end\n"; 
 			if (end == std::string::npos
 				|| (word.find_first_not_of(" \t", end + 1) != std::string::npos
 					&& word[word.find_first_not_of(" \t", end + 1)] != ';'))
@@ -140,7 +134,6 @@ static std::string	getFilename(std::map<std::string, std::string> &headers)
 		oldDelim = delim;
 		delim = s.find(";", delim + 1);
 	}
-	std::cout << "returned: " << fname << "\n";
 	return fname;
 }
 
@@ -161,25 +154,18 @@ std::vector<FileData>	Response::splitFiles(std::string boundary)
 		throw 400;
 	while (pos < _body.size())
 	{
-		std::cout << "SALUT BATARD\n";
-		std::cout << "|||" << _body.data() + pos << "|||\n";
 		if (_body.compare(pos, boundary.size(), boundary)
 			|| pos + boundary.size() >= _body.size())
 			throw 400;
 		pos += boundary.size();
-		std::cout << "SALUT BATARD2\n";
-		std::cout << "|||" << _body.data() + pos << "|||\n";
 		if (_body.compare(pos, 4, "--\r\n") == 0)
 			return vec;
 		if (_body.compare(pos, 2, "\r\n")
 			|| pos + 2 > _body.size())
 		{
-			std::cout << "bah oui\n";
 			throw 400;
 		}
 		pos += 2;
-		std::cout << "SALUT BATARD3\n";
-		std::cout << "|||" << _body.data() + pos << "|||\n";
 		
 		std::map<std::string, std::string>	headers;
 		while (1)
@@ -188,14 +174,10 @@ std::vector<FileData>	Response::splitFiles(std::string boundary)
 				|| _body.find("\r\n", pos) + 2 >= _body.size())
 				throw 400;
 			pos = _body.find("\r\n", pos) + 2;
-		std::cout << "SALUT WOW\n";
-		std::cout << "|||" << _body.data() + pos << "|||\n";
 			if (_body.compare(pos, 2, "\r\n") == 0)
 				break;
 		}
 		pos += 2;
-		std::cout << "SALUT BATARD4\n";
-		std::cout << "|||" << _body.data() + pos << "|||\n";
 
 		FileData	fdata = {.fileName = getFilename(headers),
 						.start = _body.data() + pos,
@@ -203,28 +185,18 @@ std::vector<FileData>	Response::splitFiles(std::string boundary)
 						.offset = 0};
 		if (fdata.fileName == "")
 			throw (400);
-		std::cout << "filename found: " << fdata.fileName << "\n";
 		size_t end = _body.find("\r\n--" + boundary, pos);
 		if (end == std::string::npos)
 			throw 400;
 		fdata.size = end - pos;
 		pos = end + 4;
-		std::cout << "SALUT BATARD5\n";
-		std::cout << "|||" << _body.data() + pos << "|||\n";
-		std::cout << "|||" << boundary << "|||\n";
 		vec.push_back(fdata);
-		std::cout << "added file\n";
 	}
 	throw 400;
 }
 
 void	Response::uploadFile(std::map<std::string, std::string> const &headers)
 {
-	this->uploadPath = _conf->getMount();
-	if (_conf->getUploadDir()[0] != '/' && uploadPath[uploadPath.size() - 1] != '/')
-		uploadPath += '/';
-	uploadPath += _conf->getUploadDir() + "/";
-	std::cout << uploadPath << "\n";
 	if (!testAccess(uploadPath, DIRACCESS))
 		return createError(404);
 
@@ -239,7 +211,6 @@ void	Response::uploadFile(std::map<std::string, std::string> const &headers)
 	try
 	{
 		fileVec = splitFiles(boundary);
-		std::cout << "splitfiles done\n";
 		if (fileVec.empty())
 			return createError(400);
 		openFiles(fileVec);
