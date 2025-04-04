@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:15:20 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/04 18:29:56 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/04 18:39:41 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -122,48 +122,47 @@ bool	Response::checkExtCgi(void)
 
 void	Response::handleFile(Requests const &req)
 {
-	//check if upload is multipart, then do it
-	//if upload but not multipart, 415
-	//if cgi match, start the cgi, may fail
-	//handle request normally (post = 400)
-	if (req.getType() == "DELETE")
-		deleteFile();
-	else if (req.getType() == "POST")
+	std::string	method = req.getType();
+	
+	if (method == "POST")
 	{
 		//&& !_conf->getUploadDir().empty() + check multipart
-		//check exact match
-		//rejeter ici si pas multipart
-		std::cout << GREEN << "/* UPLOAD */" << RESET << std::endl;
-		if (req.getType() == "POST")
-			uploadFile(req.getHeaders());
-		else if (_cgi && checkExtCgi())
-		{
-			std::cout << GREEN << "/* CGI */" << RESET << std::endl;
-			std::map<std::string, std::string> cgi(_conf->getCgi());
-			for (std::map<std::string, std::string>::iterator it = cgi.begin();
-					it != cgi.end(); it++)
-			{
-				if (!testAccess(it->second, EXIST)
-						|| !testAccess(it->second, EXECUTABLE))
-				{
-					createError(400);
-					return ;
-				}
-			}
-			Cgi cgiObj(req, _server);
-			int status = cgiObj.execScript();
-			if (status == 200)
-			{
-				_cgiFd[0] = cgiObj.getChildFd();
-				_cgiFd[1] = cgiObj.getParentFd();
-				addFdToCluster(cgiObj.getChildFd(), POLLIN);
-				addFdToCluster(cgiObj.getParentFd(), POLLOUT);
-			}
-			else
-				createError(status);
-		}
+		//check exact match 404
+		//si pas de dir forbidden si mauvais form 415
+		uploadFile(req.getHeaders());
+		//return si ok
 	}
-	else
+	if (_cgi && checkExtCgi())
+	{
+		std::cout << GREEN << "/* CGI */" << RESET << std::endl;
+		std::map<std::string, std::string> cgi(_conf->getCgi());
+		for (std::map<std::string, std::string>::iterator it = cgi.begin();
+				it != cgi.end(); it++)
+		{
+			if (!testAccess(it->second, EXIST)
+					|| !testAccess(it->second, EXECUTABLE))
+			{
+				createError(400);
+				return ;
+			}
+		}
+		Cgi cgiObj(req, _server);
+		int status = cgiObj.execScript();
+		if (status == 200)
+		{
+			_cgiFd[0] = cgiObj.getChildFd();
+			_cgiFd[1] = cgiObj.getParentFd();
+			addFdToCluster(cgiObj.getChildFd(), POLLIN);
+			addFdToCluster(cgiObj.getParentFd(), POLLOUT);
+		}
+		else
+			createError(status);
+	}
+	else if (method == "DELETE")
+		deleteFile();
+	else if (method == "POST")
+		createError(400);
+	else if (method == "GET")
 	{
 		std::cout << GREEN << "/* NORMAL */" << RESET << std::endl;
 		_fileFd = openDir(_path, _fileName, _conf->getIndex());
