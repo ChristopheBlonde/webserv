@@ -6,7 +6,7 @@
 /*   By: cblonde <cblonde@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/29 08:25:35 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/07 23:18:20 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/07 23:44:43 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,7 +78,8 @@ bool	Response::checkExtCgi(void)
 		return (false);
 	for (std::map<std::string, std::string>::iterator it = cgi.begin();
 		it != cgi.end(); it++)
-		if (_fileName.compare(_fileName.size() - it->first.size(),
+		if (_fileName.size() >= it->first.size()
+			&& _fileName.compare(_fileName.size() - it->first.size(),
 			it->first.size(), it->first) == 0)
 			return (true);
 	return (false);

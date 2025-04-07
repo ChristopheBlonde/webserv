@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:15:20 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/07 23:04:24 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/07 23:50:03 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,6 +48,7 @@ Response::Response(Requests const &req, Client  &client, Server &server)
 	initMimeTypes(_mimeTypes);
 	initResponseHeaders(_headers);
 	checkConnection(headers, req.getType());
+	std::cout << "req status " << _status << "\n";
 	if (_status != 200)//400, 404, 301, 308, 501
 	{
 		if (_status / 100 * 100 == 300)
@@ -80,6 +81,7 @@ Response::Response(Requests const &req, Client  &client, Server &server)
 		return ;
 	if (!checkContentLen())
 		return ;
+	std::cout << "all good\n";
 	handleMethod(req, headers);
 }
 
@@ -91,12 +93,13 @@ void	Response::handleMethod(Requests const &req,
 	std::map<std::string, std::string> const &headers)
 {
 	std::string	method = req.getType();
-	
+
 	if (method == "POST" && _fileName == ""
 		&& _conf->getAliasedPart() + _path.substr(_conf->getMount().size())
 		== _conf->getName() + ((_conf->getName()[_conf->getName().size() - 1] == '/') ? "" : "/"))
 	{
-		if (headers.at("Content-Type").compare(0, 19, "multipart/form-data")
+		if (headers.at("Content-Type").size() < 19
+			|| headers.at("Content-Type").compare(0, 19, "multipart/form-data")
 			|| std::string(" \t;\0", 4).find(headers.at("Content-Type")[19]) == std::string::npos)
 			createError(415);
 		else
@@ -134,7 +137,8 @@ void	Response::handleMethod(Requests const &req,
 		deleteFile();
 	else if (method == "POST")
 	{
-		if (headers.at("Content-Type").compare(0, 19, "multipart/form-data") == 0
+		if (headers.at("Content-Type").size() >= 19
+			&& headers.at("Content-Type").compare(0, 19, "multipart/form-data") == 0
 			&& std::string(" \t;\0", 4).find(headers.at("Content-Type")[19]) != std::string::npos)
 			createError(403);
 		else
@@ -146,56 +150,48 @@ void	Response::handleMethod(Requests const &req,
 
 void	Response::createError(int stat)
 {
-//TODO must not use headers or conf if error = 400
 	std::string	content;
 	int			fd;
 
-	_status = stat;//idk
-	std::cout << "je susi erreur\n";
-	std::cout << "status " << _status << "\n";
-	if (!_autoIndex || _status != 200)//XXX crappy hotfix
-	//if (!_autoIndex || (_autoIndex && !_fileName.empty()))
+	std::cout << "status " << _status << ", error: " << stat << "\n";
+	_status = stat;
+	if (_autoIndex && _status == 200 && _fileName == "")
 	{
-		content = _server.getErrorPage(stat);
-		if (!content.empty() && _status != 500)
+		try
 		{
-			fd = getFile(content);
-			if (fd == -1)
-			{
-				createError(500);
-				return ;
-			}
-			addFdToCluster(fd, POLLIN);
-			getStatFile(content);
-			_fileFd = fd;
-			_status = stat;
+			content = AutoIndex::generate(_conf->getMount(),
+			_conf->getAliasedPart(), _path, _host);
+			getStatFile("");
+			_headers.erase("Last-Modified");
+		}
+		catch (int code)
+		{
+			_status = code;
+			createError(code);
 			return ;
 		}
-		std::cout << "wow\n";
+	}
+	else
+	{
+		content = _server.getErrorPage(stat);
+		if (!content.empty())
+		{
+			fd = getFile(content);
+			if (fd != -1)
+			{
+				addFdToCluster(fd, POLLIN);
+				getStatFile(content);
+				_fileFd = fd;
+				//_status = stat;//? getstatfile ?
+				return;
+			}
+		}
 		content = ERROR_PAGE(getResponseTypeStr(stat), getContentError(stat),
 				to_string(stat));
 		getStatFile("");
 		_headers["Content-Type"] += "text/html; charset=UFT-8";
 		_headers.erase("Last-Modified");
-		_status = stat;
-	}
-	else
-	{//TODO : pas de dir: 404, pas d'autoindex + dossier: 403
-		//_status = 200;
-		try
-		{
-		content = AutoIndex::generate(_conf->getMount(),
-		_conf->getAliasedPart(), _path, _host);
-		getStatFile("");
-		_headers.erase("Last-Modified");
-		}
-		catch (int code)//may work
-		{
-			std::cout << "fuck autoindex exploded\n";
-			_status = code;
-			createError(code);
-			return ;
-		}
+		//_status = stat;
 	}
 	_buffer.insert(_buffer.begin(), content.begin(), content.end());
 	createResponseHeader();
@@ -211,17 +207,12 @@ void	Response::createResponseHeader(void)
 		+ getResponseTypeStr(_status)
 		+ "\r\n";
 	_headers["Content-Length"] += to_string(_buffer.size());
-	std::cout << _buffer.size() << " |||\n" << std::string(_buffer.begin(), _buffer.end()) << "|||\n";
-	if (_status != 301 && _status != 302)//added 400 hotfix
+	if (_status / 100 * 100 != 300)
 	{
-		std::cout << "salut: " << _mimeTypes[getFileType(_fileName)] << "\n";
-		std::cout << getFileType(_fileName) << "\n";
-		std::cout << "header: \"" << _headers["Content-Type"] << "\"\n";
 		_headers["Content-Type"] += (!_cgi && (!_autoIndex || (
 							_autoIndex && !_fileName.empty())))
 			? _mimeTypes[getFileType(_fileName)]
 			: "text/html; charset=UFT-8";
-		std::cout << "header: \"" << _headers["Content-Type"] << "\"\n";
 	}
 	else
 		_headers.erase("Content-Type");

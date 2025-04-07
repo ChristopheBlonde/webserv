@@ -6,7 +6,7 @@
 /*   By: glaguyon <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/07 22:20:52 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/04/07 23:12:57 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/07 23:50:45 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ void	Response::deleteFile(void)
 		createResponseHeader();
 	}
 	else
-		createError(500);
+		createError(403);
 }
 
 void	Response::getFileOrIndex()
