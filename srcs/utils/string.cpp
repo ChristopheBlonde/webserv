@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 09:55:53 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/31 23:43:05 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/07 22:54:49 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,19 +78,9 @@ static std::string	urlEncode(std::string decoded, bool query)
 	return encoded;
 }
 
-std::string	urlEncodeQuery(std::string s)
-{
-	return urlEncode(s, 1);
-}
-
 std::string	urlEncode(std::string s)
 {
 	return urlEncode(s, 0);
-}
-
-std::string	urlDecodeQuery(std::string s)
-{
-	return urlDecode(s, 1);
 }
 
 std::string	urlDecode(std::string s)
@@ -136,23 +126,6 @@ std::string	&toLower(std::string &str)
 {
 	std::transform(str.begin(), str.end(), str.begin(), ::tolower);
 	return str;
-}
-
-std::string	&capitalize(std::string &str)
-{
-	str[0] = std::toupper(str[0]);
-	return str;
-}
-
-std::vector<std::string>	split(std::string str, char sep)
-{
-	std::vector<std::string>	elements;
-	std::string					line;
-	std::stringstream			ss(str);
-
-	while (std::getline(ss, line, sep))
-		elements.push_back(line);
-	return (elements);
 }
 
 std::string	to_string(long int num)
