@@ -29,6 +29,7 @@ SRC = main.cpp \
 	$(REQ_DIR)RequestsGetters.cpp \
 	$(UTILS_DIR)string.cpp \
 	$(RES_DIR)Response.cpp \
+	$(RES_DIR)ResponseGetDelete.cpp \
 	$(RES_DIR)ResponseUpload.cpp \
 	$(RES_DIR)ResponseParse.cpp \
 	$(UTILS_DIR)file.cpp \

@@ -6,12 +6,12 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:15:20 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/07 18:14:29 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/07 22:38:00 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <Response.hpp>
-#include <Client.hpp>
+#include "Response.hpp"
+#include "Client.hpp"
 
 Response::Response(Requests const &req, Client  &client, Server &server)
 	: _client(client),
@@ -87,20 +87,6 @@ Response::~Response(void)
 {
 }
 
-bool	Response::checkExtCgi(void)
-{
-	std::map<std::string, std::string> cgi(_conf->getCgi());
-	std::map<std::string, std::string>::iterator it;
-	std::string ext(getFileType(_fileName));
-
-	if (_fileName.empty())
-		return (false);
-	for (it = cgi.begin(); it != cgi.end(); it++)
-		if (it->first == ext)
-			return (true);
-	return (false);
-}
-
 void	Response::handleMethod(Requests const &req,
 	std::map<std::string, std::string> const &headers)
 {
@@ -155,25 +141,7 @@ void	Response::handleMethod(Requests const &req,
 			createError(400);
 	}
 	else if (method == "GET")
-	{
-		std::cout << GREEN << "/* NORMAL */" << RESET << std::endl;
-		_fileFd = openDir(_path, _fileName, _conf->getIndex());
-		if (_fileFd < 0)
-		{
-			if (_fileName == "" && _autoIndex)
-			{
-				createError(200);
-				return;
-			}
-			_status = 404;//hotfix
-			std::cout << "404\n";
-			std::cout << RED << "Error NORMAL fd" << RESET << std::endl;
-			createError(404);
-			return ;
-		}
-		getStatFile(_path + "/" + _fileName);
-		addFdToCluster(_fileFd, POLLIN);
-	}
+		getFileOrIndex();
 }
 
 void	Response::createError(int stat)
@@ -265,6 +233,20 @@ void	Response::createResponseHeader(void)
 	std::cout << CYAN << "Header ready" << std::endl << _response
 		<< RESET << std::endl;
 	return ;
+}
+
+bool	Response::checkExtCgi(void)//should not use getfiletype
+{
+	std::map<std::string, std::string>		cgi(_conf->getCgi());
+	std::map<std::string, std::string>::iterator	it;
+	std::string					ext(getFileType(_fileName));
+
+	if (_fileName.empty())
+		return (false);
+	for (it = cgi.begin(); it != cgi.end(); it++)
+		if (it->first == ext)
+			return (true);
+	return (false);
 }
 
 bool	Response::handleInOut(struct pollfd &fd)
@@ -386,23 +368,4 @@ bool	Response::handleFdCgi(int fd)
 		_body.erase(0, sentBytes);
 	}
 	return (true);
-}
-
-void	Response::deleteFile(void)
-{
-	if (_fileName == "")
-		return createError(403);
-	
-	std::string	path = _path + "/" + _fileName;
-
-	if (!testAccess(path, EXIST))
-		return createError(404);
-	getStatFile(path);
-	if (!std::remove(path.data()))
-	{
-		_status = 204;
-		createResponseHeader();
-	}
-	else
-		createError(500);
 }

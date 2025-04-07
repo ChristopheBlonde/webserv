@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:47:28 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/01 13:32:44 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/04/07 22:21:58 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,50 +23,6 @@ int	getFile(std::string path)
 			<< std::endl;
 		return (-1);
 	}
-	return (fd);
-}
-
-int	openDir(std::string path, std::string &file, std::vector<std::string> &files)
-{
-	DIR		*dir;
-	struct	dirent *dirp;
-	int		fd = -1;
-	std::vector<std::string>::iterator it;
-	std::cout << CYAN << "openDir: path: " << path << " file: "
-		<< file << RESET << std::endl;
-	dir = opendir(path.c_str());
-	if (!dir)
-	{
-		std::cerr << RED << "opendir: " << path << " " << strerror(errno)
-			<< RESET << std::endl;
-		return (-2);
-	}
-	while ((dirp = readdir(dir)) != NULL)
-	{
-		if (file.empty())
-		{
-			std::cout << RED << "merde pas de file" << RESET << std::endl;
-			for (it = files.begin(); it != files.end(); it++)
-			{
-				std::cout << YELLOW << "file: " << *it << RESET << std::endl;
-				if (!std::string(dirp->d_name).compare(*it))
-				{
-					file = *it;
-					fd = getFile(path + "/" + *it);
-					closedir(dir);
-					return (fd);
-				}
-			}
-		}
-		else if (!file.empty() && !std::string(dirp->d_name).compare(file))
-		{
-			std::cout << CYAN << "dir search: " << path + "/" + file << RESET << std::endl;
-			fd = getFile(path + "/" + file);
-			closedir(dir);
-			return (fd);
-		}
-	}
-	closedir(dir);
 	return (fd);
 }
 

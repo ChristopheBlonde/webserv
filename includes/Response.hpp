@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:16:02 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/07 15:44:39 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/07 22:38:10 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,6 +84,7 @@ class Response
 		void	sendHeader(int fd);
 		void	sendBody(int fd);
 		void	deleteFile(void);
+		void	getFileOrIndex();
 		bool	checkExtCgi(void);
 	public:
 		Response(Requests const &req,Client &client, Server &server);

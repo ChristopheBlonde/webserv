@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/24 10:26:29 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/31 23:43:38 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/07 22:22:19 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,13 +47,11 @@ std::string						&toUpper(std::string &str);
 std::string						&toLower(std::string &str);
 std::string						&capitalize(std::string &str);
 std::string						&formatHeader(std::string &str);
-std::vector<std::string>	split(std::string str, char sep);
+//std::vector<std::string>	split(std::string str, char sep);
 int							getFile(std::string path);
 int							openFileUpload(std::string path);
 void						initMimeTypes(std::map<std::string,
 		std::string> &mime_Types);
-int							openDir(std::string path, std::string &fileName,
-		std::vector<std::string> &files);
 void						initResponseHeaders(std::map<std::string,
 		std::string> &headers);
 std::string					getFileType(std::string path);
