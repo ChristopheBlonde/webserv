@@ -6,7 +6,7 @@
 /*   By: glaguyon <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/07 22:20:52 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/04/07 23:50:45 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/08 00:18:41 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,10 +39,10 @@ void	Response::getFileOrIndex()
 	if (_fileName != "")
 	{
 		if (!testAccess(_path + _fileName, EXIST))
-			return createError((!_autoIndex ? 404 : 200));
+			return createError(404);
 		_fileFd = getFile(_path + _fileName);
 		if (_fileFd == -1)
-			return createError((!_autoIndex ? 403 : 200));
+			return createError(403);
 		getStatFile(_path + "/" + _fileName);
 		addFdToCluster(_fileFd, POLLIN);
 		return;
@@ -61,6 +61,7 @@ void	Response::getFileOrIndex()
 			error = 403;
 		else
 		{
+			_fileName = *it;
 			getStatFile(_path + "/" + _fileName);
 			return addFdToCluster(_fileFd, POLLIN);
 		}

@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:15:20 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/07 23:50:03 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/08 00:19:23 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -173,6 +173,7 @@ void	Response::createError(int stat)
 	}
 	else
 	{
+		std::cout << "hello\n";
 		content = _server.getErrorPage(stat);
 		if (!content.empty())
 		{
@@ -182,7 +183,6 @@ void	Response::createError(int stat)
 				addFdToCluster(fd, POLLIN);
 				getStatFile(content);
 				_fileFd = fd;
-				//_status = stat;//? getstatfile ?
 				return;
 			}
 		}
@@ -191,7 +191,6 @@ void	Response::createError(int stat)
 		getStatFile("");
 		_headers["Content-Type"] += "text/html; charset=UFT-8";
 		_headers.erase("Last-Modified");
-		//_status = stat;
 	}
 	_buffer.insert(_buffer.begin(), content.begin(), content.end());
 	createResponseHeader();
@@ -209,10 +208,11 @@ void	Response::createResponseHeader(void)
 	_headers["Content-Length"] += to_string(_buffer.size());
 	if (_status / 100 * 100 != 300)
 	{
-		_headers["Content-Type"] += (!_cgi && (!_autoIndex || (
-							_autoIndex && !_fileName.empty())))
-			? _mimeTypes[getFileType(_fileName)]
-			: "text/html; charset=UFT-8";
+		if (!_cgi && _status == 200
+			&& _fileName != "" && _mimeTypes[getFileType(_fileName)] != "")
+			_headers["Content-Type"] += _mimeTypes[getFileType(_fileName)];
+		else
+			_headers["Content-Type"] += "text/html; charset=UTF-8";
 	}
 	else
 		_headers.erase("Content-Type");
