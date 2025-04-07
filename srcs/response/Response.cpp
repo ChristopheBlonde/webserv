@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:15:20 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/07 16:59:05 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/07 18:14:29 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -343,6 +343,8 @@ void	Response::addFdToCluster(int fd, short event)
 	_client.addResponseFd(pfd);
 }
 
+extern volatile sig_atomic_t sig;
+
 bool	Response::handleFdCgi(int fd)
 {
 	int	readBytes;
@@ -366,14 +368,17 @@ bool	Response::handleFdCgi(int fd)
 			return (false);
 		}
 		buffer[readBytes] = '\0';
+		std::cout << "buff " << buffer << "\n";
 		_buffer.insert(_buffer.end(), buffer, buffer + readBytes);
 	}
 	else
 	{
 		sentBytes = write(fd, _body.data(), bodySize < FILE_BUFFER_SIZE
 				? bodySize : FILE_BUFFER_SIZE);
-		if (sentBytes <= 0)
+		if (sentBytes <= 0 || sig == SIGPIPE)
 		{
+			if (sig == SIGPIPE)
+				sig = 0;
 			_cgiFd[1] = -1;
 			close(fd);
 			return (false);

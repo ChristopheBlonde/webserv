@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/04/03 00:51:43 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/07 18:09:04 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -187,7 +187,6 @@ short	Cluster::getRevents(int fd)
 
 void	Cluster::run()
 {
-
 	if (poll(fds.data(), fds.size(), POLL_TIMEOUT) < 0 && errno != EINTR)
 		throw std::runtime_error("poll error");
 	addClients();

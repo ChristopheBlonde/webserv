@@ -6,7 +6,7 @@
 /*   By: cblonde <cblonde@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/19 07:00:26 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/30 22:29:59 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/07 18:09:22 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,13 +17,12 @@ volatile sig_atomic_t sig = 0;
 
 void ft_exit(int signal)
 {
-	if (signal == SIGINT)
-		sig = 1;
+	sig = signal;
 }
 
 int main(int argc, char **argv)
 {
-	if (signal(SIGINT, ft_exit) == SIG_ERR)
+	if (signal(SIGINT, ft_exit) == SIG_ERR || signal(SIGPIPE, ft_exit) == SIG_ERR)
 	{
 		std::cerr << "error: signal\n";
 		return 1;
@@ -38,7 +37,7 @@ int main(int argc, char **argv)
 		Cluster	cluster((argc >= 2) ? argv[1] : DEFAULT_CONF);
 
 		cluster.startServers();
-		while (!sig)
+		while (sig != SIGINT)
 			cluster.run();
 	}
 	catch (std::exception &e)
