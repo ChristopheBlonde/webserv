@@ -6,7 +6,7 @@
 /*   By: glaguyon <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/22 18:42:46 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/25 19:13:00 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/07 20:41:02 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,6 @@ class Conf : public Route
 	std::string				ipStr;
 	std::string				portStr;
 	std::set<std::string>			names;
-	size_t					maxBodySize;
 	std::map<unsigned, std::string>		errorPages;
 
 	public:
@@ -47,8 +46,6 @@ class Conf : public Route
 	void			addName(const std::string &s);
 	std::string		getErrorPage(int code);
 	void			setErrorPage(unsigned code, const std::string &page);
-	size_t			getMaxSize();
-	void			setMaxSize(size_t size);
 };
 
 #endif // CONF_HPP

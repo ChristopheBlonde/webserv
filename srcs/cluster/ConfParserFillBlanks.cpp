@@ -6,7 +6,7 @@
 /*   By: glaguyon <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/11 18:47:40 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/04/02 00:08:34 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/07 20:49:35 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,8 @@ void	ConfParser::fillBlanksLevel(Route &prev, std::vector<Route> &routes)
 			it->setRedirection(prev.getRedirection());
 		if (it->getUploadDir() == "")
 			it->setUploadDir(prev.getUploadDir());
+		if (it->isMaxSizeSet() == false)
+			it->setMaxSize(prev.getMaxSize());
 	}
 	for (std::vector<Route>::iterator it = routes.begin(); it < routes.end(); ++it)
 		fillBlanksLevel(*it, it->getRoutes());
@@ -49,6 +51,8 @@ void	ConfParser::fillBlanks()
 	{
 		std::vector<Route>	&routes = it->getRoutes();
 
+		if (it->isMaxSizeSet() == false)
+			it->setMaxSize(1e6);
 		if (it->getRoot() == "")
 			it->setRoot(Cluster::defaultRoot);
 		if (it->isAutoindexAssigned() == false)

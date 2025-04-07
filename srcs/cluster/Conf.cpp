@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/31 14:55:53 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/07 20:40:23 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,6 @@ Conf::Conf() :
 	ipStr("0.0.0.0"),
 	portStr("8080"),
 	names(),
-	maxBodySize(1e6),
 	errorPages()
 {
 }
@@ -75,14 +74,4 @@ std::string	Conf::getErrorPage(int code)
 void	Conf::setErrorPage(unsigned code, const std::string &page)
 {
 	errorPages[code] = page;
-}
-
-size_t	Conf::getMaxSize()
-{
-	return maxBodySize;
-}
-
-void	Conf::setMaxSize(size_t size)
-{
-	maxBodySize = size;
 }

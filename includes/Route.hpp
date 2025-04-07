@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/04/02 00:59:39 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/07 20:47:22 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,8 @@ class Route
 	std::map<std::string, std::string>	cgi;
 	std::string				redirection;
 	std::string				uploadDir;
+	size_t					maxBodySize;
+	bool					maxBodySizeSet;
 	
 	//locations in locations
 	std::vector<Route>			routes;
@@ -62,6 +64,9 @@ class Route
 	void					setRedirection(const std::string &s);
 	std::string				getUploadDir();
 	void					setUploadDir(const std::string &s);
+	size_t					getMaxSize();
+	void					setMaxSize(size_t size);
+	bool					isMaxSizeSet();
 	std::vector<Route>			&getRoutes();
 };
 

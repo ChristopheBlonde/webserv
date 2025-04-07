@@ -6,7 +6,7 @@
 /*   By: glaguyon <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/04 18:27:52 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/04/01 23:01:22 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/07 20:45:13 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -153,9 +153,10 @@ void	ConfParser::parseWordErrorPage(const std::string &s)
 
 void	ConfParser::parseWordClientMaxBodySize(const std::string &s)
 {
-	if (!routes.empty() || !server)
+	if (!routes.empty() && !server)
 		throw KeywordWrongLevelException();
-	if (wordCountServer["client_max_body_size"] > 1)
+	if (wordCountServer["client_max_body_size"] > 1
+		|| getWordCountLocation("client_max_body_size") > 1)
 		throw DuplicateKeywordException("duplicate client body size found");
 	if (!s[0])
 		return;
@@ -186,7 +187,10 @@ void	ConfParser::parseWordClientMaxBodySize(const std::string &s)
 		throw IncorrectArgException("incorrect client body size value");
 	if (errno == ERANGE || std::numeric_limits<long>::max() / mul < num)
 		throw IncorrectArgException("client body size too large");
-	server->setMaxSize(static_cast<size_t>(num * mul));
+	if (!routes.empty())
+		routes.top()->setMaxSize(static_cast<size_t>(num * mul));
+	else
+		server->setMaxSize(static_cast<size_t>(num * mul));
 	++argc;
 	argv.push_back(s);
 	good = true;

@@ -6,7 +6,7 @@
 /*   By: cblonde <cblonde@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/29 08:25:35 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/07 17:03:08 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/07 20:54:52 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,7 +58,7 @@ bool	Response::checkMethod(std::string method)
 
 bool	Response::checkContentLen()
 {
-	size_t	maxSize = _server.getMaxSize();
+	size_t	maxSize = _conf->getMaxSize();
 
 	if (maxSize == 0)
 		return (true);
@@ -146,7 +146,7 @@ the server considered to be a client error";
 	content[415] = "The request entity has a media type which the server or resource does not support";
 	content[500] = "Server encountered an unexpected condition that prevented \
 it from fulfilling the request";
-	content[501] = "Server has not implemented the request\n";
+	content[501] = "Server has not implemented the method\n";
 
 	return (content[stat]);
 }

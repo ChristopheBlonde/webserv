@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/04/02 00:59:06 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/07 20:47:47 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,9 @@
 Route::Route(const std::string &name) :
 	name(name),
 	autoindex(true),
-	autoindexAssigned(false)
+	autoindexAssigned(false),
+	maxBodySize(1e6),
+	maxBodySizeSet(false)
 {
 }
 
@@ -135,4 +137,20 @@ void	Route::setUploadDir(const std::string &s)
 std::vector<Route>	&Route::getRoutes()
 {
 	return routes;
+}
+
+size_t	Route::getMaxSize()
+{
+	return maxBodySize;
+}
+
+void	Route::setMaxSize(size_t size)
+{
+	maxBodySizeSet = true;
+	maxBodySize = size;
+}
+
+bool	Route::isMaxSizeSet()
+{
+	return maxBodySizeSet;
 }
