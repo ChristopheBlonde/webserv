@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:15:20 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/04 19:42:20 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/07 09:58:51 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -132,7 +132,7 @@ void	Response::handleMethod(Requests const &req)
 		{
 			_cgiFd[0] = cgiObj.getChildFd();
 			_cgiFd[1] = cgiObj.getParentFd();
-			addFdToCluster(cgiObj.getChildFd(), POLLIN);
+			addFdToCluster(cgiObj.getChildFd(), (POLLIN | POLLHUP));
 			addFdToCluster(cgiObj.getParentFd(), POLLOUT);
 		}
 		else
@@ -233,8 +233,8 @@ void	Response::createResponseHeader(void)
 		std::cout << "salut: " << _mimeTypes[getFileType(_fileName)] << "\n";
 		std::cout << getFileType(_fileName) << "\n";
 		std::cout << "header: \"" << _headers["Content-Type"] << "\"\n";
-		_headers["Content-Type"] += (!_cgi || !_autoIndex || (
-							_autoIndex && _fileName.empty()))
+		_headers["Content-Type"] += (!_cgi && (!_autoIndex || (
+							_autoIndex && _fileName.empty())))
 			? _mimeTypes[getFileType(_fileName)]
 			: "text/html; charset=UFT-8";
 		std::cout << "header: \"" << _headers["Content-Type"] << "\"\n";
@@ -253,7 +253,7 @@ void	Response::createResponseHeader(void)
 
 bool	Response::handleInOut(struct pollfd &fd)
 {
-	if (fd.fd == _cgiFd[0] && (fd.revents & POLLIN))
+	if (fd.fd == _cgiFd[0] && (fd.revents & (POLLIN | POLLHUP)))
 		return (handleFdCgi(fd.fd));
 	if (fd.fd == _cgiFd[1] && (fd.revents & POLLOUT))
 		return (handleFdCgi(fd.fd));
