@@ -6,18 +6,18 @@
 /*   By: cblonde <cblonde@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/29 08:25:35 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/04 19:40:26 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/07 17:03:08 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <Response.hpp>
+#include "Response.hpp"
 
 void	Response::checkConnection(std::map<std::string,
 		std::string> const &headers, std::string method)
 {
 	std::map<std::string, std::string>::const_iterator it;
 
-	if (_autoIndex || !_conf->getRedirection().empty())
+	if ((_status / 100 * 100 == 300) || _autoIndex || !_conf->getRedirection().empty())
 	{
 		_headers["Connection"] += "close";
 		if (!_conf->getRedirection().empty())
@@ -117,13 +117,16 @@ std::string	getResponseTypeStr(int stat)
 	names[200] = "OK";
 	names[301] = "Moved Permanently";
 	names[302] = "Found";
+	names[308] = "Permanent Redirect";
 	names[400] = "Bad Request";
 	names[403] = "Forbidden";
 	names[404] = "Not Found";
 	names[405] = "Method Not Allowed";
 	names[410] = "Gone";
 	names[413] = "Content Too Large";
+	names[415] = "Unsupported Media Type";
 	names[500] = "Internal Server Error";
+	names[501] = "Not Implemented";
 
 	return (names[stat]);
 }
@@ -140,8 +143,10 @@ the server considered to be a client error";
 	content[405] = "Target resource doesn't support this method";
 	content[410] = "Target resource is no longer available";
 	content[413] = "Request entity was larger than limits defined by server";
+	content[415] = "The request entity has a media type which the server or resource does not support";
 	content[500] = "Server encountered an unexpected condition that prevented \
 it from fulfilling the request";
+	content[501] = "Server has not implemented the request\n";
 
 	return (content[stat]);
 }

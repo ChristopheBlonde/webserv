@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:16:02 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/04 19:40:31 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/07 15:44:39 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,7 +67,8 @@ class Response
 		std::string							uploadPath;
 		
 
-		void	handleMethod(Requests const &req);
+		void	handleMethod(Requests const &req,
+				std::map<std::string, std::string> const &headers);
 		void	checkConnection(std::map<std::string,
 				std::string> const &headers, std::string method);
 		bool	checkMethod(std::string method);

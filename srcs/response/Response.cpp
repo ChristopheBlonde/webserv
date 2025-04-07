@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:15:20 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/07 10:27:35 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/04/07 16:59:05 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,17 +39,19 @@ Response::Response(Requests const &req, Client  &client, Server &server)
 	this->_autoIndex = false;
 	if (_conf != NULL)
 	{
-		this->uploadPath = _conf->getUploadDir() + "/";
+		this->uploadPath = _conf->getUploadDir();
+		if (uploadPath != "" && uploadPath[uploadPath.size() -1] != '/')
+			uploadPath += "/";
 		this->_cgi = _conf->getCgi().empty() ? false : true;
 		this->_autoIndex = _conf->getAutoindex();
 	}
 	initMimeTypes(_mimeTypes);
 	initResponseHeaders(_headers);
+	checkConnection(headers, req.getType());
 	if (_status != 200)//400, 404, 301, 308, 501
 	{
 		if (_status / 100 * 100 == 300)
 		{
-			_headers["Connection"] += "keep-alive";
 			_headers["Location"] = "Location: " + urlEncode(_path);
 			if (_query != "")
 				_headers["Location"] += "?" + _query;
@@ -60,7 +62,6 @@ Response::Response(Requests const &req, Client  &client, Server &server)
 		createError(_status);
 		return;
 	}
-	checkConnection(headers, req.getType());
 	if (_status / 100 * 100 == 300)
 	{
 		std::string	redir = _conf->getRedirection();
@@ -79,7 +80,7 @@ Response::Response(Requests const &req, Client  &client, Server &server)
 		return ;
 	if (!checkContentLen())
 		return ;
-	handleMethod(req);
+	handleMethod(req, headers);
 }
 
 Response::~Response(void)
@@ -100,19 +101,22 @@ bool	Response::checkExtCgi(void)
 	return (false);
 }
 
-void	Response::handleMethod(Requests const &req)
+void	Response::handleMethod(Requests const &req,
+	std::map<std::string, std::string> const &headers)
 {
 	std::string	method = req.getType();
 	
-	if (method == "POST")
+	if (method == "POST" && _fileName == ""
+		&& _conf->getAliasedPart() + _path.substr(_conf->getMount().size())
+		== _conf->getName() + ((_conf->getName()[_conf->getName().size() - 1] == '/') ? "" : "/"))
 	{
-		//&& !_conf->getUploadDir().empty() + check multipart
-		//check exact match 404
-		//si pas de dir forbidden si mauvais form 415
-		uploadFile(req.getHeaders());
-		//return si ok
+		if (headers.at("Content-Type").compare(0, 19, "multipart/form-data")
+			|| std::string(" \t;\0", 4).find(headers.at("Content-Type")[19]) == std::string::npos)
+			createError(415);
+		else
+			uploadFile(req.getHeaders());
 	}
-	else if (_cgi && checkExtCgi())//remove else
+	else if (_cgi && checkExtCgi())
 	{
 		std::cout << GREEN << "/* CGI */" << RESET << std::endl;
 		std::map<std::string, std::string> cgi(_conf->getCgi());
@@ -143,7 +147,13 @@ void	Response::handleMethod(Requests const &req)
 	else if (method == "DELETE")
 		deleteFile();
 	else if (method == "POST")
-		createError(400);
+	{
+		if (headers.at("Content-Type").compare(0, 19, "multipart/form-data") == 0
+			&& std::string(" \t;\0", 4).find(headers.at("Content-Type")[19]) != std::string::npos)
+			createError(403);
+		else
+			createError(400);
+	}
 	else if (method == "GET")
 	{
 		std::cout << GREEN << "/* NORMAL */" << RESET << std::endl;
@@ -193,6 +203,7 @@ void	Response::createError(int stat)
 			_status = stat;
 			return ;
 		}
+		std::cout << "wow\n";
 		content = ERROR_PAGE(getResponseTypeStr(stat), getContentError(stat),
 				to_string(stat));
 		getStatFile("");
@@ -232,7 +243,8 @@ void	Response::createResponseHeader(void)
 		+ getResponseTypeStr(_status)
 		+ "\r\n";
 	_headers["Content-Length"] += to_string(_buffer.size());
-	if (_status != 301 && _status != 302 && _status != 400)//added 400 hotfix
+	std::cout << _buffer.size() << " |||\n" << std::string(_buffer.begin(), _buffer.end()) << "|||\n";
+	if (_status != 301 && _status != 302)//added 400 hotfix
 	{
 		std::cout << "salut: " << _mimeTypes[getFileType(_fileName)] << "\n";
 		std::cout << getFileType(_fileName) << "\n";
