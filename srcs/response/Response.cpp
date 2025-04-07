@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:15:20 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/07 09:58:51 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/04/07 10:27:35 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -134,6 +134,8 @@ void	Response::handleMethod(Requests const &req)
 			_cgiFd[1] = cgiObj.getParentFd();
 			addFdToCluster(cgiObj.getChildFd(), (POLLIN | POLLHUP));
 			addFdToCluster(cgiObj.getParentFd(), POLLOUT);
+			getStatFile("");
+			_headers.erase("Last-Modified");
 		}
 		else
 			createError(status);
@@ -205,6 +207,8 @@ void	Response::createError(int stat)
 		{
 		content = AutoIndex::generate(_conf->getMount(),
 		_conf->getAliasedPart(), _path, _host);
+		getStatFile("");
+		_headers.erase("Last-Modified");
 		}
 		catch (int code)//may work
 		{
@@ -234,7 +238,7 @@ void	Response::createResponseHeader(void)
 		std::cout << getFileType(_fileName) << "\n";
 		std::cout << "header: \"" << _headers["Content-Type"] << "\"\n";
 		_headers["Content-Type"] += (!_cgi && (!_autoIndex || (
-							_autoIndex && _fileName.empty())))
+							_autoIndex && !_fileName.empty())))
 			? _mimeTypes[getFileType(_fileName)]
 			: "text/html; charset=UFT-8";
 		std::cout << "header: \"" << _headers["Content-Type"] << "\"\n";
