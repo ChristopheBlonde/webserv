@@ -6,7 +6,7 @@
 /*   By: glaguyon <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/07 22:20:52 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/04/07 22:51:43 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/07 23:12:57 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,11 +35,11 @@ void	Response::deleteFile(void)
 void	Response::getFileOrIndex()
 {
 	if (!testAccess(_path, DIRACCESS))
-		createError(404);
+		return createError(404);
 	if (_fileName != "")
 	{
 		if (!testAccess(_path + _fileName, EXIST))
-			createError((!_autoIndex ? 404 : 200));
+			return createError((!_autoIndex ? 404 : 200));
 		_fileFd = getFile(_path + _fileName);
 		if (_fileFd == -1)
 			return createError((!_autoIndex ? 403 : 200));

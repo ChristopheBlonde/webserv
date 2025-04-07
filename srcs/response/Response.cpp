@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:15:20 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/07 22:59:23 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/07 23:04:24 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -233,18 +233,4 @@ void	Response::createResponseHeader(void)
 	std::cout << CYAN << "Header ready" << std::endl << _response
 		<< RESET << std::endl;
 	return ;
-}
-
-bool	Response::checkExtCgi(void)//should not use getfiletype
-{
-	std::map<std::string, std::string>		cgi(_conf->getCgi());
-	std::map<std::string, std::string>::iterator	it;
-	std::string					ext(getFileType(_fileName));
-
-	if (_fileName.empty())
-		return (false);
-	for (it = cgi.begin(); it != cgi.end(); it++)
-		if (it->first == ext)
-			return (true);
-	return (false);
 }

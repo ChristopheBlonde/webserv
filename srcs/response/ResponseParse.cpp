@@ -6,7 +6,7 @@
 /*   By: cblonde <cblonde@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/29 08:25:35 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/07 20:54:52 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/07 23:18:20 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,6 +70,20 @@ bool	Response::checkContentLen()
 	return (true);
 }
 
+bool	Response::checkExtCgi(void)
+{
+	std::map<std::string, std::string>		cgi(_conf->getCgi());
+
+	if (_fileName.empty())
+		return (false);
+	for (std::map<std::string, std::string>::iterator it = cgi.begin();
+		it != cgi.end(); it++)
+		if (_fileName.compare(_fileName.size() - it->first.size(),
+			it->first.size(), it->first) == 0)
+			return (true);
+	return (false);
+}
+
 void	Response::getStatFile(std::string path)
 {
 	struct stat res;
@@ -115,6 +129,7 @@ std::string	getResponseTypeStr(int stat)
 	std::map<int,std::string> names;
 
 	names[200] = "OK";
+	names[204] = "Gone";
 	names[301] = "Moved Permanently";
 	names[302] = "Found";
 	names[308] = "Permanent Redirect";
@@ -136,6 +151,7 @@ std::string	getContentError(int stat)
 	std::map<int,std::string> content;
 
 	content[200] = "OK";
+	content[204] = "Ressource deleted";
 	content[400] = "the server would not process the request due to something \
 the server considered to be a client error";
 	content[403] = "Insufficient permissions to a resource or action";
