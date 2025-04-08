@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 09:55:53 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/07 22:54:49 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/08 00:46:42 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,17 +23,35 @@ static inline unsigned char hexCharToValue(unsigned char c)
 	return 0;
 }
 
-static std::string	urlDecode(std::string encoded, bool query)
+std::string	urlEncode(std::string decoded)
+{
+	static const char	hex[] = "0123456789ABCDEF";
+	std::string		encoded;
+
+	for (size_t i = 0; i < decoded.length(); ++i)
+	{
+		const unsigned char	c = decoded[i];
+		
+		if (isalnum(c) || c == '-' || c == '_' || c == '.' || c == '~' || c == '/')
+			encoded += c;
+		else
+		{
+			encoded += '%';
+			encoded += hex[c >> 4];
+			encoded += hex[c & 0xF];
+		}
+	}
+	return encoded;
+}
+
+std::string	urlDecode(std::string encoded)
 {
 	std::string	decoded;
 
 	for (size_t i = 0; i < encoded.length(); ++i)
 	{
-		if (encoded[i] == '+' && query)
-			decoded += ' ';
-		else if (encoded[i] == '%' && i + 2 < encoded.length()
-			&& (query || 
-			(encoded.compare(i, 3, "%2F") && encoded.compare(i, 3, "%2F"))))
+		if (encoded[i] == '%' && i + 2 < encoded.length()
+			&& encoded.compare(i, 3, "%2f") && encoded.compare(i, 3, "%2F"))
 		{
 			const unsigned char h = encoded[i + 1];
 			const unsigned char l = encoded[i + 2];
@@ -52,40 +70,6 @@ static std::string	urlDecode(std::string encoded, bool query)
 			decoded += encoded[i];
 	}
 	return decoded;
-}
-
-static std::string	urlEncode(std::string decoded, bool query)
-{
-	static const char	hex[] = "0123456789ABCDEF";
-	std::string		encoded;
-
-	for (size_t i = 0; i < decoded.length(); ++i)
-	{
-		const unsigned char	c = decoded[i];
-		
-		if (isalnum(c) || c == '-' || c == '_' || c == '.' || c == '~'
-			|| (c == '/' && !query))
-			encoded += c;
-		else if (c == ' ' && query)
-			encoded += '+';
-		else
-		{
-			encoded += '%';
-			encoded += hex[c >> 4];
-			encoded += hex[c & 0xF];
-		}
-	}
-	return encoded;
-}
-
-std::string	urlEncode(std::string s)
-{
-	return urlEncode(s, 0);
-}
-
-std::string	urlDecode(std::string s)
-{
-	return urlDecode(s, 0);
 }
 
 //Kebab-Case
