@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/25 20:45:01 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/08 17:08:06 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,8 @@ class Cluster
 	std::vector<int>			clientCloseList;
 	std::vector<int>			fdRemoveList;
 
+	std::map<std::string, std::string>	sessionMap;
+
 	PollFd	&getPollFd(int fd);
 	void	destroyClients();
 	void	addClients();
@@ -56,6 +58,12 @@ class Cluster
 	void			closeClient(int fd);
 	void			addFd(PollFd pfd);
 	void			removeFd(int fd);
+
+	void			removeSession(std::string id);
+	std::string		getSession(std::string id);
+	void			editSession(std::string key, std::string value);
+	void			editSession(std::pair<std::string, std::string>);
+
 	void			run();
 };
 

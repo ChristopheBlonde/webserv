@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/04/07 18:09:04 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/08 17:20:06 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -183,6 +183,29 @@ void	Cluster::deleteFds()
 short	Cluster::getRevents(int fd)
 {
 	return getPollFd(fd).revents;
+}
+
+void	Cluster::removeSession(std::string id)
+{
+	std::map<std::string, std::string>::iterator it = sessionMap.find(id);
+
+	if (it != sessionMap.end())
+		sessionMap.erase(it);
+}
+
+std::string	Cluster::getSession(std::string id)
+{
+	return sessionMap[id];
+}
+
+void	Cluster::editSession(std::string key, std::string value)
+{
+	sessionMap[key] = value;
+}
+
+void	Cluster::editSession(std::pair<std::string, std::string> pair)
+{
+	sessionMap[pair.first] = pair.second;
 }
 
 void	Cluster::run()
