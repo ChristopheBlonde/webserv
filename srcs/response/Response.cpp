@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:15:20 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/08 15:46:51 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/04/08 16:26:44 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,7 +55,7 @@ Response::Response(Requests const &req, Client  &client, Server &server)
 	{
 		if (_status / 100 * 100 == 300)
 		{
-			_headers["Location"] = "Location: " + urlEncode(_path);
+			_headers["Location"] = urlEncode(_path);
 			if (_query != "")
 				_headers["Location"] += "?" + _query;
 			getStatFile("");
@@ -69,8 +69,7 @@ Response::Response(Requests const &req, Client  &client, Server &server)
 	{
 		std::string	redir = _conf->getRedirection();
 
-		_headers["Location"] = "Location: "
-			+ redir.substr(0, redir.find("://") + 3)
+		_headers["Location"] = redir.substr(0, redir.find("://") + 3)
 			+ urlEncode(redir.substr(redir.find("://") + 3,
 				redir.find("?") - redir.find("://") - 3));
 		if (_query != "")
@@ -89,10 +88,7 @@ Response::Response(Requests const &req, Client  &client, Server &server)
 
 Response::~Response(void)
 {
-	if (_cgiFd[0] != -1)
-		close(_cgiFd[0]);
-	if (_cgiFd[1] != -1)
-		close(_cgiFd[1]);
+	return ;
 }
 
 void	Response::handleMethod(Requests const &req,
@@ -194,7 +190,7 @@ void	Response::createError(int stat)
 		content = ERROR_PAGE(getResponseTypeStr(stat), getContentError(stat),
 				to_string(stat));
 		getStatFile("");
-		_headers["Content-Type"] += "text/html; charset=UFT-8";
+		_headers["Content-Type"] = "text/html; charset=UFT-8";
 		_headers.erase("Last-Modified");
 	}
 	_buffer.insert(_buffer.begin(), content.begin(), content.end());
@@ -211,19 +207,24 @@ void	Response::createResponseHeader(void)
 		+ to_string(_status) + " "
 		+ getResponseTypeStr(_status)
 		+ "\r\n";
-	_headers["Content-Length"] += to_string(_buffer.size());
+	_headers["Content-Length"] = to_string(_buffer.size());
 	if (_status / 100 * 100 != 300)
 	{
-		if (!_cgi && _status == 200
+		if (!_cgi && _status / 100 * 100 == 200
 			&& _fileName != "" && _mimeTypes[getFileType(_fileName)] != "")
-			_headers["Content-Type"] += _mimeTypes[getFileType(_fileName)];
+			_headers["Content-Type"] = _mimeTypes[getFileType(_fileName)];
 		else if (!_cgi)
-			_headers["Content-Type"] += "text/html; charset=UTF-8";
-	}
+		{
+			if (_status / 100 * 100 != 200 || (_autoIndex && _fileName.empty()))
+				_headers["Content-Type"] = "text/html; charset=UTF-8";
+			else
+				_headers["Content-Type"] = "text/plain; charset=UTF-8";
+		}
+}
 	else
 		_headers.erase("Content-Type");
 	for (it = _headers.begin(); it != _headers.end(); it++)
-		_response += (it->second + "\r\n");
+		_response += it->first + ": " + it->second + "\r\n";
 	for (itCookie = _cookies.begin(); itCookie != _cookies.end(); itCookie++)
 		_response += "Set-Cookie: " + *itCookie + "\r\n";
 	_response += "\r\n";

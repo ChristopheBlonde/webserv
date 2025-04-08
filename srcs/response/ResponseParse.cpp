@@ -6,7 +6,7 @@
 /*   By: cblonde <cblonde@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/29 08:25:35 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/08 15:54:11 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/04/08 15:59:08 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ void	Response::checkConnection(std::map<std::string,
 
 	if ((_status / 100 * 100 == 300) || _autoIndex || !_conf->getRedirection().empty())
 	{
-		_headers["Connection"] += "close";
+		_headers["Connection"] = "close";
 		if (!_conf->getRedirection().empty())
 		{
 			if (method == "GET")
@@ -32,7 +32,7 @@ void	Response::checkConnection(std::map<std::string,
 	{
 		it = headers.find("Connection");
 		if (it != headers.end())
-			_headers["Connection"] += it->second;
+			_headers["Connection"] = it->second;
 	}
 }
 
@@ -98,7 +98,7 @@ void	Response::getStatFile(std::string path)
 	tmTime = gmtime(&ttime);
 	strftime(buffer, 1024, "%a, %d %b %Y %T GMT", tmTime);
 	std::cout << CYAN << "Stat: Date: " << buffer << RESET << std::endl;
-	_headers["Date"] += buffer;
+	_headers["Date"] = buffer;
 	if (path.empty())
 	{
 		_headers.erase("Last-Modified");
@@ -119,7 +119,7 @@ void	Response::getStatFile(std::string path)
 	tmTime = gmtime(&ttime);
 	strftime(buffer, 1024, "%a, %d %b %Y %T GMT", tmTime);
 	std::cout << CYAN << "Stat: Last-Modified: " << buffer << RESET << std::endl;
-	_headers["Last-Modified"] += buffer;
+	_headers["Last-Modified"] = buffer;
 	size = res.st_size;
 	_buffer.reserve(size * sizeof(unsigned char));
 	std::cout << CYAN << "Stat: Size: " << size << RESET << std::endl;
@@ -196,7 +196,7 @@ void	Response::handleCgiHeader(std::string &str)
 				_status = num;
 		}
 		else if (tmp.first == "Content-Type")
-			_headers[tmp.first] += tmp.second;
+			_headers[tmp.first] = tmp.second;
 	}
 	if (_status / 100 * 100 != 200)
 		createError(_status);
