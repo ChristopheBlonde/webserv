@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:15:20 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/08 00:19:23 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/08 15:46:51 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,9 @@ Response::Response(Requests const &req, Client  &client, Server &server)
 		this->uploadPath = _conf->getUploadDir();
 		if (uploadPath != "" && uploadPath[uploadPath.size() -1] != '/')
 			uploadPath += "/";
-		this->_cgi = _conf->getCgi().empty() ? false : true;
+		this->_cgi = !_conf->getCgi().empty()
+			&& checkExtCgi()
+			? true : false;
 		this->_autoIndex = _conf->getAutoindex();
 	}
 	initMimeTypes(_mimeTypes);
@@ -87,6 +89,10 @@ Response::Response(Requests const &req, Client  &client, Server &server)
 
 Response::~Response(void)
 {
+	if (_cgiFd[0] != -1)
+		close(_cgiFd[0]);
+	if (_cgiFd[1] != -1)
+		close(_cgiFd[1]);
 }
 
 void	Response::handleMethod(Requests const &req,
@@ -105,7 +111,7 @@ void	Response::handleMethod(Requests const &req,
 		else
 			uploadFile(req.getHeaders());
 	}
-	else if (_cgi && checkExtCgi())
+	else if (_cgi)
 	{
 		std::cout << GREEN << "/* CGI */" << RESET << std::endl;
 		std::map<std::string, std::string> cgi(_conf->getCgi());
@@ -127,7 +133,6 @@ void	Response::handleMethod(Requests const &req,
 			_cgiFd[1] = cgiObj.getParentFd();
 			addFdToCluster(cgiObj.getChildFd(), (POLLIN | POLLHUP));
 			addFdToCluster(cgiObj.getParentFd(), POLLOUT);
-			getStatFile("");
 			_headers.erase("Last-Modified");
 		}
 		else
@@ -200,6 +205,7 @@ void	Response::createError(int stat)
 void	Response::createResponseHeader(void)
 {
 	std::map<std::string,std::string>::iterator it;
+	std::vector<std::string>::iterator			itCookie;
 
 	_response = _protocol + " "
 		+ to_string(_status) + " "
@@ -211,13 +217,15 @@ void	Response::createResponseHeader(void)
 		if (!_cgi && _status == 200
 			&& _fileName != "" && _mimeTypes[getFileType(_fileName)] != "")
 			_headers["Content-Type"] += _mimeTypes[getFileType(_fileName)];
-		else
+		else if (!_cgi)
 			_headers["Content-Type"] += "text/html; charset=UTF-8";
 	}
 	else
 		_headers.erase("Content-Type");
 	for (it = _headers.begin(); it != _headers.end(); it++)
 		_response += (it->second + "\r\n");
+	for (itCookie = _cookies.begin(); itCookie != _cookies.end(); itCookie++)
+		_response += "Set-Cookie: " + *itCookie + "\r\n";
 	_response += "\r\n";
 
 	_headerReady = true;

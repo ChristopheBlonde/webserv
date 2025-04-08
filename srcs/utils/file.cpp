@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:47:28 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/07 22:21:58 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/08 10:03:38 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,6 +73,7 @@ void initResponseHeaders(std::map<std::string, std::string> &headers)
 
 bool	testAccess(std::string path, t_access test)
 {
+	std::cout << path << "dfsdfsdf\n";
 	int	res;
 
 	res = 0;

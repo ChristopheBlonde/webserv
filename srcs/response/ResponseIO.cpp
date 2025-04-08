@@ -6,7 +6,7 @@
 /*   By: glaguyon <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/07 22:58:57 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/04/07 22:59:21 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/08 13:35:43 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,16 +93,20 @@ extern volatile sig_atomic_t sig;
 
 bool	Response::handleFdCgi(int fd)
 {
-	int	readBytes;
-	int	sentBytes;
-	int	bodySize = _body.size();
+	int		readBytes;
+	int		sentBytes;
+	int		bodySize = _body.size();
 	char	buffer[FILE_BUFFER_SIZE];
+	static bool	head = false;
 
 	if (fd == _cgiFd[0])
 	{
 		readBytes = read(fd, buffer, FILE_BUFFER_SIZE - 1);
 		if (readBytes <= 0)
 		{
+			std::cout << YELLOW << std::string(_buffer.begin(), _buffer.end())
+				<< RESET << std::endl;
+			head = false;
 			close(fd);
 			if (_cgiFd[1] > 0)
 			{
@@ -114,8 +118,9 @@ bool	Response::handleFdCgi(int fd)
 			return (false);
 		}
 		buffer[readBytes] = '\0';
-		std::cout << "buff " << buffer << "\n";
 		_buffer.insert(_buffer.end(), buffer, buffer + readBytes);
+		if (!head)
+			getCgiHeader(buffer, head);
 	}
 	else
 	{

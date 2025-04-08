@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 10:46:49 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/07 20:35:12 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/08 09:45:32 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -174,7 +174,7 @@ void	Requests::parse(std::string str, Cluster *c)
 	if (_type == UNKNOWN)
 		error = 400;
 	else if (_type == UNIMPLEMENTED && error != 400)
-		error = 501;
+		error = 405;
 	while (getline(ss, line))
 	{
 		if (line[line.size() - 1] != '\r')

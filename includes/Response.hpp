@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:16:02 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/07 22:38:10 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/08 13:45:14 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,6 +65,7 @@ class Response
 		bool								_headerReady;
 		int									_sizeSend;
 		std::string							uploadPath;
+		std::vector<std::string>			_cookies;
 		
 
 		void	handleMethod(Requests const &req,
@@ -86,6 +87,8 @@ class Response
 		void	deleteFile(void);
 		void	getFileOrIndex();
 		bool	checkExtCgi(void);
+		void	getCgiHeader(char buffer[FILE_BUFFER_SIZE], bool &finded);
+		void	handleCgiHeader(std::string &str);
 	public:
 		Response(Requests const &req,Client &client, Server &server);
 		~Response(void);
