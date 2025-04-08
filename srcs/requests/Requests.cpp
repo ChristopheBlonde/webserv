@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 10:46:49 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/08 09:45:32 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/04/08 18:08:21 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -118,12 +118,12 @@ static int	initHeader(std::string str,
 	return 0;
 }
 
-void	Requests::handleFile(std::string start, std::string alias)
+void	Requests::handleFile(std::string mount, std::string alias)
 {
 	size_t		lastSlash = 0;
 	size_t		slash;
 
-	_path = _path.substr(start.size());
+	_path = _path.substr(mount.size());
 	slash = _path.find("/", 1);
 	while (slash != std::string::npos)
 	{
@@ -138,17 +138,18 @@ void	Requests::handleFile(std::string start, std::string alias)
 		_path = alias + _path.substr(0, lastSlash + 1);
 		return;
 	}
-	if ((lastSlash < _path.size() - 1)
+	if ((lastSlash < _path.size() - 1) && !(_path == "" && alias[alias.size() - 1] == '/')
 		&& testAccess(alias + _path, DIRACCESS))
 	{
 		if (error == 200)
 			error = (_type == GET) ? 301 : 308;
-		_path = start + _path + "/";
+		_path = mount + _path + "/";
 		if (!_query.empty())
 			_path += "?" + _query;
 		return;
 	}
-	_fileName = _path.substr(lastSlash + 1);
+	if (_path.size() && lastSlash < _path.size() - 1)
+		_fileName = _path.substr(lastSlash + 1);
 	_path = alias + _path.substr(0, lastSlash + 1);
 }
 
