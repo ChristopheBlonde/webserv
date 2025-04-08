@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:15:20 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/08 16:26:44 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/04/08 18:14:13 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,9 +42,7 @@ Response::Response(Requests const &req, Client  &client, Server &server)
 		this->uploadPath = _conf->getUploadDir();
 		if (uploadPath != "" && uploadPath[uploadPath.size() -1] != '/')
 			uploadPath += "/";
-		this->_cgi = !_conf->getCgi().empty()
-			&& checkExtCgi()
-			? true : false;
+		this->_cgi = !_conf->getCgi().empty() && checkExtCgi();
 		this->_autoIndex = _conf->getAutoindex();
 	}
 	initMimeTypes(_mimeTypes);
