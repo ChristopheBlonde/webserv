@@ -48,7 +48,6 @@ Response::Response(Requests const &req, Client  &client, Server &server)
 	initMimeTypes(_mimeTypes);
 	initResponseHeaders(_headers);
 	checkConnection(headers, req.getType());
-	std::cout << "req status " << _status << "\n";
 	if (_status != 200)//400, 404, 301, 308, 501
 	{
 		if (_status / 100 * 100 == 300)
@@ -80,7 +79,6 @@ Response::Response(Requests const &req, Client  &client, Server &server)
 		return ;
 	if (!checkContentLen())
 		return ;
-	std::cout << "all good\n";
 	handleMethod(req, headers);
 }
 
@@ -107,7 +105,6 @@ void	Response::handleMethod(Requests const &req,
 	}
 	else if (_cgi)
 	{
-		std::cout << GREEN << "/* CGI */" << RESET << std::endl;
 		std::map<std::string, std::string> cgi(_conf->getCgi());
 		for (std::map<std::string, std::string>::iterator it = cgi.begin();
 				it != cgi.end(); it++)
@@ -152,7 +149,6 @@ void	Response::createError(int stat)
 	std::string	content;
 	int			fd;
 
-	std::cout << "status " << _status << ", error: " << stat << "\n";
 	_status = stat;
 	if (_autoIndex && _status == 200 && _fileName == "")
 	{
@@ -172,7 +168,6 @@ void	Response::createError(int stat)
 	}
 	else
 	{
-		std::cout << "hello\n";
 		content = _server.getErrorPage(stat);
 		if (!content.empty())
 		{
@@ -228,7 +223,5 @@ void	Response::createResponseHeader(void)
 	_response += "\r\n";
 
 	_headerReady = true;
-	std::cout << CYAN << "Header ready" << std::endl << _response
-		<< RESET << std::endl;
 	return ;
 }

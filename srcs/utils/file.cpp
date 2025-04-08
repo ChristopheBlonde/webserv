@@ -18,11 +18,7 @@ int	getFile(std::string path)
 
 	fd = open(path.c_str(), O_RDONLY | O_NONBLOCK);
 	if (fd < 0)
-	{
-		std::cerr << RED << "Error: getFile: " << std::strerror(errno) << RESET
-			<< std::endl;
 		return (-1);
-	}
 	return (fd);
 }
 
@@ -73,7 +69,6 @@ void initResponseHeaders(std::map<std::string, std::string> &headers)
 
 bool	testAccess(std::string path, t_access test)
 {
-	std::cout << path << "dfsdfsdf\n";
 	int	res;
 
 	res = 0;
@@ -100,11 +95,7 @@ bool	testAccess(std::string path, t_access test)
 			break ;
 	}
 	if (res)
-	{
-		std::cerr << RED << "Error: Access: " << strerror(errno)
-			<< RESET << std::endl;
 		return (false);
-	}
 	return (true);
 }
 
@@ -113,8 +104,5 @@ int	openFileUpload(std::string path)
 	int	fd = -1;
 
 	fd = open(path.data(), O_WRONLY | O_CREAT | O_TRUNC | O_NONBLOCK, 0644);
-	if (fd < 0)
-		std::cerr << RED << "Error: Open fd upload: "
-			<< strerror(errno) << RESET << std::endl;
 	return (fd);
 }

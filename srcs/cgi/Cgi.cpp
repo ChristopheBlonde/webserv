@@ -6,7 +6,7 @@
 /*   By: cblonde <cblonde@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/06 07:14:01 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/07 18:25:35 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/08 18:54:39 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -171,6 +171,7 @@ int	Cgi::execScript(void)
 		return (500);
 	else if (!_pid)
 	{
+		std::cerr << "I AM CHILD\n";
 		char const *argv[3] = {_cgiPath.empty()
 			? _scriptPath.data()
 				: _cgiPath.data(), _scriptPath.data(), NULL};
@@ -183,6 +184,9 @@ int	Cgi::execScript(void)
 			<< RESET << std::endl;
 		exit(500);
 	}
+	else
+		std::cerr << "I AM PARENT\n";
+
 	close(_parentToChild[0]);
 	close(_childToParent[1]);
 	return (200);

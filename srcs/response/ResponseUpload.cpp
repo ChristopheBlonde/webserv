@@ -6,7 +6,7 @@
 /*   By: glaguyon <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/28 17:23:46 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/04/07 16:56:16 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/08 18:51:56 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,8 +30,6 @@ bool	Response::handleFileUpload(int fd)
 	file.size -= sent;
 	if (file.size == 0)
 	{
-		std::cout << GREEN << "File: " << file.fileName
-			<< " upload successfully !" << RESET << std::endl;
 		_filesUpload.erase(it);
 		if (_filesUpload.empty())
 			createResponseHeader();
@@ -223,11 +221,5 @@ void	Response::uploadFile(std::map<std::string, std::string> const &headers)
 	std::map<int, FileData>::iterator it;
 
 	for (it = _filesUpload.begin(); it != _filesUpload.end(); it++)
-	{
-		FileData tmp = it->second;
-		std::cout << GREEN << "File Name: " << tmp.fileName
-			<< std::endl << "File size: "
-			<< tmp.size << RESET << std::endl;
 		addFdToCluster(it->first, POLLOUT);
-	}
 }

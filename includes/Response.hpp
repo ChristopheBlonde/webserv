@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:16:02 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/08 13:45:14 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/04/08 19:43:37 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,7 +87,7 @@ class Response
 		void	deleteFile(void);
 		void	getFileOrIndex();
 		bool	checkExtCgi(void);
-		void	getCgiHeader(char buffer[FILE_BUFFER_SIZE], bool &finded);
+		void	getCgiHeader(bool &finded);
 		void	handleCgiHeader(std::string &str);
 	public:
 		Response(Requests const &req,Client &client, Server &server);

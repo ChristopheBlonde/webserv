@@ -155,8 +155,6 @@ void	Requests::handleFile(std::string mount, std::string alias)
 
 void	Requests::parse(std::string str, Cluster *c)
 {
-	std::cout << CYAN << "raw request: |||" << RESET << std::endl
-		<< str << CYAN << "|||" << RESET << std::endl;
 	std::stringstream	ss(str);
 	std::string			word;
 	std::string			line;

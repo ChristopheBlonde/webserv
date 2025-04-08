@@ -6,7 +6,7 @@
 /*   By: glaguyon <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/07 22:58:57 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/04/08 13:35:43 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/04/08 19:43:24 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,7 +75,12 @@ void	Response::sendBody(int fd)
 			_buffer.size() < FILE_BUFFER_SIZE
 			? _buffer.size() : FILE_BUFFER_SIZE, 0);
 	if (sentBytes > 0)
+	{
+		std::cout << RESET << "-----------\n";
+		std::cout << YELLOW << std::string(_buffer.begin(), _buffer.begin() + sentBytes) << "\n";
+		std::cout << RESET << "-----------\n";
 		_buffer.erase(_buffer.begin(), _buffer.begin() + sentBytes);
+	}
 }
 
 void	Response::addFdToCluster(int fd, short event)
@@ -104,8 +109,6 @@ bool	Response::handleFdCgi(int fd)
 		readBytes = read(fd, buffer, FILE_BUFFER_SIZE - 1);
 		if (readBytes <= 0)
 		{
-			std::cout << YELLOW << std::string(_buffer.begin(), _buffer.end())
-				<< RESET << std::endl;
 			head = false;
 			close(fd);
 			if (_cgiFd[1] > 0)
@@ -118,9 +121,12 @@ bool	Response::handleFdCgi(int fd)
 			return (false);
 		}
 		buffer[readBytes] = '\0';
+		std::cout << RED << buffer << "\n";
 		_buffer.insert(_buffer.end(), buffer, buffer + readBytes);
+		std::cout << CYAN << std::string(_buffer.begin(), _buffer.end()) << "\n";
+		std::cout << RESET << "===========================\n";
 		if (!head)
-			getCgiHeader(buffer, head);
+			getCgiHeader(head);
 	}
 	else
 	{

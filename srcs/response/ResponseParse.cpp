@@ -6,7 +6,7 @@
 /*   By: cblonde <cblonde@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/29 08:25:35 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/08 15:59:08 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/04/08 19:42:57 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -97,7 +97,6 @@ void	Response::getStatFile(std::string path)
 	ttime = time(NULL);
 	tmTime = gmtime(&ttime);
 	strftime(buffer, 1024, "%a, %d %b %Y %T GMT", tmTime);
-	std::cout << CYAN << "Stat: Date: " << buffer << RESET << std::endl;
 	_headers["Date"] = buffer;
 	if (path.empty())
 	{
@@ -106,11 +105,7 @@ void	Response::getStatFile(std::string path)
 	}
 	status = stat(path.c_str(), &res);
 	if (status)
-	{
-		std::cerr << RED << "Error: stat: " << strerror(errno)
-			<< RESET << std::endl;
 		return ;
-	}
 	#ifdef __linux__
 		ttime = res.st_mtim.tv_sec;
 	#else
@@ -118,11 +113,9 @@ void	Response::getStatFile(std::string path)
 	#endif
 	tmTime = gmtime(&ttime);
 	strftime(buffer, 1024, "%a, %d %b %Y %T GMT", tmTime);
-	std::cout << CYAN << "Stat: Last-Modified: " << buffer << RESET << std::endl;
 	_headers["Last-Modified"] = buffer;
 	size = res.st_size;
 	_buffer.reserve(size * sizeof(unsigned char));
-	std::cout << CYAN << "Stat: Size: " << size << RESET << std::endl;
 }
 
 std::string	getResponseTypeStr(int stat)
@@ -204,15 +197,12 @@ void	Response::handleCgiHeader(std::string &str)
 		getStatFile("");
 }
 
-void	Response::getCgiHeader(char buffer[FILE_BUFFER_SIZE], bool &finded)
+void	Response::getCgiHeader(bool &finded)
 {
-	std::string	rawInput;
+	std::string	rawInput(_buffer.begin(), _buffer.end());
 	std::string	head;
 	size_t		index;
 
-	if (!_buffer.empty())
-		rawInput.insert(rawInput.end(), _buffer.begin(), _buffer.end());
-	rawInput.insert(rawInput.end(), buffer, buffer + std::strlen(buffer));
 	for (size_t i = 0; i < rawInput.size(); ++i)
 	{
 		if (rawInput[i] == '\r')
@@ -229,6 +219,7 @@ void	Response::getCgiHeader(char buffer[FILE_BUFFER_SIZE], bool &finded)
 			head += rawInput[i];
 		}
 	}
+	std::cout << GREEN << rawInput << "\n";
 	index = head.find("\n\n");
 	if (index == std::string::npos)
 		return ;
