@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 10:46:49 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/08 18:08:21 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/09 09:37:15 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -159,7 +159,7 @@ void	Requests::parse(std::string str, Cluster *c)
 	std::string			word;
 	std::string			line;
 	size_t				index;
-
+	std::cout << YELLOW << str << RESET << std::endl;
 	getline(ss, line);
 	std::stringstream ssLine(line);
 	ssLine >> word >> _path >> _protocol;

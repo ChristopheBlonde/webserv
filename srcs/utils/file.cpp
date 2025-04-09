@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:47:28 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/08 10:03:38 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/04/09 09:42:49 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,11 +60,11 @@ void	initMimeTypes(std::map<std::string, std::string> &mime_types)
 
 void initResponseHeaders(std::map<std::string, std::string> &headers)
 {
-	headers["Content-Type"] = "Content-Type: ";
-	headers["Content-Length"] = "Content-Length: ";
-	headers["Connection"] = "Connection: ";
-	headers["Date"] = "Date: ";
-	headers["Last-Modified"] = "Last-Modified: ";
+	headers["Content-Type"] = "";
+	headers["Content-Length"] = "";
+	headers["Connection"] = "";
+	headers["Date"] = "";
+	headers["Last-Modified"] = "";
 }
 
 bool	testAccess(std::string path, t_access test)

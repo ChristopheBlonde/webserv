@@ -6,7 +6,7 @@
 /*   By: glaguyon <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/07 22:58:57 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/04/08 19:43:24 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/09 10:36:47 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -121,10 +121,10 @@ bool	Response::handleFdCgi(int fd)
 			return (false);
 		}
 		buffer[readBytes] = '\0';
-		std::cout << RED << buffer << "\n";
+//		std::cout << RED << buffer << "\n";
 		_buffer.insert(_buffer.end(), buffer, buffer + readBytes);
-		std::cout << CYAN << std::string(_buffer.begin(), _buffer.end()) << "\n";
-		std::cout << RESET << "===========================\n";
+//		std::cout << CYAN << std::string(_buffer.begin(), _buffer.end()) << "\n";
+//		std::cout << RESET << "===========================\n";
 		if (!head)
 			getCgiHeader(head);
 	}

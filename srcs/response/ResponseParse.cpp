@@ -6,7 +6,7 @@
 /*   By: cblonde <cblonde@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/29 08:25:35 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/09 09:13:28 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/04/09 10:24:03 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,6 +33,8 @@ void	Response::checkConnection(std::map<std::string,
 		it = headers.find("Connection");
 		if (it != headers.end())
 			_headers["Connection"] = it->second;
+		else
+			_headers["Connection"] = "keep-alive";
 	}
 }
 
@@ -49,8 +51,7 @@ bool	Response::checkMethod(std::string method)
 	it = methods.find(method);
 	if (it == methods.end())
 	{
-		_headers["Allow"] = "Allow: " + allowed;
-		createError(405);
+		_headers["Allow"] = allowed;
 		return (false);
 	}
 	return (true);

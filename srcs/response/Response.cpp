@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:15:20 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/08 18:14:13 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/09 10:26:27 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,7 +76,10 @@ Response::Response(Requests const &req, Client  &client, Server &server)
 		return ;
 	}
 	if (!checkMethod(req.getType()))
+	{
+		createError(405);
 		return ;
+	}
 	if (!checkContentLen())
 		return ;
 	handleMethod(req, headers);
@@ -187,6 +190,8 @@ void	Response::createError(int stat)
 		_headers.erase("Last-Modified");
 	}
 	_buffer.insert(_buffer.begin(), content.begin(), content.end());
+	if (_status == 405)
+		checkMethod("FAKE");
 	createResponseHeader();
 	return ;
 }
@@ -201,10 +206,10 @@ void	Response::createResponseHeader(void)
 		+ getResponseTypeStr(_status)
 		+ "\r\n";
 	_headers["Content-Length"] = to_string(_buffer.size());
-	if (_status / 100 * 100 != 300)
+	if (_status / 100 * 100 != 300 && _buffer.size() > 0)
 	{
 		if (!_cgi && _status / 100 * 100 == 200
-			&& _fileName != "" && _mimeTypes[getFileType(_fileName)] != "")
+				&& _fileName != "" && _mimeTypes[getFileType(_fileName)] != "")
 			_headers["Content-Type"] = _mimeTypes[getFileType(_fileName)];
 		else if (!_cgi)
 		{
@@ -213,7 +218,7 @@ void	Response::createResponseHeader(void)
 			else
 				_headers["Content-Type"] = "text/plain; charset=UTF-8";
 		}
-}
+	}
 	else
 		_headers.erase("Content-Type");
 	for (it = _headers.begin(); it != _headers.end(); it++)
@@ -221,7 +226,7 @@ void	Response::createResponseHeader(void)
 	for (itCookie = _cookies.begin(); itCookie != _cookies.end(); itCookie++)
 		_response += "Set-Cookie: " + *itCookie + "\r\n";
 	_response += "\r\n";
-
+	std::cout << CYAN << _response << RESET << std::endl;
 	_headerReady = true;
 	return ;
 }
