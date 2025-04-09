@@ -6,7 +6,7 @@
 /*   By: glaguyon <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/07 22:58:57 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/04/09 17:02:43 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/09 17:38:27 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -143,6 +143,8 @@ bool	Response::handleFdCgi(int fd)
 		{
 			if (sig == SIGPIPE)
 				sig = 0;
+			//close(_cgiFd[0]);
+			//_cgiFd[0] = -1;
 			_cgiFd[1] = -1;
 			close(fd);
 			return (false);

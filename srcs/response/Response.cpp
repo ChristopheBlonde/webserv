@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:15:20 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/09 16:50:57 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/09 17:43:33 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,6 +93,10 @@ Response::~Response(void)
 		waitpid(_pid, NULL, WNOHANG);
 		kill(_pid, 9);
 	}
+	if (_cgiFd[0] != -1)
+		close(_cgiFd[0]);
+	if (_cgiFd[1] != -1)
+		close(_cgiFd[1]);
 	return ;
 }
 
@@ -136,15 +140,16 @@ void	Response::handleMethod(Requests const &req,
 		
 		if (status == 200)
 		{
-			_pid	= cgiObj.getPid();
+			_pid = cgiObj.getPid();
 			_cgiFd[0] = cgiObj.getChildFd();
 			_cgiFd[1] = cgiObj.getParentFd();
-			addFdToCluster(cgiObj.getChildFd(), (POLLIN | POLLHUP));
-			addFdToCluster(cgiObj.getParentFd(), POLLOUT);
+			addFdToCluster(_cgiFd[0], (POLLIN | POLLHUP));
+			addFdToCluster(_cgiFd[1], POLLOUT);
 			_headers.erase("Last-Modified");
 		}
 		else
 		{
+			cgiObj.closePipes();
 			_cgi = false;
 			createError(status);
 		}
