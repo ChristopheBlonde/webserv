@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/24 10:26:29 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/09 14:05:26 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/09 15:04:09 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,5 +51,6 @@ void						initMimeTypes(std::map<std::string,
 std::string					getFileType(std::string path);
 std::string					to_string(long int num);
 bool						testAccess(std::string path, t_access test);
+std::vector<std::string>	split(std::string str, char sep);
 
 #endif

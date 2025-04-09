@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 09:55:53 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/08 00:46:42 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/09 12:41:33 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -144,6 +144,18 @@ std::string	handleBadPath(std::string str)
 	//rm last /. or /..
 	if ((str.size() >= 2 && str.compare(str.size() - 2, 2, "/.") == 0)
 		|| (str.size() >= 3 && str.compare(str.size() - 3, 3, "/..") == 0))
-		str.erase(str.find_last_of("/") + 1, str.size() - str.find_last_of("/") - 1);
+		str.erase(str.find_last_of("/")
+				+ 1, str.size() - str.find_last_of("/") - 1);
 	return str;
+}
+
+std::vector<std::string>	split(std::string str, char sep)
+{
+	std::vector<std::string>	elements;
+	std::string					line;
+	std::stringstream			ss(str);
+
+	while (std::getline(ss, line, sep))
+		elements.push_back(line);
+	return (elements);
 }
