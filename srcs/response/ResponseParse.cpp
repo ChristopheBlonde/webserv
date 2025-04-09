@@ -6,7 +6,7 @@
 /*   By: cblonde <cblonde@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/29 08:25:35 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/08 19:42:57 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/09 09:13:28 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -202,6 +202,7 @@ void	Response::getCgiHeader(bool &finded)
 	std::string	rawInput(_buffer.begin(), _buffer.end());
 	std::string	head;
 	size_t		index;
+	size_t		size;
 
 	for (size_t i = 0; i < rawInput.size(); ++i)
 	{
@@ -226,6 +227,8 @@ void	Response::getCgiHeader(bool &finded)
 	finded = true;
 	_buffer.clear();
 	_buffer.insert(_buffer.begin(), head.begin() + index + 2, head.end());
+	size = head.end() - (head.begin() + 2 + index);
+	_buffer.resize(size);
 	head.erase(head.begin() + index, head.end());
 	handleCgiHeader(head);
 }
