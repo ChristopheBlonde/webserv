@@ -6,7 +6,7 @@
 /*   By: cblonde <cblonde@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/29 08:25:35 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/09 12:21:35 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/04/09 14:27:51 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,10 +17,11 @@ void	Response::checkConnection(std::map<std::string,
 {
 	std::map<std::string, std::string>::const_iterator it;
 
-	if ((_status / 100 * 100 == 300) || _autoIndex || !_conf->getRedirection().empty())
+	if ((_status / 100 * 100 == 300) || _autoIndex
+		|| !_conf || !_conf->getRedirection().empty())
 	{
 		_headers["Connection"] = "close";
-		if (!_conf->getRedirection().empty())
+		if (_conf && !_conf->getRedirection().empty())
 		{
 			if (method == "GET")
 				_status = 301;

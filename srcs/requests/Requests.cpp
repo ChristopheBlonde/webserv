@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 10:46:49 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/09 13:32:40 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/09 14:25:37 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -159,6 +159,7 @@ void	Requests::parse(std::string str, Cluster *c)
 	std::string			word;
 	std::string			line;
 	size_t				index;
+
 	std::cout << YELLOW << str << RESET << std::endl;
 	getline(ss, line);
 	std::stringstream ssLine(line);
@@ -173,7 +174,7 @@ void	Requests::parse(std::string str, Cluster *c)
 	if (_type == UNKNOWN)
 		error = 400;
 	else if (_type == UNIMPLEMENTED && error != 400)
-		error = 501;
+		error = 405;//501;
 	while (getline(ss, line))
 	{
 		if (line[line.size() - 1] != '\r')
