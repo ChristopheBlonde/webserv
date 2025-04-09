@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:15:20 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/09 16:47:18 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/09 16:50:57 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,6 +88,11 @@ Response::Response(Requests const &req, Client  &client, Server &server)
 
 Response::~Response(void)
 {
+	if (_pid != -1)
+	{
+		waitpid(_pid, NULL, WNOHANG);
+		kill(_pid, 9);
+	}
 	return ;
 }
 

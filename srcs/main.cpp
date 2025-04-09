@@ -6,7 +6,7 @@
 /*   By: cblonde <cblonde@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/19 07:00:26 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/09 16:12:49 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/09 16:53:25 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,7 +47,7 @@ int main(int argc, char **argv)
 	}
 	catch (int i)
 	{
-		return i;
+		return 255;
 	}
 	return (0);
 }

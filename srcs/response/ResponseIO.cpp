@@ -6,7 +6,7 @@
 /*   By: glaguyon <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/07 22:58:57 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/04/09 10:36:47 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/04/09 17:02:43 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -117,14 +117,21 @@ bool	Response::handleFdCgi(int fd)
 				_cgiFd[1] = -1;
 			}
 			_cgiFd[0] = -1;
+			int	status;
+			
+			if (waitpid(_pid, &status, WNOHANG) <= 0)
+				kill(_pid, 9);
+			else if (WIFEXITED(_pid))
+			{
+				createError(500);
+				return false;
+			}
+			_pid = -1;
 			createResponseHeader();
 			return (false);
 		}
 		buffer[readBytes] = '\0';
-//		std::cout << RED << buffer << "\n";
 		_buffer.insert(_buffer.end(), buffer, buffer + readBytes);
-//		std::cout << CYAN << std::string(_buffer.begin(), _buffer.end()) << "\n";
-//		std::cout << RESET << "===========================\n";
 		if (!head)
 			getCgiHeader(head);
 	}
