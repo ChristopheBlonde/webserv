@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:15:20 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/09 10:26:27 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/04/09 12:29:03 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -171,6 +171,11 @@ void	Response::createError(int stat)
 	}
 	else
 	{
+		if (!_buffer.empty())
+		{
+			getStatFile("");
+			return ;
+		}
 		content = _server.getErrorPage(stat);
 		if (!content.empty())
 		{
@@ -226,7 +231,7 @@ void	Response::createResponseHeader(void)
 	for (itCookie = _cookies.begin(); itCookie != _cookies.end(); itCookie++)
 		_response += "Set-Cookie: " + *itCookie + "\r\n";
 	_response += "\r\n";
-	std::cout << CYAN << _response << RESET << std::endl;
+	std::cout << CYAN << _response << RESET;
 	_headerReady = true;
 	return ;
 }
