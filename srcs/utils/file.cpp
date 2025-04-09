@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:47:28 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/09 09:42:49 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/04/09 14:05:10 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,15 +56,6 @@ void	initMimeTypes(std::map<std::string, std::string> &mime_types)
     mime_types["sh"] = "application/x-sh";
     mime_types["py"] = "application/x-python-code";
     mime_types["bla"] = "application/42-cgi";
-}
-
-void initResponseHeaders(std::map<std::string, std::string> &headers)
-{
-	headers["Content-Type"] = "";
-	headers["Content-Length"] = "";
-	headers["Connection"] = "";
-	headers["Date"] = "";
-	headers["Last-Modified"] = "";
 }
 
 bool	testAccess(std::string path, t_access test)

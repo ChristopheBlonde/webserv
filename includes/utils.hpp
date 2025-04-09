@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/24 10:26:29 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/07 22:54:13 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/09 14:05:26 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,8 +48,6 @@ int							getFile(std::string path);
 int							openFileUpload(std::string path);
 void						initMimeTypes(std::map<std::string,
 		std::string> &mime_Types);
-void						initResponseHeaders(std::map<std::string,
-		std::string> &headers);
 std::string					getFileType(std::string path);
 std::string					to_string(long int num);
 bool						testAccess(std::string path, t_access test);
