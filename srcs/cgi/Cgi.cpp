@@ -6,11 +6,11 @@
 /*   By: cblonde <cblonde@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/06 07:14:01 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/08 18:54:39 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/09 16:23:23 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <Cgi.hpp>
+#include "Cgi.hpp"
 
 Cgi::Cgi(void)
 {
@@ -89,7 +89,6 @@ void	Cgi::initCgi(Requests const &req, Server &server)
 		toUpper(tmp);
 		_envMap[tmp] = head->second;
 	}
-	cgi = reqConf.getCgi().find(getFileType(req.getFileName()));
 	_envMap["QUERY_STRING"] = req.getQuery();
 	_envMap["REQUEST_METHOD"] = req.getType();
 	_envMap["CONTENT_TYPE"] = req.getContentType();
@@ -119,6 +118,17 @@ void	Cgi::initCgi(Requests const &req, Server &server)
 	_pid = -1;
 	_status = -1;
 	_scriptPath = req.getPath() + "/" + req.getFileName();
+	
+	std::string	fileName = req.getFileName();
+	cgi = reqConf.getCgi().begin();
+	while (cgi != reqConf.getCgi().end())
+	{
+		if (fileName.size() >= cgi->first.size()
+			&& fileName.compare(fileName.size() - cgi->first.size(),
+			cgi->first.size(), cgi->first) == 0)
+			break;
+		++cgi;
+	}
 	if (cgi != reqConf.getCgi().end())
 		_cgiPath = cgi->second;
 	else
@@ -129,15 +139,14 @@ void	Cgi::initCgi(Requests const &req, Server &server)
 	_childToParent[0] = -1;
 	_childToParent[1] = -1;
 	if (pipe(_parentToChild) == -1 || pipe(_childToParent) == -1)
-		std::cerr << RED << "Error: Cgi: " << _cgiPath << strerror(errno)
-			<< RESET << std::endl;
+		closePipes();
 }
 
 char	**Cgi::createEnvArr(void)
 {
 	size_t		i;
 	std::string	tmp;
-	_env = new char *[(_envMap.size() + 1 ) * sizeof(char *)];
+	_env = new char *[(_envMap.size() + 1 )];
 	std::map<std::string, std::string>::iterator it;
 
 	i = 0;
@@ -156,39 +165,50 @@ int	Cgi::execScript(void)
 {
 	try
 	{
+		if (_parentToChild[0] == -1)
+			throw std::runtime_error("bad pipe");
 		_env = createEnvArr();
 	}
-	catch (std::bad_alloc &e)
+	catch (std::exception &e)
 	{
+		closePipes();
 		std::cerr << RED << "Error: CGI: " << e.what() << std::endl << RESET;
 		return (500);
 	}
-	if (!testAccess(_scriptPath, EXIST) //|| !testAccess(_scriptPath, EXECUTABLE)
-			|| !testAccess(_cgiPath, EXIST) || !testAccess(_cgiPath, EXECUTABLE))
-		return (500);
+	if (!testAccess(_scriptPath, EXIST))
+	{
+		closePipes();
+		return (404);
+	}
+	if (!testAccess(_cgiPath, EXIST) || !testAccess(_cgiPath, EXECUTABLE))
+	{
+		closePipes();
+		return (403);
+	}
 	_pid = fork();
 	if (_pid == -1)
+	{
+		closePipes();
 		return (500);
+	}
 	else if (!_pid)
 	{
-		std::cerr << "I AM CHILD\n";
 		char const *argv[3] = {_cgiPath.empty()
 			? _scriptPath.data()
 				: _cgiPath.data(), _scriptPath.data(), NULL};
-		dup2(_parentToChild[0], 0);
-		dup2(_childToParent[1], 1);
-		close(_parentToChild[1]);
-		close(_childToParent[0]);
-		execve(argv[0], (char *const *)(argv), _env);
+		if (dup2(_parentToChild[0], 0) != -1 && dup2(_childToParent[1], 1) != -1)
+			execve(argv[0], (char *const *)(argv), _env);
+		closePipes();
+		close(0);
+		close(1);
 		std::cerr << RED << "Error: Execve: Cgi: " << strerror(errno)
 			<< RESET << std::endl;
-		exit(500);
+		throw(500);
 	}
-	else
-		std::cerr << "I AM PARENT\n";
-
 	close(_parentToChild[0]);
+	_parentToChild[0] = -1;
 	close(_childToParent[1]);
+	_childToParent[1] = -1;
 	return (200);
 }
 
@@ -200,4 +220,25 @@ int	&Cgi::getChildFd(void)
 int	&Cgi::getParentFd(void)
 {
 	return (_parentToChild[1]);
+}
+
+pid_t	Cgi::getPid()
+{
+	return _pid;
+}
+
+void	Cgi::closePipes()
+{
+	if (_parentToChild[0] != -1)
+		close(_parentToChild[0]);
+	if (_parentToChild[1] != -1)
+		close(_parentToChild[1]);
+	if (_childToParent[0] != -1)
+		close(_childToParent[0]);
+	if (_childToParent[1] != -1)
+		close(_childToParent[1]);
+	_parentToChild[0] = -1;
+	_parentToChild[1] = -1;
+	_childToParent[0] = -1;
+	_childToParent[1] = -1;
 }

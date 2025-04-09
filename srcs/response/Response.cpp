@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:15:20 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/09 14:25:24 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/09 16:47:18 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,7 @@ Response::Response(Requests const &req, Client  &client, Server &server)
 	this->_query = req.getQuery();
 	this->_status = req.getError();
 	std::cout << "status " << _status << "\n";
+	this->_pid = -1;
 	this->_conf = &req.getConf();
 	this->uploadPath = "";
 	this->_cgi = false;
@@ -112,17 +113,25 @@ void	Response::handleMethod(Requests const &req,
 		for (std::map<std::string, std::string>::iterator it = cgi.begin();
 				it != cgi.end(); it++)
 		{
-			if (!testAccess(it->second, EXIST)
-					|| !testAccess(it->second, EXECUTABLE))
+			if (_fileName.size() >= it->first.size()
+				&& _fileName.compare(_fileName.size() - it->first.size(),
+				it->first.size(), it->first) == 0)
 			{
-				createError(400);
-				return ;
+				if (!testAccess(it->second, EXIST)
+						|| !testAccess(it->second, EXECUTABLE))
+				{
+					createError(403);
+					return ;
+				}
+				break;
 			}
 		}
 		Cgi cgiObj(req, _server);
 		int status = cgiObj.execScript();
+		
 		if (status == 200)
 		{
+			_pid	= cgiObj.getPid();
 			_cgiFd[0] = cgiObj.getChildFd();
 			_cgiFd[1] = cgiObj.getParentFd();
 			addFdToCluster(cgiObj.getChildFd(), (POLLIN | POLLHUP));
@@ -130,7 +139,10 @@ void	Response::handleMethod(Requests const &req,
 			_headers.erase("Last-Modified");
 		}
 		else
+		{
+			_cgi = false;
 			createError(status);
+		}
 	}
 	else if (method == "DELETE")
 		deleteFile();
@@ -195,8 +207,6 @@ void	Response::createError(int stat)
 		_headers.erase("Last-Modified");
 	}
 	_buffer.insert(_buffer.begin(), content.begin(), content.end());
-//	if (_status == 405)
-//		checkMethod("FAKE");
 	createResponseHeader();
 	return ;
 }

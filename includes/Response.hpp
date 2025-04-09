@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:16:02 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/08 19:43:37 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/09 16:25:39 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,6 +66,7 @@ class Response
 		int									_sizeSend;
 		std::string							uploadPath;
 		std::vector<std::string>			_cookies;
+		pid_t								_pid;
 		
 
 		void	handleMethod(Requests const &req,

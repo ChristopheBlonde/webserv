@@ -6,7 +6,7 @@
 /*   By: cblonde <cblonde@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/19 07:00:26 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/07 18:09:22 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/09 16:12:49 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,6 +44,10 @@ int main(int argc, char **argv)
 	{
 		std::cerr << "error: " << e.what() << std::endl;
 		return 1;
+	}
+	catch (int i)
+	{
+		return i;
 	}
 	return (0);
 }

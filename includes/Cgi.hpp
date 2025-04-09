@@ -6,20 +6,20 @@
 /*   By: cblonde <cblonde@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/06 07:05:16 by cblonde           #+#    #+#             */
-/*   Updated: 2025/03/28 11:46:16 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/04/09 16:22:50 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef CGI_HPP
 # define CGI_HPP
 
-# include <webserv.hpp>
-# include <Requests.hpp>
-# include <Route.hpp>
-# include <utils.hpp>
 # include <cstdio>
 # include <sys/wait.h>
-# include <Server.hpp>
+# include "Server.hpp"
+# include "webserv.hpp"
+# include "Requests.hpp"
+# include "Route.hpp"
+# include "utils.hpp"
 
 class Cgi
 {
@@ -44,6 +44,8 @@ class Cgi
 		int	execScript(void);
 		int	&getChildFd(void);
 		int	&getParentFd(void);
+		pid_t	getPid();
+		void	closePipes();
 };
 
 #endif
