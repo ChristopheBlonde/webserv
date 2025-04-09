@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:15:20 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/09 16:50:57 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/09 17:33:02 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,6 +83,7 @@ Response::Response(Requests const &req, Client  &client, Server &server)
 	}
 	if (!checkContentLen())
 		return ;
+	parseCookie(headers);
 	handleMethod(req, headers);
 }
 
