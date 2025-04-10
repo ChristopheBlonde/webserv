@@ -6,7 +6,7 @@
 /*   By: glaguyon <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/30 20:21:52 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/04/10 06:49:53 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/04/10 14:37:04 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -124,17 +124,17 @@ int	Requests::getError() const
 	return error;
 }
 
-std::string	Requests::searchSession(std::string id)
+std::string	Requests::searchSession(std::string id) const
 {
 	return (cluster->getSession(id));
 }
 
-void	Requests::handleSession(std::string key, std::string value)
+void	Requests::handleSession(std::string key, std::string value) const
 {
 	return (cluster->editSession(key, value));
 }
 
-void	Requests::addSession(std::pair<std::string, std::string> pair)
+void	Requests::addSession(std::pair<std::string, std::string> pair) const
 {
 	return (cluster->editSession(pair));
 }

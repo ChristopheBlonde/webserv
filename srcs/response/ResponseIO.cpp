@@ -6,7 +6,7 @@
 /*   By: glaguyon <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/07 22:58:57 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/04/09 17:45:29 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/10 16:05:20 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,14 +102,12 @@ bool	Response::handleFdCgi(int fd)
 	int		sentBytes;
 	int		bodySize = _body.size();
 	char	buffer[FILE_BUFFER_SIZE];
-	static bool	head = false;
 
 	if (fd == _cgiFd[0])
 	{
 		readBytes = read(fd, buffer, FILE_BUFFER_SIZE - 1);
 		if (readBytes <= 0)
 		{
-			head = false;
 			close(fd);
 			if (_cgiFd[1] > 0)
 			{
@@ -132,8 +130,8 @@ bool	Response::handleFdCgi(int fd)
 		}
 		buffer[readBytes] = '\0';
 		_buffer.insert(_buffer.end(), buffer, buffer + readBytes);
-		if (!head)
-			getCgiHeader(head);
+		if (!_head)
+			getCgiHeader(_head);
 	}
 	else
 	{
@@ -143,8 +141,6 @@ bool	Response::handleFdCgi(int fd)
 		{
 			if (sig == SIGPIPE)
 				sig = 0;
-			//close(_cgiFd[0]);
-			//_cgiFd[0] = -1;
 			_cgiFd[1] = -1;
 			close(fd);
 			return (false);

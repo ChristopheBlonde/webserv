@@ -6,7 +6,7 @@
 /*   By: cblonde <cblonde@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/29 08:25:35 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/09 15:04:41 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/04/10 16:04:21 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -193,10 +193,7 @@ void	Response::handleCgiHeader(std::string &str)
 		else if (tmp.first == "Content-Type")
 			_headers[tmp.first] = tmp.second;
 	}
-	if (_status / 100 * 100 != 200)
-		createError(_status);
-	else
-		getStatFile("");
+	getStatFile("");
 }
 
 void	Response::getCgiHeader(bool &finded)

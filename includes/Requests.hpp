@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 10:24:52 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/10 06:46:15 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/04/10 14:36:22 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,9 +79,11 @@ class Requests
 		std::string			getClientIpStr(void) const;
 		std::string			getClientPort(void) const;
 		int					getError() const;
-		std::string			searchSession(std::string id);
-		void				handleSession(std::string key, std::string value);
-		void				addSession(std::pair<std::string, std::string> pair);
+		std::string			searchSession(std::string id) const;
+		void				handleSession(std::string key,
+				std::string value) const;
+		void				addSession(std::pair<std::string,
+				std::string> pair) const;
 		
 };
 

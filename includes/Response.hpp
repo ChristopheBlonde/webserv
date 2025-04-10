@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:16:02 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/10 06:57:13 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/04/10 16:01:28 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,6 +68,7 @@ class Response
 		std::string							uploadPath;
 		std::vector<std::string>			_cookies;
 		pid_t								_pid;
+		bool								_head;
 		
 
 		void	handleMethod(Requests const &req,
@@ -91,8 +92,9 @@ class Response
 		bool	checkExtCgi(void);
 		void	getCgiHeader(bool &finded);
 		void	handleCgiHeader(std::string &str);
-		void	parseCookie(Requests req, std::map<std::string, std::string> const &cookies);
-		void	createSession(void);
+		void	parseCookie(Requests const &req);
+		void	createSession(Requests const &req);
+		void	updateSession(Requests const &req, std::string id);
 	public:
 		Response(Requests const &req,Client &client, Server &server);
 		~Response(void);
