@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:15:20 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/10 16:18:34 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/04/10 18:00:11 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -98,6 +98,8 @@ Response::~Response(void)
 		close(_cgiFd[0]);
 	if (_cgiFd[1] != -1)
 		close(_cgiFd[1]);
+	if (_fileFd != -1)
+		close(_fileFd);
 	return ;
 }
 
@@ -205,7 +207,7 @@ void	Response::createError(int stat)
 			fd = getFile(content);
 			if (fd != -1)
 			{
-				addFdToCluster(fd, POLLIN);
+				addFdToCluster(fd, POLLIN | POLLHUP);
 				getStatFile(content);
 				_fileFd = fd;
 				return;
