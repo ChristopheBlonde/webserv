@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/09 12:32:56 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/10 15:24:32 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/04/10 16:19:14 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,13 +26,11 @@ static std::string	getTimeNow(void)
 
 void	Response::updateSession(Requests const &req, std::string id)
 {
-	std::cout << CYAN << "Update session id: " << id << RESET << std::endl;
 	size_t	start;
 	size_t	end;
 	std::string	cookie;
 
 	cookie = req.searchSession(id);
-	std::cout << "Cookie:" << cookie << std::endl;
 	if (cookie.empty())
 		return (createSession(req));
 	start = cookie.find("updated:");
@@ -42,21 +40,21 @@ void	Response::updateSession(Requests const &req, std::string id)
 	end = cookie.find("}", start);
 	if (end == std::string::npos)
 		return ;
-	std::cout << GREEN << "before: " << cookie << RESET << std::endl;
+	//std::cout << GREEN << "before: " << cookie << RESET << std::endl;
 	cookie.replace(cookie.begin() + start, cookie.begin() + end, getTimeNow());
-	std::cout << GREEN << "after: " << cookie << RESET << std::endl;
+	//std::cout << GREEN << "after: " << cookie << RESET << std::endl;
 }
 
 void	Response::createSession(Requests const &req)
 {
-	char		buffer[1024];
+	char		buffer[32];
 	std::string		bufferName = "abcdefijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 	std::pair<std::string, std::string> sessionId;
 
 	sessionId.second = "{Date:{created:" + getTimeNow()
 		+ ", updated:"+ getTimeNow() + "}}";
 	for (int i = 0; i < 31; i++)
-		buffer[i] = bufferName.c_str()[rand() % bufferName.size() - 1];
+		buffer[i] = bufferName.c_str()[rand() % (bufferName.size() - 1)];
 	buffer[31] = '\0';
 	sessionId.first = std::string(buffer);
 	_cookies.push_back("Sessionid=" + sessionId.first);

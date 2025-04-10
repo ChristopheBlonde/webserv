@@ -6,7 +6,7 @@
 /*   By: cblonde <cblonde@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/29 08:25:35 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/10 16:04:21 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/04/10 16:21:11 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -219,7 +219,6 @@ void	Response::getCgiHeader(bool &finded)
 			head += rawInput[i];
 		}
 	}
-	std::cout << GREEN << rawInput << "\n";
 	index = head.find("\n\n");
 	if (index == std::string::npos)
 		return ;

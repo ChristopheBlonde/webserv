@@ -6,7 +6,7 @@
 /*   By: glaguyon <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/07 22:58:57 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/04/10 16:05:20 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/04/10 16:20:47 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,12 +75,7 @@ void	Response::sendBody(int fd)
 			_buffer.size() < FILE_BUFFER_SIZE
 			? _buffer.size() : FILE_BUFFER_SIZE, 0);
 	if (sentBytes > 0)
-	{
-		std::cout << RESET << "-----------\n";
-		std::cout << YELLOW << std::string(_buffer.begin(), _buffer.begin() + sentBytes) << "\n";
-		std::cout << RESET << "-----------\n";
 		_buffer.erase(_buffer.begin(), _buffer.begin() + sentBytes);
-	}
 }
 
 void	Response::addFdToCluster(int fd, short event)

@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:15:20 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/10 09:06:19 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/04/10 16:18:34 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,12 +33,12 @@ Response::Response(Requests const &req, Client  &client, Server &server)
 	this->_fileName = req.getFileName();
 	this->_query = req.getQuery();
 	this->_status = req.getError();
-	std::cout << "status " << _status << "\n";
 	this->_pid = -1;
 	this->_conf = &req.getConf();
 	this->uploadPath = "";
 	this->_cgi = false;
 	this->_autoIndex = false;
+	this->_head = false;
 	if (_conf != NULL)
 	{
 		this->uploadPath = _conf->getUploadDir();
@@ -252,7 +252,6 @@ void	Response::createResponseHeader(void)
 	for (itCookie = _cookies.begin(); itCookie != _cookies.end(); itCookie++)
 		_response += "Set-Cookie: " + *itCookie + "\r\n";
 	_response += "\r\n";
-	std::cout << CYAN << _response << RESET;
 	_headerReady = true;
 	return ;
 }
