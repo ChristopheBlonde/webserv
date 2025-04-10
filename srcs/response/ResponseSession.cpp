@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/09 12:32:56 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/09 17:29:30 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/04/10 06:58:06 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,7 @@ void	Response::createSession(void)
 	sessionId.first = std::string(buffer);
 }
 
-void	Response::parseCookie(std::map<std::string, std::string> const &cookies)
+void	Response::parseCookie(Requests req, std::map<std::string, std::string> const &cookies)
 {
 	std::map<std::string, std::string>::const_iterator	itCook;
 	std::pair<std::string, std::string>					tmp;

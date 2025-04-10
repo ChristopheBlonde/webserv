@@ -6,12 +6,13 @@
 /*   By: glaguyon <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/30 20:21:52 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/04/04 19:11:52 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/10 06:49:53 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Requests.hpp"
 #include "Client.hpp"
+#include "Cluster.hpp"
 
 int	Requests::getFd() const
 {
@@ -121,4 +122,19 @@ std::string Requests::getContentType(void) const
 int	Requests::getError() const
 {
 	return error;
+}
+
+std::string	Requests::searchSession(std::string id)
+{
+	return (cluster->getSession(id));
+}
+
+void	Requests::handleSession(std::string key, std::string value)
+{
+	return (cluster->editSession(key, value));
+}
+
+void	Requests::addSession(std::pair<std::string, std::string> pair)
+{
+	return (cluster->editSession(pair));
 }

@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 10:46:49 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/09 14:43:06 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/10 06:48:54 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@ Requests::Requests(std::string &str, Client &client, Cluster *c, int sockFd)
 	initMimeTypes(_mimeTypes);
 	fd = sockFd;
 	_conf = NULL;
+	this->cluster = c;
 	this->parse(str, c);
 	return ;
 }

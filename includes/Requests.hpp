@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 10:24:52 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/04 19:11:57 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/10 06:46:15 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,6 +48,7 @@ class Requests
 		std::string							_fileName;
 		Route								*_conf;
 		Client								&_client;
+		Cluster								*cluster;
 		/* handle in out */
 		std::vector<unsigned char> 			_buffer;
 
@@ -77,7 +78,11 @@ class Requests
 		std::string			getClientHostName(void) const;
 		std::string			getClientIpStr(void) const;
 		std::string			getClientPort(void) const;
-		int				getError() const;
+		int					getError() const;
+		std::string			searchSession(std::string id);
+		void				handleSession(std::string key, std::string value);
+		void				addSession(std::pair<std::string, std::string> pair);
+		
 };
 
 #endif
