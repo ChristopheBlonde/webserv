@@ -12,7 +12,7 @@ CGI_DIR = cgi/
 CLIENT_DIR = client/
 
 COMP = c++
-CPPFLAGS = -Wall -Wextra -std=c++98 -g #-Werror
+CPPFLAGS = -Wall -Wextra -std=c++98 -Werror
 
 SRC = main.cpp \
 	$(SERV_DIR)PollFd.cpp \
