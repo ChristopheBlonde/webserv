@@ -6,7 +6,7 @@
 /*   By: cblonde <cblonde@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/06 07:14:01 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/11 14:18:46 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/11 17:45:09 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -117,6 +117,7 @@ void	Cgi::initCgi(Requests const &req, Server &server)
 	_envMap["SERVER_NAME"] = tmp;
 	_pid = -1;
 	_status = -1;
+	_scriptDir = req.getPath();
 	_scriptPath = req.getPath() + "/" + req.getFileName();
 	
 	std::string	fileName = req.getFileName();
@@ -198,8 +199,11 @@ int	Cgi::execScript(void)
 				: _cgiPath.data(), _scriptPath.data(), NULL};
 		if (dup2(_parentToChild[0], 0) != -1 && dup2(_childToParent[1], 1) != -1)
 		{
-			closePipes();
-			execve(argv[0], (char *const *)(argv), _env);
+			if (!chdir(_scriptDir.data()))
+			{
+				closePipes();
+				execve(argv[0], (char *const *)(argv), _env);
+			}
 		}
 		closePipes();
 		close(0);

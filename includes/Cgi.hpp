@@ -6,7 +6,7 @@
 /*   By: cblonde <cblonde@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/06 07:05:16 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/09 16:22:50 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/11 17:45:37 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,7 @@ class Cgi
 		std::string							_fileType;
 		int									_status;
 		std::string							_scriptPath;
+		std::string							_scriptDir;
 		std::string							_cgiPath;
 		int									_parentToChild[2];
 		int									_childToParent[2];
