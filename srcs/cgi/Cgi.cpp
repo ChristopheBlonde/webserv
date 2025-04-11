@@ -6,7 +6,7 @@
 /*   By: cblonde <cblonde@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/06 07:14:01 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/09 17:32:17 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/04/11 14:18:46 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -197,7 +197,10 @@ int	Cgi::execScript(void)
 			? _scriptPath.data()
 				: _cgiPath.data(), _scriptPath.data(), NULL};
 		if (dup2(_parentToChild[0], 0) != -1 && dup2(_childToParent[1], 1) != -1)
+		{
+			closePipes();
 			execve(argv[0], (char *const *)(argv), _env);
+		}
 		closePipes();
 		close(0);
 		close(1);
