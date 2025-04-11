@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 10:46:49 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/10 16:18:11 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/04/11 18:00:46 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -119,16 +119,16 @@ static int	initHeader(std::string str,
 	return 0;
 }
 
-void	Requests::handleFile(std::string mount, std::string alias)
+void	Requests::handleFile(std::string aliased, std::string mount)
 {
 	size_t		lastSlash = 0;
 	size_t		slash;
 
-	_path = _path.substr(mount.size());
+	_path = _path.substr(aliased.size());
 	slash = _path.find("/", 1);
 	while (slash != std::string::npos)
 	{
-		if (testAccess(alias + _path.substr(0, slash), DIRACCESS))
+		if (testAccess(mount + _path.substr(0, slash), DIRACCESS))
 		{
 			lastSlash = slash;
 			slash = _path.find("/", lastSlash + 1);
@@ -136,22 +136,22 @@ void	Requests::handleFile(std::string mount, std::string alias)
 		}
 		_fileName = _path.substr(lastSlash + 1, slash - lastSlash - 1);
 		_pathInfo = _path.substr(slash);
-		_path = alias + _path.substr(0, lastSlash + 1);
+		_path = mount + _path.substr(0, lastSlash + 1);
 		return;
 	}
-	if ((lastSlash < _path.size() - 1) && !(_path == "" && alias[alias.size() - 1] == '/')
-		&& testAccess(alias + _path, DIRACCESS))
+	if ((lastSlash < _path.size() - 1) && !(_path == "" && mount[mount.size() - 1] == '/')
+		&& testAccess(mount + _path, DIRACCESS))
 	{
 		if (error == 200)
 			error = (_type == GET) ? 301 : 308;
-		_path = mount + _path + "/";
+		_path = aliased + _path + "/";
 		if (!_query.empty())
 			_path += "?" + _query;
 		return;
 	}
 	if (_path.size() && lastSlash < _path.size() - 1)
 		_fileName = _path.substr(lastSlash + 1);
-	_path = alias + _path.substr(0, lastSlash + 1);
+	_path = mount + _path.substr(0, lastSlash + 1);
 }
 
 void	Requests::parse(std::string str, Cluster *c)

@@ -6,29 +6,20 @@
 /*   By: cblonde <cblonde@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/29 08:25:35 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/10 16:21:11 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/04/11 18:03:51 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Response.hpp"
 
 void	Response::checkConnection(std::map<std::string,
-		std::string> const &headers, std::string method)
+		std::string> const &headers)
 {
 	std::map<std::string, std::string>::const_iterator it;
 
 	if ((_status / 100 * 100 == 300) || _autoIndex
 		|| !_conf || !_conf->getRedirection().empty())
-	{
 		_headers["Connection"] = "close";
-		if (_conf && !_conf->getRedirection().empty())
-		{
-			if (method == "GET")
-				_status = 301;
-			else
-				_status = 308;
-		}
-	}
 	else
 	{
 		it = headers.find("Connection");

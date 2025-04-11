@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:16:02 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/10 16:01:28 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/04/11 18:04:23 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,7 +74,7 @@ class Response
 		void	handleMethod(Requests const &req,
 				std::map<std::string, std::string> const &headers);
 		void	checkConnection(std::map<std::string,
-				std::string> const &headers, std::string method);
+				std::string> const &headers);
 		bool	checkMethod(std::string method);
 		bool	checkContentLen();
 		void	getStatFile(std::string path);

@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:15:20 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/10 18:00:11 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/04/11 18:07:35 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,7 +48,7 @@ Response::Response(Requests const &req, Client  &client, Server &server)
 		this->_autoIndex = _conf->getAutoindex();
 	}
 	initMimeTypes(_mimeTypes);
-	checkConnection(headers, req.getType());
+	checkConnection(headers);
 	if (_status != 200)//400, 404, 301, 308, 501
 	{
 		if (_status / 100 * 100 == 300)
@@ -62,6 +62,13 @@ Response::Response(Requests const &req, Client  &client, Server &server)
 		}
 		createError(_status);
 		return;
+	}
+	if (_conf && !_conf->getRedirection().empty())
+	{
+		if (req.getType() == "GET")
+			_status = 301;
+		else
+			_status = 308;
 	}
 	if (_status / 100 * 100 == 300)
 	{
