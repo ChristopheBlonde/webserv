@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/09 12:32:56 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/15 13:57:04 by cblonde          ###   ########.fr       */
+/*   Updated: 2025/04/15 14:22:58 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,20 +51,12 @@ static std::string	getRandomId(void)
 	return (std::string(buffer));
 }
 
-//static std::map<std::string, std::string>	tokenSession(std::string str)
-//{
-//	std::map<std::string, std::string> token;
-//
-//}
-
 void	Session::updateSession(std::string id)
 {
 	std::string	cookie;
 	std::vector<std::pair<std::string, std::string> >::iterator it;
 
-	std::cerr << CYAN << "ID: " << id << "$end" << RESET << std::endl;
 	cookie = _req.searchSession(id);
-	std::cerr << CYAN << "Session: " << cookie << "$end" << RESET << std::endl;
 	if (cookie.empty())
 		return (createSession());
 	setSession(cookie);
@@ -72,9 +64,9 @@ void	Session::updateSession(std::string id)
 	{
 		if (it->first == "Updated")
 		{
-			std::cout << YELLOW << "Date before: " << it->second << RESET << std::endl;
+			//std::cout << YELLOW << "Date before: " << it->second << RESET << std::endl;
 			it->second = getTimeNow();
-			std::cout << GREEN << "Date after: " << it->second << RESET << std::endl;
+			//std::cout << GREEN << "Date after: " << it->second << RESET << std::endl;
 		}
 	}
 }
@@ -121,10 +113,7 @@ void	Session::parseCookie(void)
 		tmp.second = itArr->substr(index + 1);
 		trim(tmp.second);
 		if (tmp.first == "Sessionid")
-		{
-			std::cout << RED << "test session: " << tmp.second << RESET << std::endl;
 			return (updateSession(tmp.second));
-		}
 	}
 	return (createSession());
 }
