@@ -96,7 +96,7 @@ void	Client::handleRequest()
 			return;
 		Requests req(currRequestRaw, *this, c, fd);
 		Response *res = new Response(req, *this,
-				c->getServer(fd, req.getHost()));
+				c->getServer(fd, req.getHost().substr(0, req.getHost().find(":"))));
 		responses.push(res);
 		resetRequest();
 	}
