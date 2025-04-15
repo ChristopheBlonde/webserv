@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:16:02 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/11 18:04:23 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/15 12:31:28 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,7 @@
 # include <PollFd.hpp>
 # include <cstdio>
 # include <signal.h>
+# include "Session.hpp"
 
 struct	FileData
 {
@@ -92,9 +93,6 @@ class Response
 		bool	checkExtCgi(void);
 		void	getCgiHeader(bool &finded);
 		void	handleCgiHeader(std::string &str);
-		void	parseCookie(Requests const &req);
-		void	createSession(Requests const &req);
-		void	updateSession(Requests const &req, std::string id);
 	public:
 		Response(Requests const &req,Client &client, Server &server);
 		~Response(void);
@@ -102,6 +100,7 @@ class Response
 		void			createError(int stat);
 		void			createResponseHeader(void);
 		bool			handleInOut(struct pollfd &fd);
+		void			setCookie(std::string const &cookie);
 };
 
 std::string	getResponseTypeStr(int stat);

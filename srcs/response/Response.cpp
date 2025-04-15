@@ -6,12 +6,13 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 11:15:20 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/11 18:07:35 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/15 12:42:26 by cblonde          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Response.hpp"
 #include "Client.hpp"
+#include "Server.hpp"
 
 Response::Response(Requests const &req, Client  &client, Server &server)
 	: _client(client),
@@ -90,7 +91,7 @@ Response::Response(Requests const &req, Client  &client, Server &server)
 	}
 	if (!checkContentLen())
 		return ;
-	parseCookie(req);
+	Session(req, *this);
 	handleMethod(req, headers);
 }
 
@@ -262,5 +263,11 @@ void	Response::createResponseHeader(void)
 		_response += "Set-Cookie: " + *itCookie + "\r\n";
 	_response += "\r\n";
 	_headerReady = true;
+	return ;
+}
+
+void	Response::setCookie(std::string const &cookie)
+{
+	_cookies.push_back(cookie);
 	return ;
 }

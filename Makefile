@@ -36,7 +36,7 @@ SRC = main.cpp \
 	$(UTILS_DIR)file.cpp \
 	$(AUTO_DIR)AutoIndex.cpp\
 	$(CGI_DIR)Cgi.cpp\
-	$(RES_DIR)ResponseSession.cpp
+	$(RES_DIR)Session.cpp
 
 OBJ = $(SRC:%.cpp=$(OBJ_DIR)%.o)
 
