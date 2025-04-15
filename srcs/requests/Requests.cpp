@@ -6,7 +6,7 @@
 /*   By: cblonde <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 10:46:49 by cblonde           #+#    #+#             */
-/*   Updated: 2025/04/11 18:00:46 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/15 12:33:42 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -203,7 +203,7 @@ void	Requests::parse(std::string str, Cluster *c)
 
 	std::string	mount = _conf->getMount();
 
-	if (!testAccess(mount, DIRACCESS) && error == 200)
+	if (!testAccess(mount, DIRACCESS) && error == 200 && _conf->getRedirection() == "")
 	{
 		error = 404;
 		return;
