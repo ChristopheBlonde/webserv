@@ -6,7 +6,7 @@
 /*   By: glaguyon           <skibidi@ohio.sus>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 1833/02/30 06:67:85 by glaguyon          #+#    #+#             */
-/*   Updated: 2025/03/30 20:04:52 by glaguyon         ###   ########.fr       */
+/*   Updated: 2025/04/15 15:06:28 by glaguyon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -179,6 +179,8 @@ bool	Receiver::handleRequestBodyLength(int fd)
 {
 	ssize_t	readByte;
 
+	if (readSize == 0)
+		return true;
 	if (readSize > BUFFER_SIZE - 1)
 		readByte = recv(fd, buffer, BUFFER_SIZE - 1, 0);
 	else
@@ -198,7 +200,8 @@ bool	Receiver::receiveRequest(int fd)
 	if (mode == HEADERS)
 	{
 		handleRequestHeaders(fd);
-		if (!(mode == BODY && transferType == UNDEFINED))
+		if (!(mode == BODY && transferType == UNDEFINED)
+			&& !(mode == BODY && transferType == LENGTH && readSize == 0))
 			return 0;
 	}
 	if ((mode == BODY && transferType == UNDEFINED)
